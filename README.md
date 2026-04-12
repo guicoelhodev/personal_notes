@@ -8,8 +8,9 @@ O objetivo e economizar **tokens de leitura e contexto** ao usar assistentes de 
 
 ```
 threlte/
-    threlte-core-guide.md   # @threlte/core - framework 3D para Svelte
-    rapier-guide.md         # @threlte/rapier - fisica 3D (Rapier + Threlte)
+    threlte-core-guide.md      # @threlte/core - framework 3D para Svelte
+    threlte-extras-guide.md    # @threlte/extras - componentes, hooks e plugins
+    rapier-guide.md            # @threlte/rapier - fisica 3D (Rapier + Threlte)
 ```
 
 Cada pasta representa uma ferramenta/framework, e cada arquivo e um resumo autonomo de um pacote ou modulo.
