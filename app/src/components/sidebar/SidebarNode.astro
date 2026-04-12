@@ -21,15 +21,31 @@ function formatLabel(label: string): string {
 }
 
 import SidebarNode from "./SidebarNode.astro";
+
+const isOpen = depth === 0 || node.children.some(
+	(child) => child.slug === currentSlug || hasActiveChild(child, currentSlug)
+);
+
+function hasActiveChild(n: TreeNode, slug?: string): boolean {
+	if (n.slug === slug) return true;
+	return n.children.some((c) => hasActiveChild(c, slug));
+}
 ---
 
 <li>
 	{node.children.length > 0 ? (
 		<div>
-			<span class="block text-sm font-semibold text-[var(--color-heading)] py-1">
-				{formatLabel(node.label)}
-			</span>
-			<ul class:list={["space-y-1", depth > 0 && "ml-3", "ml-3", "mt-1"]}>
+			<button
+				class="flex items-center justify-between w-full text-sm font-semibold text-[var(--color-heading)] py-1 px-2 rounded hover:bg-[var(--color-surface)] transition-colors cursor-pointer"
+				aria-expanded={isOpen ? "true" : "false"}
+				onclick="const ul = this.nextElementSibling; const arrow = this.querySelector('.arrow'); const expanded = ul.classList.toggle('hidden'); arrow.style.transform = expanded ? 'rotate(-90deg)' : ''; this.setAttribute('aria-expanded', !expanded);"
+			>
+				<span>{formatLabel(node.label)}</span>
+				<svg class="arrow w-3 h-3 transition-transform shrink-0" style={!isOpen ? 'transform: rotate(-90deg)' : ''} viewBox="0 0 20 20" fill="currentColor">
+					<path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+				</svg>
+			</button>
+			<ul class:list={["space-y-1 ml-3 mt-1", !isOpen && "hidden"]}>
 				{node.children.map((child) => (
 					<SidebarNode node={child} currentSlug={currentSlug} depth={depth + 1} />
 				))}
@@ -39,10 +55,9 @@ import SidebarNode from "./SidebarNode.astro";
 		<a
 			href={`/${node.slug}`}
 			class:list={[
-				"block text-sm py-1 px-2 rounded transition-colors",
-				currentSlug === node.slug
-					? "bg-[var(--color-heading)]/20 text-[var(--color-heading)] font-medium"
-					: "text-[var(--color-text)] hover:bg-[var(--color-surface)]",
+				"block text-sm py-1 px-2 rounded transition-colors text-[var(--color-text)]",
+				currentSlug === node.slug && "bg-[var(--color-heading)]/20 font-medium",
+				currentSlug !== node.slug && "hover:bg-[var(--color-surface)]",
 			]}
 		>
 			{formatLabel(node.label)}

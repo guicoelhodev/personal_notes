@@ -58,10 +58,9 @@ const tree = buildTree(ids);
 	<a
 		href="/"
 		class:list={[
-			"block text-sm py-1 px-2 rounded mb-2 transition-colors font-medium",
-			currentSlug === HOME_ID
-				? "bg-[var(--color-heading)]/20 text-[var(--color-heading)]"
-				: "text-[var(--color-text)] hover:bg-[var(--color-surface)]",
+			"block text-sm py-1 px-2 rounded mb-2 transition-colors font-medium text-[var(--color-text)]",
+			currentSlug === HOME_ID && "bg-[var(--color-heading)]/20",
+			currentSlug !== HOME_ID && "hover:bg-[var(--color-surface)]",
 		]}
 	>
 		Home
