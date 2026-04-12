@@ -9,8 +9,16 @@ O objetivo e economizar **tokens de leitura e contexto** ao usar assistentes de 
 ```
 threlte/
     threlte-core-guide.md      # @threlte/core - framework 3D para Svelte
-    threlte-extras-guide.md    # @threlte/extras - componentes, hooks e plugins
     rapier-guide.md            # @threlte/rapier - fisica 3D (Rapier + Threlte)
+    extras/
+        README.md              # Indice do pacote @threlte/extras
+        interaction.md         # Interacao: interactivity, OrbitControls, CameraControls, etc.
+        content.md             # Conteudo: GLTF, useTexture, HTML, Text, SVG, etc.
+        audio.md               # Audio: AudioListener, Audio, PositionalAudio, etc.
+        loading.md             # Loading: Suspense, useSuspense, useProgress, etc.
+        performance.md         # Performance: InstancedMesh, Detailed, PerfMonitor, etc.
+        staging.md             # Staging: Environment, Shadows, Grid, Sky, Float, etc.
+        visual-effects.md      # Visual Effects: Edges, Wireframe, Outlines, etc.
 ```
 
 Cada pasta representa uma ferramenta/framework, e cada arquivo e um resumo autonomo de um pacote ou modulo.
