@@ -1,12 +1,12 @@
 # @threlte/extras - Audio
 
-> Componentes e hooks de audio do pacote [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/).
+> Audio components and hooks from the [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/) package.
 
 ---
 
 ## `<AudioListener>`
 
-Componente de listener de audio. **Deve ser montado antes** de `<Audio>` e `<PositionalAudio>`.
+Audio listener component. **Must be mounted before** `<Audio>` and `<PositionalAudio>`.
 
 ```svelte
 <T.PerspectiveCamera makeDefault>
@@ -18,7 +18,7 @@ Componente de listener de audio. **Deve ser montado antes** de `<Audio>` e `<Pos
 
 ## `<Audio>`
 
-Audio global (nao-posicional). Usa Web Audio API.
+Global (non-positional) audio. Uses Web Audio API.
 
 ```svelte
 <Audio src="/audio/track.mp3" autoplay loop volume={0.5} />
@@ -30,7 +30,7 @@ Props: `src`, `autoplay`, `loop`, `volume`, `playbackRate`, `detune`, `id`.
 
 ## `<PositionalAudio>`
 
-Audio posicional (3D). Afetado pela posicao do listener e do objeto.
+Positional (3D) audio. Affected by the position of the listener and the object.
 
 ```svelte
 <T.Mesh>
@@ -43,10 +43,10 @@ Audio posicional (3D). Afetado pela posicao do listener e do objeto.
 
 ## `useThrelteAudio()`
 
-Retorna o contexto de audio Threlte: `{ audioListeners, getAudioListener, addAudioListener, removeAudioListener }`.
+Returns the Threlte audio context: `{ audioListeners, getAudioListener, addAudioListener, removeAudioListener }`.
 
 ---
 
 ## `useAudioListener()`
 
-Retorna `THREE.AudioListener` existente ou permite operar nele via callback.
+Returns an existing `THREE.AudioListener` or allows operating on it via callback.

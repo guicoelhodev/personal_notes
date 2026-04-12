@@ -1,17 +1,17 @@
-# @threlte/core - Guia de Referencia Rapido
+# @threlte/core - Quick Reference Guide
 
-> Resumo completo do pacote core do framework [Threlte](https://threlte.xyz/) para Svelte/Three.js.  
-> Fonte oficial: https://threlte.xyz/docs/reference/core/getting-started/
-
----
-
-## O que e?
-
-`@threlte/core` e o pacote principal do framework Threlte. Ele fornece uma camada declarativa (componentes Svelte) sobre o [Three.js](https://threejs.org/), permitindo construir cenas 3D usando a sintaxe de componentes do Svelte em vez da API imperativa do Three.js. Os outros pacotes do ecossistema Threlte (rapier, extras, gltf, etc.) dependem deste.
+> Complete summary of the [Threlte](https://threlte.xyz/) framework core package for Svelte/Three.js.  
+> Official source: https://threlte.xyz/docs/reference/core/getting-started/
 
 ---
 
-## Instalacao
+## What is it?
+
+`@threlte/core` is the main package of the Threlte framework. It provides a declarative layer (Svelte components) over [Three.js](https://threejs.org/), allowing you to build 3D scenes using Svelte's component syntax instead of Three.js's imperative API. The other packages in the Threlte ecosystem (rapier, extras, gltf, etc.) depend on this one.
+
+---
+
+## Installation
 
 ```bash
 npm install @threlte/core three @types/three
@@ -19,16 +19,16 @@ npm install @threlte/core three @types/three
 
 ---
 
-## Arquitetura Basica
+## Basic Architecture
 
 ```
-<Canvas>          (raiz - cria WebGLRenderer, fornece contexto)
-  └─ <T.Mesh>     (qualquer classe Three.js como componente)
+<Canvas>          (root - creates WebGLRenderer, provides context)
+  └─ <T.Mesh>     (any Three.js class as a component)
        ├─ <T.BoxGeometry />
        └─ <T.MeshStandardMaterial />
 ```
 
-**Exemplo minimo:**
+**Minimal example:**
 
 ```svelte
 <script lang="ts">
@@ -61,15 +61,15 @@ npm install @threlte/core three @types/three
 
 ---
 
-## Componentes
+## Components
 
 ### `<Canvas>`
 
-Componente raiz de toda aplicacao Threlte. Cria o `THREE.WebGLRenderer` e fornece contexto para todos os filhos. Todos os outros componentes e hooks devem estar dentro de `<Canvas>`.
+Root component of every Threlte application. Creates the `THREE.WebGLRenderer` and provides context for all children. All other components and hooks must be inside `<Canvas>`.
 
-#### Tamanho
+#### Size
 
-Por padrao, o canvas ocupa 100% da largura e altura do elemento pai. Defina o tamanho pelo layout do pai:
+By default, the canvas takes 100% of the parent element's width and height. Set the size through the parent's layout:
 
 ```svelte
 <div style="width: 600px; height: 400px;">
@@ -81,34 +81,34 @@ Por padrao, o canvas ocupa 100% da largura e altura do elemento pai. Defina o ta
 
 #### Props
 
-| Prop | Tipo | Default | Descricao |
+| Prop | Type | Default | Description |
 |---|---|---|---|
-| `autoRender` | `boolean` | `true` | Renderiza automaticamente a cada frame. `false` para pipelines customizados |
-| `colorManagementEnabled` | `boolean` | `true` | Gerenciamento de cor do Three.js |
-| `colorSpace` | `THREE.ColorSpace` | `srgb` | Espaco de cor |
-| `createRenderer` | `function` | - | Funcao customizada para criar o renderer |
+| `autoRender` | `boolean` | `true` | Automatically renders every frame. `false` for custom pipelines |
+| `colorManagementEnabled` | `boolean` | `true` | Three.js color management |
+| `colorSpace` | `THREE.ColorSpace` | `srgb` | Color space |
+| `createRenderer` | `function` | - | Custom function to create the renderer |
 | `dpr` | `number` | `window.devicePixelRatio` | Device pixel ratio |
-| `renderMode` | `'always' \| 'on-demand' \| 'manual'` | `'on-demand'` | Modo de renderizacao |
-| `shadows` | `boolean \| ShadowMapType` | `PCFSoftShadowMap` | Habilita sombras e tipo |
+| `renderMode` | `'always' \| 'on-demand' \| 'manual'` | `'on-demand'` | Render mode |
+| `shadows` | `boolean \| ShadowMapType` | `PCFSoftShadowMap` | Enables shadows and shadow type |
 | `toneMapping` | `THREE.ToneMapping` | `AgXToneMapping` | Tone mapping |
 
 #### Render Modes
 
-| Mode | Comportamento |
+| Mode | Behavior |
 |---|---|
-| `'on-demand'` | Renderiza apenas quando necessario (default, melhor performance). Use `invalidate()` para solicitar re-render |
-| `'always'` | Renderiza a cada frame, independentemente de mudancas |
-| `'manual'` | Nenhuma renderizacao automatica. Use `advance()` para renderizar manualmente |
+| `'on-demand'` | Renders only when necessary (default, best performance). Use `invalidate()` to request a re-render |
+| `'always'` | Renders every frame, regardless of changes |
+| `'manual'` | No automatic rendering. Use `advance()` to render manually |
 
 ---
 
-### `<T>` (Componente Principal)
+### `<T>` (Main Component)
 
-O building block do Threlte. Permite usar **qualquer classe Three.js** como componente Svelte. Toda a cena e construida com `<T>`.
+The building block of Threlte. Allows using **any Three.js class** as a Svelte component. The entire scene is built with `<T>`.
 
-#### Duas formas de uso:
+#### Two ways to use it:
 
-**1. Dot notation (recomendado para classes do namespace `three`):**
+**1. Dot notation (recommended for classes from the `three` namespace):**
 
 ```svelte
 <T.Mesh>
@@ -117,7 +117,7 @@ O building block do Threlte. Permite usar **qualquer classe Three.js** como comp
 </T.Mesh>
 ```
 
-**2. Prop `is` (para classes externas ou customizadas):**
+**2. Prop `is` (for external or custom classes):**
 
 ```svelte
 <script>
@@ -127,17 +127,17 @@ O building block do Threlte. Permite usar **qualquer classe Three.js** como comp
 <T is={OrbitControls} args={[camera, renderer.domElement]} />
 ```
 
-Ambas sao **equivalentes** e intercambiaveis.
+Both are **equivalent** and interchangeable.
 
-#### Comportamento automatico
+#### Automatic Behavior
 
-- **Scene graph**: Se a classe estende `THREE.Object3D`, e automaticamente adicionada a cena
-- **Attach**: Materiais sao anexados a prop `material`, geometrias a `geometry`, automaticamente
-- **Dispose**: Objetos disposable sao descartados ao desmontar ou quando `args` muda
+- **Scene graph**: If the class extends `THREE.Object3D`, it is automatically added to the scene
+- **Attach**: Materials are attached to the `material` prop, geometries to `geometry`, automatically
+- **Dispose**: Disposable objects are disposed when unmounting or when `args` changes
 
-#### Props do Three.js
+#### Three.js Props
 
-Qualquer propriedade do objeto Three.js pode ser usada como prop reativa:
+Any property of the Three.js object can be used as a reactive prop:
 
 ```svelte
 <T.Mesh position={[0, 1, 0]} rotation={[0, Math.PI / 4, 0]}>
@@ -145,48 +145,48 @@ Qualquer propriedade do objeto Three.js pode ser usada como prop reativa:
 </T.Mesh>
 ```
 
-**Pierced props** (atualizar apenas uma coordenada):
+**Pierced props** (update only one coordinate):
 
 ```svelte
 <T.Mesh position.y={1} rotation.y={Math.PI / 4} />
 ```
 
-> O tipo de uma prop deve ser constante durante a vida do componente.
+> The type of a prop must remain constant during the component's lifetime.
 
-#### `args` (Argumentos do Construtor)
+#### `args` (Constructor Arguments)
 
-Construtor do Three.js recebe argumentos via `args` (array). Evite mudar `args` depois, pois recria a instancia:
+The Three.js constructor receives arguments via `args` (array). Avoid changing `args` afterward, as it recreates the instance:
 
 ```svelte
 <T.BoxGeometry args={[1, 2, 1]} />
-<!-- Equivalente a: new THREE.BoxGeometry(1, 2, 1) -->
+<!-- Equivalent to: new THREE.BoxGeometry(1, 2, 1) -->
 
 <T.SphereGeometry args={[radius, 32, 32]} />
-<!-- Equivalente a: new THREE.SphereGeometry(radius, 32, 32) -->
+<!-- Equivalent to: new THREE.SphereGeometry(radius, 32, 32) -->
 ```
 
 #### `attach`
 
-Controla como o objeto filho se conecta ao pai:
+Controls how the child object connects to its parent:
 
 ```svelte
-<!-- Automatico para materiais e geometrias -->
+<!-- Automatic for materials and geometries -->
 <T.Mesh>
-  <T.MeshStandardMaterial />         <!-- attach="material" automatico -->
-  <T.BoxGeometry />                  <!-- attach="geometry" automatico -->
+  <T.MeshStandardMaterial />         <!-- attach="material" automatic -->
+  <T.BoxGeometry />                  <!-- attach="geometry" automatic -->
 </T.Mesh>
 
-<!-- Explicito -->
+<!-- Explicit -->
 <T.MeshStandardMaterial>
   <T is={texture} attach="map" />
 </T.MeshStandardMaterial>
 
-<!-- Dot-notated path (aninhado) -->
+<!-- Dot-notated path (nested) -->
 <T.DirectionalLight>
   <T.OrthographicCamera args={[-1, 1, 1, -1, 0.1, 100]} attach="shadow.camera" />
 </T.DirectionalLight>
 
-<!-- Funcao (controle total) -->
+<!-- Function (full control) -->
 <T.DirectionalLight>
   <T.OrthographicCamera
     attach={({ ref, parent }) => {
@@ -196,20 +196,20 @@ Controla como o objeto filho se conecta ao pai:
   />
 </T.DirectionalLight>
 
-<!-- Desativar attach -->
+<!-- Disable attach -->
 <T is={mesh} attach={false} />
 ```
 
-#### Props de Camera
+#### Camera Props
 
 ```svelte
-<!-- Camera padrao de renderizacao -->
+<!-- Default rendering camera -->
 <T.PerspectiveCamera makeDefault position={[10, 10, 10]} />
 
-<!-- Camera manual (nao atualiza aspect ratio automaticamente) -->
+<!-- Manual camera (does not update aspect ratio automatically) -->
 <T.PerspectiveCamera manual />
 
-<!-- Acessar camera via snippet para passar ao OrbitControls -->
+<!-- Access camera via snippet to pass to OrbitControls -->
 <T.PerspectiveCamera makeDefault>
   {#snippet children({ ref })}
     <T is={OrbitControls} args={[ref, renderer.domElement]} />
@@ -217,28 +217,28 @@ Controla como o objeto filho se conecta ao pai:
 </T.PerspectiveCamera>
 ```
 
-> **Erro comum**: Esquecer `makeDefault`. Sem ele, a cena renderiza com a camera padrao do Threlte, nao com a sua.
+> **Common mistake**: Forgetting `makeDefault`. Without it, the scene renders with Threlte's default camera, not yours.
 
-#### Eventos
+#### Events
 
-**Evento `create`** (disparado ao criar a instancia):
+**`create` event** (fired when the instance is created):
 
 ```svelte
 <T.PerspectiveCamera
   oncreate={(ref) => {
     ref.lookAt(0, 0, 0)
-    return () => { /* cleanup ao desmontar */ }
+    return () => { /* cleanup on unmount */ }
   }}
 />
 ```
 
-**Eventos do objeto Three.js** (quando o objeto tem `addEventListener`):
+**Three.js object events** (when the object has `addEventListener`):
 
 ```svelte
 <T is={OrbitControls} onchange={(e) => console.log('change:', e)} />
 ```
 
-**Eventos de interacao** (click, pointer, etc.) requerem o plugin `interactivity` de `@threlte/extras`.
+**Interaction events** (click, pointer, etc.) require the `interactivity` plugin from `@threlte/extras`.
 
 #### Bindings
 
@@ -261,9 +261,9 @@ Controla como o objeto filho se conecta ao pai:
 </T.PerspectiveCamera>
 ```
 
-#### Extendendo o Catalogo de Componentes
+#### Extending the Component Catalog
 
-Para usar classes que nao sao do namespace `three` com dot notation:
+To use classes that are not from the `three` namespace with dot notation:
 
 ```svelte
 <script>
@@ -273,11 +273,11 @@ Para usar classes que nao sao do namespace `three` com dot notation:
   extend({ OrbitControls })
 </script>
 
-<!-- Agora disponivel com dot notation -->
+<!-- Now available with dot notation -->
 <T.OrbitControls args={[camera, renderer.domElement]} />
 ```
 
-**Tipos customizados** (em `src/app.d.ts`):
+**Custom types** (in `src/app.d.ts`):
 
 ```typescript
 import type { UserCatalogue } from '@threlte/core'
@@ -300,24 +300,24 @@ export {}
 
 ### `useThrelte()`
 
-Acesso ao contexto principal do Threlte (renderer, camera, scene, etc.). Deve ser usado dentro de `<Canvas>`.
+Access to the main Threlte context (renderer, camera, scene, etc.). Must be used inside `<Canvas>`.
 
 ```typescript
 const {
-  dom,                        // HTMLElement - wrapper do canvas
-  size,                       // Readable<DOMRect> - tamanho
+  dom,                        // HTMLElement - canvas wrapper
+  size,                       // Readable<DOMRect> - size
   canvas,                     // HTMLCanvasElement
-  camera,                     // CurrentWritable<Camera> - camera ativa
+  camera,                     // CurrentWritable<Camera> - active camera
   scene,                      // Scene
   dpr,                        // CurrentWritable<number> - device pixel ratio
   renderer,                   // WebGLRenderer
   renderMode,                 // CurrentWritable<'always' | 'on-demand' | 'manual'>
   autoRender,                 // CurrentWritable<boolean>
-  invalidate,                 // () => void - solicita re-render
-  advance,                    // () => void - renderiza manualmente (mode='manual')
+  invalidate,                 // () => void - requests re-render
+  advance,                    // () => void - renders manually (mode='manual')
   scheduler,                  // Scheduler
-  mainStage,                  // Stage - etapa principal
-  renderStage,                // Stage - etapa de renderizacao
+  mainStage,                  // Stage - main stage
+  renderStage,                // Stage - render stage
   autoRenderTask,             // Task
   shouldRender,               // () => boolean
   colorManagementEnabled,     // CurrentReadable<boolean>
@@ -327,23 +327,23 @@ const {
 } = useThrelte()
 ```
 
-**Usos comuns:**
+**Common uses:**
 
 ```svelte
-<!-- Invalidar frame (on-demand) -->
+<!-- Invalidate frame (on-demand) -->
 const { invalidate } = useThrelte()
 someMesh.position.x = 5
 invalidate()
 
-<!-- Avancar renderizacao manual (manual mode) -->
+<!-- Advance manual rendering (manual mode) -->
 const { advance } = useThrelte()
 advance()
 
-<!-- Acessar camera e renderer -->
+<!-- Access camera and renderer -->
 const { camera, renderer } = useThrelte()
 console.log($camera, renderer)
 
-<!-- Alterar tone mapping -->
+<!-- Change tone mapping -->
 const { toneMapping } = useThrelte()
 toneMapping.set(THREE.LinearToneMapping)
 ```
@@ -352,28 +352,28 @@ toneMapping.set(THREE.LinearToneMapping)
 
 ### `useTask()`
 
-Cria uma task que executa codigo a cada frame. Parte do **Task Scheduling System** do Threlte.
+Creates a task that executes code every frame. Part of Threlte's **Task Scheduling System**.
 
-#### Task Anonima
+#### Anonymous Task
 
 ```svelte
 useTask((delta) => {
-  // Executa a cada frame. delta = tempo desde o ultimo frame
+  // Runs every frame. delta = time since last frame
   mesh.rotation.y += delta * 0.5
 })
 ```
 
-Retorna `{ task, started }`.
+Returns `{ task, started }`.
 
-#### Task com Key
+#### Task with Key
 
 ```svelte
 const { task, started } = useTask('my-task', (delta) => {
-  // Referenciavel por key em dependencias
+  // Referenceable by key in dependencies
 })
 ```
 
-#### Task em Stage Especifica
+#### Task in a Specific Stage
 
 ```svelte
 const { renderStage } = useThrelte()
@@ -384,27 +384,27 @@ useTask(
 )
 ```
 
-#### Dependencias entre Tasks
+#### Task Dependencies
 
 ```svelte
 useTask(
-  (delta) => { /* roda DEPOIS de otherTask */ },
+  (delta) => { /* runs AFTER otherTask */ },
   { after: otherTask }
 )
 
 useTask(
-  (delta) => { /* roda ANTES de otherTask */ },
+  (delta) => { /* runs BEFORE otherTask */ },
   { before: otherTask }
 )
 
-// Por key (podem ser declaradas em qualquer ordem)
+// By key (can be declared in any order)
 useTask(
   (delta) => { /* ... */ },
   { after: 'some-task-key' }
 )
 ```
 
-#### Iniciar/Parar Tasks
+#### Starting/Stopping Tasks
 
 ```svelte
 let running = $state(false)
@@ -414,18 +414,18 @@ useTask(
   { running: () => running }
 )
 
-running = true   // inicia
-running = false  // para
+running = true   // starts
+running = false  // stops
 ```
 
-#### useTask e On-Demand Rendering
+#### useTask and On-Demand Rendering
 
 ```svelte
 const { invalidate } = useThrelte()
 
 useTask(
   (delta) => {
-    // Nao invalida automaticamente
+    // Does not invalidate automatically
     if (someCondition) {
       invalidate()
     }
@@ -434,7 +434,7 @@ useTask(
 )
 ```
 
-#### Atualizar Objetos (animacao)
+#### Updating Objects (animation)
 
 ```svelte
 <script lang="ts">
@@ -473,7 +473,7 @@ useTask(
 
   $effect(() => composer.setSize($size.width, $size.height))
 
-  // Desativar auto-render
+  // Disable auto-render
   $effect(() => {
     const before = autoRender.current
     autoRender.set(false)
@@ -487,37 +487,37 @@ useTask(
 </script>
 ```
 
-> Com SvelteKit, adicione `ssr: { noExternal: ['postprocessing'] }` ao `vite.config.js`.
+> With SvelteKit, add `ssr: { noExternal: ['postprocessing'] }` to `vite.config.js`.
 
 ---
 
 ### `useStage()`
 
-Cria ou recupera um **stage** (grupo de tasks executadas em ordem especifica).
+Creates or retrieves a **stage** (a group of tasks executed in a specific order).
 
 ```svelte
 const { renderStage } = useThrelte()
 
-// Cria stage que roda DEPOIS do renderStage
+// Creates a stage that runs AFTER renderStage
 const afterRenderStage = useStage('after-render', {
   after: renderStage
 })
 
-// Cria stage que roda ANTES do mainStage
+// Creates a stage that runs BEFORE mainStage
 const beforeMainStage = useStage('before-main', {
   before: mainStage
 })
 ```
 
-#### Stage com Callback Customizado
+#### Stage with Custom Callback
 
 ```svelte
 const conditionalStage = useStage('conditional', {
   after: renderStage,
   callback: (delta, runTasks) => {
     if (shouldRun) {
-      runTasks()            // roda com delta do frame
-      runTasks(0.005)       // roda com delta customizado
+      runTasks()            // runs with frame delta
+      runTasks(0.005)       // runs with custom delta
     }
   }
 })
@@ -527,9 +527,9 @@ const conditionalStage = useStage('conditional', {
 
 ### `useLoader()`
 
-Carrega assets usando qualquer classe `THREE.Loader`. Resultados sao **cacheados** - chamadas com o mesmo path retornam a mesma referencia.
+Loads assets using any `THREE.Loader` class. Results are **cached** - calls with the same path return the same reference.
 
-#### Instanciar Loader
+#### Instantiating a Loader
 
 ```svelte
 <script>
@@ -540,7 +540,7 @@ Carrega assets usando qualquer classe `THREE.Loader`. Resultados sao **cacheados
 </script>
 ```
 
-#### Loader com Args
+#### Loader with Args
 
 ```svelte
 <script>
@@ -552,11 +552,11 @@ Carrega assets usando qualquer classe `THREE.Loader`. Resultados sao **cacheados
 </script>
 ```
 
-#### Carregar Asset
+#### Loading an Asset
 
 ```svelte
 const texture = load('path/to/texture.png')
-<!-- texture e um AsyncWritable<Texture> - inicialmente undefined -->
+<!-- texture is an AsyncWritable<Texture> - initially undefined -->
 ```
 
 #### Await Block
@@ -567,14 +567,14 @@ const texture = load('path/to/texture.png')
 {/await}
 ```
 
-#### Carregar Multiplas Assets
+#### Loading Multiple Assets
 
 ```svelte
 // Array
 const textures = load(['tex1.png', 'tex2.png'])
 <!-- $textures = [Texture, Texture] -->
 
-// Mapa
+// Map
 const textures = load({
   diffuse: 'diffuse.png',
   normal: 'normal.png'
@@ -582,7 +582,7 @@ const textures = load({
 <!-- $textures = { diffuse: Texture, normal: Texture } -->
 ```
 
-#### Transformar Resultado
+#### Transforming the Result
 
 ```svelte
 const texture = load('texture.png', {
@@ -597,48 +597,48 @@ const texture = load('texture.png', {
 
 ### `useThrelteUserContext()`
 
-Store de contexto personalizado, scoped ao `<Canvas>`. Ideal para comunicacao entre componentes reutilizaveis.
+Custom context store, scoped to `<Canvas>`. Ideal for communication between reusable components.
 
 ```svelte
-// Definir contexto
+// Define context
 const ctx = useThrelteUserContext('my-plugin', () => ({
   foo: 'bar'
 }))
 ```
 
 ```svelte
-// Consumir contexto
+// Consume context
 const ctx = useThrelteUserContext('my-plugin')
 console.log($ctx) // { foo: 'bar' }
 ```
 
 ```svelte
-// Acessar todo o contexto
+// Access entire context
 const userCtx = useThrelteUserContext()
 console.log($userCtx) // { 'my-plugin': { foo: 'bar' }, ... }
 ```
 
 ---
 
-## Sistema de Task Scheduling
+## Task Scheduling System
 
-O Threlte possui um sistema de **stages e tasks** para controlar a ordem de execucao do codigo por frame.
+Threlte has a system of **stages and tasks** to control the order of code execution per frame.
 
-### Stages Padrao
+### Default Stages
 
-| Stage | Descricao |
+| Stage | Description |
 |---|---|
-| `mainStage` | Stage principal. Tasks aqui rodam a cada frame |
-| `renderStage` | Stage de renderizacao. Roda quando re-render e necessario (on-demand) |
+| `mainStage` | Main stage. Tasks here run every frame |
+| `renderStage` | Render stage. Runs when a re-render is needed (on-demand) |
 
-### Fluxo de Execucao (por frame)
+### Execution Flow (per frame)
 
 ```
-1. mainStage tasks executam (em ordem de dependencias)
-2. renderStage tasks executam (incluindo renderizacao)
+1. mainStage tasks execute (in dependency order)
+2. renderStage tasks execute (including rendering)
 ```
 
-### Ordem de Execucao
+### Execution Order
 
 ```
 Frame N:
@@ -658,7 +658,7 @@ Frame N:
 
 ### `injectPlugin()`
 
-Adiciona funcionalidades a todos os componentes `<T>` descendentes:
+Adds functionality to all descendant `<T>` components:
 
 ```svelte
 <script>
@@ -678,10 +678,10 @@ Adiciona funcionalidades a todos os componentes `<T>` descendentes:
 </script>
 ```
 
-- Props listadas em `pluginProps` sao reservadas para o plugin (o `<T>` nao age sobre elas)
-- Plugins podem ser sobrescritos chamando `injectPlugin` novamente com o mesmo nome mais abaixo na arvore
+- Props listed in `pluginProps` are reserved for the plugin (the `<T>` does not act on them)
+- Plugins can be overridden by calling `injectPlugin` again with the same name further down the tree
 
-**Tipos customizados de plugin props** (em `src/app.d.ts`):
+**Custom plugin prop types** (in `src/app.d.ts`):
 
 ```typescript
 declare global {
@@ -701,7 +701,7 @@ export {}
 
 ### `watch(store | stores[], callback)`
 
-Observa stores e executa callback com cleanup:
+Watches stores and executes a callback with cleanup:
 
 ```svelte
 import { watch } from '@threlte/core'
@@ -718,7 +718,7 @@ watch([store1, store2], ([v1, v2]) => {
 
 ### `observe(getter, callback)`
 
-Versao runes-compatible do `watch`. Usa `$effect` internamente, callback roda no proximo microtask:
+Runes-compatible version of `watch`. Uses `$effect` internally, callback runs on the next microtask:
 
 ```svelte
 import { observe } from '@threlte/core'
@@ -732,7 +732,7 @@ observe(() => count, (value) => {
 
 ### `asyncWritable(promise)`
 
-Store writable inicializado com uma promise. Implementa `then`/`catch` para uso com `await` e `{#await}`:
+Writable store initialized with a promise. Implements `then`/`catch` for use with `await` and `{#await}`:
 
 ```svelte
 import { asyncWritable } from '@threlte/core'
@@ -746,7 +746,7 @@ const store = asyncWritable(loadTexture())
 
 ### `currentWritable(initialValue)`
 
-Store writable com propriedade `current` sincrona (evita `get()` em loops):
+Writable store with a synchronous `current` property (avoids `get()` in loops):
 
 ```svelte
 import { currentWritable } from '@threlte/core'
@@ -754,13 +754,13 @@ import { currentWritable } from '@threlte/core'
 const store = currentWritable(0)
 
 useTask(() => {
-  console.log(store.current) // Acesso sincrono, sem overhead
+  console.log(store.current) // Synchronous access, no overhead
 })
 ```
 
 ### `isInstanceOf(object, className)`
 
-Type guard para classes Three.js (usa propriedade `isFoo`, mais rapido que `instanceof`):
+Type guard for Three.js classes (uses the `isFoo` property, faster than `instanceof`):
 
 ```svelte
 import { isInstanceOf } from '@threlte/core'
@@ -772,9 +772,9 @@ if (isInstanceOf(obj, 'Object3D')) {
 
 ---
 
-## Padroes Comuns
+## Common Patterns
 
-### Cena Basica com Camera e Iluminacao
+### Basic Scene with Camera and Lighting
 
 ```svelte
 <script lang="ts">
@@ -799,7 +799,7 @@ if (isInstanceOf(obj, 'Object3D')) {
 </T.Mesh>
 ```
 
-### Animacao com useTask
+### Animation with useTask
 
 ```svelte
 <script lang="ts">
@@ -821,7 +821,7 @@ if (isInstanceOf(obj, 'Object3D')) {
 </T.Mesh>
 ```
 
-### Carregar Textura
+### Loading a Texture
 
 ```svelte
 <script lang="ts">
@@ -857,7 +857,7 @@ if (isInstanceOf(obj, 'Object3D')) {
 </T.PerspectiveCamera>
 ```
 
-### Props Reativas
+### Reactive Props
 
 ```svelte
 <script>
@@ -866,7 +866,7 @@ if (isInstanceOf(obj, 'Object3D')) {
 
 <T.Mesh>
   <T.BoxGeometry />
-  <!-- Re-renderiza automaticamente quando color muda -->
+  <!-- Re-renders automatically when color changes -->
   <T.MeshStandardMaterial color={color} />
 </T.Mesh>
 
@@ -874,7 +874,7 @@ if (isInstanceOf(obj, 'Object3D')) {
 <button onclick={() => color = 'green'}>Green</button>
 ```
 
-### Hierarquia de Objetos
+### Object Hierarchy
 
 ```svelte
 <T.Group position={[0, 2, 0]}>
@@ -889,21 +889,21 @@ if (isInstanceOf(obj, 'Object3D')) {
 
 ---
 
-## Dicas Importantes
+## Important Tips
 
-- **`makeDefault` na camera**: Sempre defina `makeDefault` na camera que deseja usar, senao a cena renderiza com a camera padrao invisivel do Threlte.
-- **`invalidate()`**: No modo `on-demand`, sempre chame `invalidate()` apos modificar objetos manualmente.
-- **`args` nao mudem**: Evite mudar `args` depois da criacao, pois recria a instancia do objeto Three.js.
-- **Tipos constantes**: O tipo de uma prop reativa deve ser constante (nao mude de array para number, por exemplo).
-- **Extend para classes externas**: Use `extend()` para usar OrbitControls e outras classes de `three/examples/jsm` com dot notation.
-- **useLoader cache**: O loader cacheia resultados - mesmos paths retornam a mesma referencia.
-- **useTask autoInvalidate**: Por padrao, `useTask` invalida o frame automaticamente. Use `autoInvalidate: false` para controle manual.
-- **Pierced props**: Use `position.y={1}` ao inves de `position={[0, 1, 0]}` para atualizar apenas uma coordenada (menos atualizacoes).
+- **`makeDefault` on camera**: Always set `makeDefault` on the camera you want to use, otherwise the scene renders with Threlte's invisible default camera.
+- **`invalidate()`**: In `on-demand` mode, always call `invalidate()` after manually modifying objects.
+- **Don't change `args`**: Avoid changing `args` after creation, as it recreates the Three.js object instance.
+- **Constant types**: The type of a reactive prop must remain constant (don't change from array to number, for example).
+- **Extend for external classes**: Use `extend()` to use OrbitControls and other classes from `three/examples/jsm` with dot notation.
+- **useLoader cache**: The loader caches results - same paths return the same reference.
+- **useTask autoInvalidate**: By default, `useTask` invalidates the frame automatically. Use `autoInvalidate: false` for manual control.
+- **Pierced props**: Use `position.y={1}` instead of `position={[0, 1, 0]}` to update only one coordinate (fewer updates).
 
 ---
 
-## Links Uteis
+## Useful Links
 
-- Docs oficiais Threlte Core: https://threlte.xyz/docs/reference/core/getting-started/
+- Threlte Core official docs: https://threlte.xyz/docs/reference/core/getting-started/
 - Three.js Docs: https://threejs.org/docs/
-- Repositorio Threlte: https://github.com/threlte/threlte
+- Threlte Repository: https://github.com/threlte/threlte

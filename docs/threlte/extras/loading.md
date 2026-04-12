@@ -1,12 +1,12 @@
 # @threlte/extras - Loading
 
-> Componentes e hooks para gerenciamento de carregamento do pacote [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/).
+> Components and hooks for loading management from the [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/) package.
 
 ---
 
 ## `<Suspense>`
 
-Orquestra o carregamento de recursos em componentes filhos. Segue conceito do React Suspense.
+Orchestrates resource loading in child components. Follows the React Suspense concept.
 
 ```svelte
 <script>
@@ -22,11 +22,11 @@ Orquestra o carregamento de recursos em componentes filhos. Segue conceito do Re
 </Suspense>
 ```
 
-**Props:** `final` (boolean) - impede re-suspensao.
+**Props:** `final` (boolean) - prevents re-suspension.
 
 **Events:** `load`, `suspend`, `error`.
 
-**Error boundary:** tambem atua como error boundary. Use snippet `error`:
+**Error boundary:** also acts as an error boundary. Use the `error` snippet:
 
 ```svelte
 <Suspense>
@@ -40,7 +40,7 @@ Orquestra o carregamento de recursos em componentes filhos. Segue conceito do Re
 
 ## `useSuspense()`
 
-Marca recursos para uso em `<Suspense>`. Retorna funcao `suspend(promise)` e store `suspended`.
+Marks resources for use with `<Suspense>`. Returns a `suspend(promise)` function and a `suspended` store.
 
 ```svelte
 <script>
@@ -55,17 +55,17 @@ Marca recursos para uso em `<Suspense>`. Retorna funcao `suspend(promise)` e sto
 
 ## `useProgress()`
 
-Hook que envolve `THREE.DefaultLoadingManager`.
+Hook that wraps `THREE.DefaultLoadingManager`.
 
 ```svelte
 const {
-  active,       // boolean - se esta carregando
-  item,         // string - item atual
-  loaded,       // number - itens carregados
-  total,        // number - total de itens
-  errors,       // string[] - erros
-  progress,     // number - progresso normalizado (0-1)
-  finishedOnce  // boolean - se ja completou uma vez
+  active,       // boolean - whether it is loading
+  item,         // string - current item
+  loaded,       // number - items loaded
+  total,        // number - total items
+  errors,       // string[] - errors
+  progress,     // number - normalized progress (0-1)
+  finishedOnce  // boolean - whether it has completed at least once
 } = useProgress()
 ```
 
@@ -73,12 +73,12 @@ const {
 
 ## `onReveal(callback)`
 
-Invoca callback quando o componente e revelado (nao mais suspenso). Funciona como `onMount` dentro de `<Suspense>`.
+Invokes a callback when the component is revealed (no longer suspended). Works like `onMount` inside `<Suspense>`.
 
 ```svelte
 onReveal(() => {
   console.log('revealed')
-  return () => { /* cleanup ao suspender ou desmontar */ }
+  return () => { /* cleanup on suspend or unmount */ }
 })
 ```
 
@@ -86,4 +86,4 @@ onReveal(() => {
 
 ## `onSuspend(callback)`
 
-Invoca callback quando o componente se torna suspenso.
+Invokes a callback when the component becomes suspended.

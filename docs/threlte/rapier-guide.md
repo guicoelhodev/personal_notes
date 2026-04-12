@@ -1,39 +1,39 @@
-# @threlte/rapier - Guia de Referencia Rapido
+# @threlte/rapier - Quick Reference Guide
 
-> Resumo da integracao do motor de fisica [Rapier](https://rapier.rs/) com o framework [Threlte](https://threlte.xyz/) para Svelte/Three.js.  
-> Fonte oficial: https://threlte.xyz/docs/reference/rapier/getting-started/
-
----
-
-## O que e?
-
-`@threlte/rapier` e um pacote que integra o motor de fisica **Rapier** (escrito em Rust, compilado para WASM) ao ecossistema **Threlte**. Ele fornece componentes Svelte e hooks para simulacao de fisica 3D (colisoes, gravidade, forcas, articulacoes) de forma declarativa, diretamente nos seus componentes Svelte.
+> Summary of the [Rapier](https://rapier.rs/) physics engine integration with the [Threlte](https://threlte.xyz/) framework for Svelte/Three.js.  
+> Official source: https://threlte.xyz/docs/reference/rapier/getting-started/
 
 ---
 
-## Instalacao
+## What is it?
+
+`@threlte/rapier` is a package that integrates the **Rapier** physics engine (written in Rust, compiled to WASM) into the **Threlte** ecosystem. It provides Svelte components and hooks for 3D physics simulation (collisions, gravity, forces, joints) in a declarative way, directly within your Svelte components.
+
+---
+
+## Installation
 
 ```bash
 npm install @threlte/rapier @dimforge/rapier3d-compat
 ```
 
-Requer `@threlte/core` instalado.
+Requires `@threlte/core` to be installed.
 
 ---
 
-## Arquitetura Basica
+## Basic Architecture
 
-A estrutura obrigatoria envolve tres camadas:
+The required structure involves three layers:
 
 ```
-<Canvas>              (do @threlte/core)
-  └─ <World>          (do @threlte/rapier - contexto de fisica)
-       └─ <RigidBody> (corpo rigido)
-            └─ <Collider> ou <AutoColliders>  (forma geometrica de colisao)
-                 └─ <T.Mesh>  (mesh visual Three.js)
+<Canvas>              (from @threlte/core)
+  └─ <World>          (from @threlte/rapier - physics context)
+       └─ <RigidBody> (rigid body)
+            └─ <Collider> or <AutoColliders>  (collision geometric shape)
+                 └─ <T.Mesh>  (Three.js visual mesh)
 ```
 
-**Exemplo minimo:**
+**Minimal example:**
 
 ```svelte
 <script lang="ts">
@@ -56,19 +56,19 @@ A estrutura obrigatoria envolve tres camadas:
 
 ---
 
-## Componentes
+## Components
 
 ### `<World>`
 
-- Contexto raiz de toda a fisica. Carrega o modulo WASM do Rapier.
-- Todos os componentes de fisica devem ser filhos dele.
-- Suporta um **slot `fallback`** caso o WASM falhe ao carregar.
-- Apenas **uma instancia** `<World>` e suportada por aplicacao.
+- Root context for all physics. Loads the Rapier WASM module.
+- All physics components must be children of this component.
+- Supports a **`fallback` slot** in case the WASM fails to load.
+- Only **one instance** of `<World>` is supported per application.
 
-| Prop principal | Tipo | Default | Descricao |
+| Main Prop | Type | Default | Description |
 |---|---|---|---|
-| `gravity` | `Position` | `{ y: -9.81 }` | Gravidade do mundo |
-| `framerate` | `number \| "varying"` | `"varying"` | FPS da simulacao (ver secao Framerate) |
+| `gravity` | `Position` | `{ y: -9.81 }` | World gravity |
+| `framerate` | `number \| "varying"` | `"varying"` | Simulation FPS (see Framerate section) |
 
 ```svelte
 <World gravity={{ y: -9.81 }}>
@@ -83,29 +83,29 @@ A estrutura obrigatoria envolve tres camadas:
 
 ### `<RigidBody>`
 
-- Define um corpo rigido que sofre acao de forcas, gravidade e contatos.
-- **Tipos:**
-  - `dynamic` (default) - afetado por gravidade e forcas
-  - `fixed` - estatico, nao se move (ideal para chao, paredes)
-  - `kinematicPosition` - controlado via codigo, outros corpos colidem com ele
-  - `kinematicVelocity` - controlado via velocidade
+- Defines a rigid body that is affected by forces, gravity, and contacts.
+- **Types:**
+  - `dynamic` (default) - affected by gravity and forces
+  - `fixed` - static, does not move (ideal for ground, walls)
+  - `kinematicPosition` - controlled via code, other bodies collide with it
+  - `kinematicVelocity` - controlled via velocity
 
-| Prop principal | Tipo | Default | Descricao |
+| Main Prop | Type | Default | Description |
 |---|---|---|---|
-| `type` | `string` | `'dynamic'` | Tipo do corpo rigido |
-| `linearVelocity` | `Position` | `{}` | Velocidade linear inicial |
-| `angularVelocity` | `Rotation` | `{}` | Velocidade angular inicial |
-| `gravityScale` | `number` | `1` | Escala da gravidade |
-| `linearDamping` | `number` | `0` | Amortecimento linear |
-| `angularDamping` | `number` | `0` | Amortecimento angular |
-| `lockRotations` | `boolean` | `false` | Congela rotacao |
-| `lockTranslations` | `boolean` | `false` | Congela translacao |
-| `canSleep` | `boolean` | `true` | Permite dormir o corpo |
+| `type` | `string` | `'dynamic'` | Rigid body type |
+| `linearVelocity` | `Position` | `{}` | Initial linear velocity |
+| `angularVelocity` | `Rotation` | `{}` | Initial angular velocity |
+| `gravityScale` | `number` | `1` | Gravity scale |
+| `linearDamping` | `number` | `0` | Linear damping |
+| `angularDamping` | `number` | `0` | Angular damping |
+| `lockRotations` | `boolean` | `false` | Freeze rotation |
+| `lockTranslations` | `boolean` | `false` | Freeze translation |
+| `canSleep` | `boolean` | `true` | Allow the body to sleep |
 | `ccd` | `boolean` | `false` | Continuous Collision Detection |
 
-**Eventos principais:**
+**Main events:**
 
-| Evento | Payload |
+| Event | Payload |
 |---|---|
 | `oncollisionenter` | `targetCollider`, `targetRigidBody`, `manifold` |
 | `oncollisionexit` | `targetCollider`, `targetRigidBody` |
@@ -118,46 +118,46 @@ A estrutura obrigatoria envolve tres camadas:
 
 ```svelte
 <RigidBody bind:rigidBody={myBody} />
-<!-- myBody: RAPIER.RigidBody - acesso direto a API do Rapier -->
+<!-- myBody: RAPIER.RigidBody - direct access to the Rapier API -->
 ```
 
 ---
 
 ### `<Collider>`
 
-- Define a forma geometrica para deteccao de colisao.
-- **Deve ser filho de `<RigidBody>`** para que o corpo sofra forcas de contato.
-- Pode ser **standalone** (sem `<RigidBody>` pai) - participa de colisoes mas nao e afetado por forcas (bom para ambiente estatico).
-- Pode funcionar como **sensor** (detecta presenca sem gerar forcas de contato).
+- Defines the geometric shape for collision detection.
+- **Must be a child of `<RigidBody>`** for the body to receive contact forces.
+- Can be **standalone** (without a `<RigidBody>` parent) - participates in collisions but is not affected by forces (good for static environment).
+- Can function as a **sensor** (detects presence without generating contact forces).
 
-| Prop principal | Tipo | Descricao |
+| Main Prop | Type | Description |
 |---|---|---|
-| `shape` | `string` (obrigatorio) | Forma: `ball`, `cuboid`, `capsule`, `cylinder`, `cone`, `trimesh`, `convexHull`, `convexMesh`, `heightfield`, etc. |
-| `args` | `array` (obrigatorio) | Argumentos da forma (ex: cuboid = [hx, hy, hz]) |
-| `sensor` | `boolean` | Modo sensor (detecao sem contato) |
-| `friction` | `number` | Friccao |
-| `restitution` | `number` | Elasticidade (bounce) |
-| `density` | `number` | Densidade (massa = densidade x volume) |
-| `mass` | `number` | Massa direta |
-| `contactForceEventThreshold` | `number` | Limiar para disparar eventos de contato |
+| `shape` | `string` (required) | Shape: `ball`, `cuboid`, `capsule`, `cylinder`, `cone`, `trimesh`, `convexHull`, `convexMesh`, `heightfield`, etc. |
+| `args` | `array` (required) | Shape arguments (e.g.: cuboid = [hx, hy, hz]) |
+| `sensor` | `boolean` | Sensor mode (detection without contact) |
+| `friction` | `number` | Friction |
+| `restitution` | `number` | Elasticity (bounce) |
+| `density` | `number` | Density (mass = density x volume) |
+| `mass` | `number` | Direct mass |
+| `contactForceEventThreshold` | `number` | Threshold for firing contact events |
 
-**Formas e args comuns:**
+**Common shapes and args:**
 
-| Shape | Args | Exemplo |
+| Shape | Args | Example |
 |---|---|---|
-| `ball` | `[raio]` | `args={[0.5]}` |
+| `ball` | `[radius]` | `args={[0.5]}` |
 | `cuboid` | `[hx, hy, hz]` | `args={[1, 1, 1]}` |
-| `capsule` | `[half-height, raio]` | `args={[0.5, 0.25]}` |
-| `cylinder` | `[half-height, raio]` | `args={[1, 0.5]}` |
-| `cone` | `[half-height, raio]` | `args={[1, 0.5]}` |
+| `capsule` | `[half-height, radius]` | `args={[0.5, 0.25]}` |
+| `cylinder` | `[half-height, radius]` | `args={[1, 0.5]}` |
+| `cone` | `[half-height, radius]` | `args={[1, 0.5]}` |
 
 ---
 
 ### `<AutoColliders>`
 
-- Gera colliders automaticamente baseado nos meshes filhos.
-- Shapes disponiveis: `cuboid`, `ball`, `capsule`, `trimesh`, `convexHull` (default: `convexHull`).
-- Ideal para modelos GLTF carregados onde nao se conhece a geometria exata.
+- Automatically generates colliders based on child meshes.
+- Available shapes: `cuboid`, `ball`, `capsule`, `trimesh`, `convexHull` (default: `convexHull`).
+- Ideal for loaded GLTF models where the exact geometry is not known.
 
 ```svelte
 <RigidBody>
@@ -167,32 +167,32 @@ A estrutura obrigatoria envolve tres camadas:
 </RigidBody>
 ```
 
-| Shape | Descricao |
+| Shape | Description |
 |---|---|
-| `convexHull` | Envoltoria convexa da geometria (recomendado para modelos) |
-| `trimesh` | Malha poligonal exata (mais preciso, mais pesado) |
-| `cuboid` | Bounding box como cubo |
-| `ball` | Bounding box como esfera |
-| `capsule` | Bounding box como capsula |
+| `convexHull` | Convex hull of the geometry (recommended for models) |
+| `trimesh` | Exact polygon mesh (more accurate, heavier) |
+| `cuboid` | Bounding box as a cube |
+| `ball` | Bounding box as a sphere |
+| `capsule` | Bounding box as a capsule |
 
 ---
 
 ### `<CollisionGroups>`
 
-- Controla quais colliders interagem entre si via sistema de grupos (32 grupos disponiveis).
-- Similar a "layers" de colisao em game engines.
+- Controls which colliders interact with each other via a group system (32 groups available).
+- Similar to collision "layers" in game engines.
 
 ---
 
 ### `<Attractor>`
 
-- Aplica forcas de atracao (ex: gravidade pontual) sobre corpos rigidos proximos.
+- Applies attraction forces (e.g.: point gravity) on nearby rigid bodies.
 
 ---
 
 ### `<Debug>`
 
-- Renderiza visualmente todos os colliders da cena para depuracao.
+- Visually renders all colliders in the scene for debugging.
 
 ```svelte
 <Debug />
@@ -204,22 +204,22 @@ A estrutura obrigatoria envolve tres camadas:
 
 ### `useRapier()`
 
-- Acesso direto ao mundo de fisica `RAPIER.World` e funcoes de contexto.
+- Direct access to the physics world `RAPIER.World` and context functions.
 
 ```typescript
 const {
-  rapier,                          // modulo RAPIER
+  rapier,                          // RAPIER module
   world,                           // RAPIER.World
   colliderObjects,                 // Map<number, Object3D>
   rigidBodyObjects,                // Map<number, Object3D>
-  addColliderToContext,            // registra collider no sistema de eventos
+  addColliderToContext,            // registers collider in the event system
   removeColliderFromContext,
   addRigidBodyToContext,
   removeRigidBodyFromContext
 } = useRapier()
 ```
 
-**Uso comum - alterar gravidade:**
+**Common usage - changing gravity:**
 
 ```svelte
 const { world } = useRapier()
@@ -230,7 +230,7 @@ world.gravity = { x: 0, y: 0, z: 0 }
 
 ### `useRigidBody()`
 
-- Retorna o `RAPIER.RigidBody` do `<RigidBody>` pai. `undefined` se nao houver pai.
+- Returns the `RAPIER.RigidBody` of the parent `<RigidBody>`. `undefined` if there is no parent.
 
 ```typescript
 const rigidBody = useRigidBody() // RAPIER.RigidBody | undefined
@@ -240,13 +240,13 @@ const rigidBody = useRigidBody() // RAPIER.RigidBody | undefined
 
 ### `usePhysicsTask(callback)`
 
-- Similar ao `useTask` do Threlte, mas executado **antes** do step de fisica.
-- Na etapa de `simulation`, garante que seu codigo roda antes da fisica avancar.
-- Com framerate fixo, recebe o delta fixo (ex: `1/200 = 0.005`).
+- Similar to Threlte's `useTask`, but executed **before** the physics step.
+- In the `simulation` stage, ensures your code runs before physics advances.
+- With a fixed framerate, receives the fixed delta (e.g.: `1/200 = 0.005`).
 
 ```svelte
 usePhysicsTask((delta) => {
-  // manipular estado antes do step de fisica
+  // manipulate state before the physics step
   rigidBody?.setNextKinematicTranslation({ x: 1, y: 2, z: 3 })
 })
 ```
@@ -255,21 +255,21 @@ usePhysicsTask((delta) => {
 
 ### `useCollisionGroups()`
 
-- Gerencia grupos de colisao de forma reativa.
+- Reactively manages collision groups.
 
 ---
 
-## Joints (Articulacoes)
+## Joints
 
-Joints restringem o movimento relativo entre dois corpos rigidos. Implementados como **hooks** (nao componentes), pois dois RigidBodies nao necessariamente estao na mesma arvore de componentes.
+Joints restrict the relative movement between two rigid bodies. Implemented as **hooks** (not components), since two RigidBodies are not necessarily in the same component tree.
 
-| Joint | Hook | Descricao |
+| Joint | Hook | Description |
 |---|---|---|
-| **Fixed** | `useFixedJoint()` | Corpos presos, sem movimento relativo |
-| **Revolute** | `useRevoluteJoint()` | Rotacao em um eixo (ex: dobradica) |
-| **Prismatic** | `usePrismaticJoint()` | Translacao em um eixo (ex: piston) |
-| **Spherical** | `useSphericalJoint()` | Rotacao livre (ex: ombro, ball-in-socket) |
-| **Rope** | `useRopeJoint()` | Restricao de distancia (ex: corda) |
+| **Fixed** | `useFixedJoint()` | Bodies locked together, no relative movement |
+| **Revolute** | `useRevoluteJoint()` | Rotation on one axis (e.g.: hinge) |
+| **Prismatic** | `usePrismaticJoint()` | Translation on one axis (e.g.: piston) |
+| **Spherical** | `useSphericalJoint()` | Free rotation (e.g.: shoulder, ball-in-socket) |
+| **Rope** | `useRopeJoint()` | Distance constraint (e.g.: rope) |
 
 ```svelte
 <script>
@@ -280,28 +280,28 @@ Joints restringem o movimento relativo entre dois corpos rigidos. Implementados 
 
 ---
 
-## Framerate da Fisica
+## Physics Framerate
 
-Controlado pela prop `framerate` do `<World>`:
+Controlled by the `<World>` prop `framerate`:
 
 ### `framerate="varying"` (default)
 
-- A fisica avança usando o delta real do `requestAnimationFrame`.
-- Simples, porem **nao deterministico** (resultados podem variar entre execucoes).
-- Recomendado para a maioria das aplicacoes.
+- Physics advances using the real delta from `requestAnimationFrame`.
+- Simple, but **non-deterministic** (results may vary between runs).
+- Recommended for most applications.
 
-### `framerate={numero}` (ex: `framerate={60}`)
+### `framerate={number}` (e.g.: `framerate={60}`)
 
-- Avanca a simulacao N vezes por segundo com delta fixo.
-- **Deterministico** - mesma simulacao sempre gera o mesmo resultado.
-- Threlte "roda a fisica a frente" e depois interpola visualmente para manter suavidade.
-- Ideal para jogos ou cenarios que precisam de reprodutibilidade.
+- Advances the simulation N times per second with a fixed delta.
+- **Deterministic** - the same simulation always produces the same result.
+- Threlte "runs physics ahead" and then interpolates visually to maintain smoothness.
+- Ideal for games or scenarios that require reproducibility.
 
 ---
 
-## Padrões Comuns
+## Common Patterns
 
-### Corpo Dinamico com Colisao Manual
+### Dynamic Body with Manual Collision
 
 ```svelte
 <RigidBody type="dynamic">
@@ -313,7 +313,7 @@ Controlado pela prop `framerate` do `<World>`:
 </RigidBody>
 ```
 
-### Chao Estatico
+### Static Ground
 
 ```svelte
 <RigidBody type="fixed">
@@ -326,7 +326,7 @@ Controlado pela prop `framerate` do `<World>`:
 </RigidBody>
 ```
 
-### Plataforma Cinematica
+### Kinematic Platform
 
 ```svelte
 <script>
@@ -347,7 +347,7 @@ Controlado pela prop `framerate` do `<World>`:
 </RigidBody>
 ```
 
-### Sensor de Area (sem contato fisico)
+### Area Sensor (no physical contact)
 
 ```svelte
 <Collider
@@ -359,7 +359,7 @@ Controlado pela prop `framerate` do `<World>`:
 />
 ```
 
-### Modelo GLTF com Fisica
+### GLTF Model with Physics
 
 ```svelte
 <RigidBody>
@@ -369,28 +369,28 @@ Controlado pela prop `framerate` do `<World>`:
 </RigidBody>
 ```
 
-### Collider Standalone (ambiente sem forcas)
+### Standalone Collider (environment without forces)
 
 ```svelte
 <Collider shape="cuboid" args={[1, 1, 1]} />
-<!-- Nao e filho de RigidBody - participe de colisoes mas nao e afetado por gravidade -->
+<!-- Not a child of RigidBody - participates in collisions but is not affected by gravity -->
 ```
 
 ---
 
-## Dicas Importantes
+## Important Tips
 
-- **WASM**: Rapier e compilado como modulo WASM. Sempre forneça um `fallback` no `<World>`.
-- **Uma unica instancia**: Apenas um `<World>` por aplicacao Threlte.
-- **API instavel**: O pacote esta em desenvolvimento ativo, a API pode mudar.
-- **Massa automatica**: Se nao fornecer `density`, `mass` ou `massProperties`, Rapier calcula automaticamente.
-- **Trimesh vs ConvexHull**: `trimesh` e mais preciso para geometrias concavas mas mais pesado computacionalmente. `convexHull` e mais performatico e recomendado para a maioria dos casos.
-- **usePhysicsTask vs useTask**: Use `usePhysicsTask` quando precisar modificar o estado da fisica antes do step. Use `useTask` para logica de renderizacao.
+- **WASM**: Rapier is compiled as a WASM module. Always provide a `fallback` in `<World>`.
+- **Single instance**: Only one `<World>` per Threlte application.
+- **Unstable API**: The package is under active development, the API may change.
+- **Automatic mass**: If you don't provide `density`, `mass`, or `massProperties`, Rapier calculates it automatically.
+- **Trimesh vs ConvexHull**: `trimesh` is more accurate for concave geometries but is computationally heavier. `convexHull` is more performant and recommended for most cases.
+- **usePhysicsTask vs useTask**: Use `usePhysicsTask` when you need to modify physics state before the step. Use `useTask` for rendering logic.
 
 ---
 
-## Links Uteis
+## Useful Links
 
-- Docs oficiais Threlte Rapier: https://threlte.xyz/docs/reference/rapier/getting-started/
-- Docs do Rapier: https://rapier.rs/docs/
-- Repositorio Threlte: https://github.com/threlte/threlte
+- Official Threlte Rapier docs: https://threlte.xyz/docs/reference/rapier/getting-started/
+- Rapier docs: https://rapier.rs/docs/
+- Threlte repository: https://github.com/threlte/threlte

@@ -1,19 +1,19 @@
-# @threlte/extras - Indice
+# @threlte/extras - Index
 
-> Componentes, hooks e plugins utilitarios para o framework [Threlte](https://threlte.xyz/).
-> Fonte oficial: https://threlte.xyz/docs/reference/extras/getting-started/
+> Components, hooks, and utility plugins for the [Threlte](https://threlte.xyz/) framework.
+> Official source: https://threlte.xyz/docs/reference/extras/getting-started/
 
-## Instalacao
+## Installation
 
 ```bash
 npm install @threlte/extras
 ```
 
-Requer `@threlte/core` instalado.
+Requires `@threlte/core` to be installed.
 
-## Arquivos por Categoria
+## Files by Category
 
-| Arquivo | Categoria | Conteudo |
+| File | Category | Content |
 |---|---|---|
 | [interaction.md](./interaction.md) | **Interaction** | `interactivity()`, `<OrbitControls>`, `<CameraControls>`, `<TransformControls>`, `<Gizmo>`, `<TrackballControls>`, `useCursor`, `useKeyboard`, `useGamepad`, `useInputMap`, `bvh`, `useTrailTexture` |
 | [content.md](./content.md) | **Content** | `<GLTF>`, `useGltf`, `useGltfAnimations`, `useTexture`, `<HTML>`, `<SVG>`, `<Text>`, `<Text3DGeometry>`, `<Decal>`, `<RoundedBoxGeometry>` |
@@ -23,15 +23,15 @@ Requer `@threlte/core` instalado.
 | [staging.md](./staging.md) | **Staging** | `<Environment>`, `<CubeEnvironment>`, `<VirtualEnvironment>`, `<ContactShadows>`, `<SoftShadows>`, `<BakeShadows>`, `<ShadowAlpha>`, `<Float>`, `<Grid>`, `<Stars>`, `<Sky>`, `<Sparkles>`, `<BackdropGeometry>`, `<Billboard>`, `<CSM>`, `<Align>`, `<Bounds>`, `<Resize>`, `<Portal>`, `<View>`, `<HUD>`, `layers()`, `transitions()`, `useViewport()` |
 | [visual-effects.md](./visual-effects.md) | **Visual Effects** | `<Edges>`, `<Wireframe>`, `<Outlines>`, `<AsciiRenderer>`, `<CubeCamera>`, `<FakeGlowMaterial>`, `<ImageMaterial>`, `<MeshRefractionMaterial>`, `<MeshDiscardMaterial>`, `<ShadowMaterial>`, `<Mask>`, `<UvMaterial>`, `<PointsMaterial>`, `<AnimatedSpriteMaterial>`, `<MeshLineGeometry>`, `<MeshLineMaterial>`, `<LinearGradientTexture>`, `<RadialGradientTexture>`, `useFBO()` |
 
-## Dicas Gerais
+## General Tips
 
-- **Plugins** (como `interactivity`, `layers`, `transitions`) devem ser invocados no nivel raiz da aplicacao, tipicamente em `Scene.svelte`
-- **Componentes extras** extendem `<T>` internamente e encaminham props/eventos do Three.js
-- **Suspense-ready** significa que o componente pode ser usado dentro de `<Suspense>` para gerenciar carregamento
-- **`<HTML>` nao funciona em XR** - use [threlte-uikit](https://github.com/threlte/threlte-uikit) como alternativa
+- **Plugins** (such as `interactivity`, `layers`, `transitions`) must be invoked at the root level of the application, typically in `Scene.svelte`
+- **Extra components** extend `<T>` internally and forward Three.js props/events
+- **Suspense-ready** means the component can be used inside `<Suspense>` to manage loading
+- **`<HTML>` does not work in XR** - use [threlte-uikit](https://github.com/threlte/threlte-uikit) as an alternative
 
-## Links Uteis
+## Useful Links
 
-- Docs oficiais @threlte/extras: https://threlte.xyz/docs/reference/extras/getting-started/
-- Repositorio Threlte: https://github.com/threlte/threlte
-- threlte-uikit (alternativa ao HTML para XR): https://github.com/threlte/threlte-uikit
+- Official @threlte/extras docs: https://threlte.xyz/docs/reference/extras/getting-started/
+- Threlte repository: https://github.com/threlte/threlte
+- threlte-uikit (alternative to HTML for XR): https://github.com/threlte/threlte-uikit

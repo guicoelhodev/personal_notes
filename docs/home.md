@@ -1,17 +1,15 @@
-# IA Notes
+# AI Notes
 
-**Resumos de referencia rapida** das principais ferramentas e frameworks usados em projetos de desenvolvimento.
+**Quick reference summaries** of the main tools and frameworks used in development projects.
 
-## Sobre
+## About
 
-O objetivo deste repositorio e economizar **tokens de leitura e contexto** ao usar assistentes de IA (como Claude, ChatGPT, GLM, etc.) durante o desenvolvimento. Em vez de pedir ao modelo que leia a documentacao completa toda vez, basta fornecer o resumo relevante.
+The goal of this repository is to save **reading and context tokens** when using AI assistants (such as Claude, ChatGPT, GLM, etc.) during development. Instead of asking the model to read the full documentation every time, just provide the relevant summary.
 
-Cada resumo e focado em informacoes **praticas e diretas**: APIs, componentes, props, exemplos de uso e comportamentos importantes. Sem teoria desnecessaria, sem introducoes longas.
+Each summary is focused on **practical and direct** information: APIs, components, props, usage examples, and important behaviors. No unnecessary theory, no lengthy introductions.
 
-## Tecnologias cobertas
+## Technologies covered
 
-| Tecnologia | Descricao |
+| Technology | Description |
 |---|---|
-| [Threlte](/threlte/threlte-core-guide) | Framework 3D declarativo para Svelte baseado em Three.js |
-
-
+| [Threlte](/threlte/threlte-core-guide) | Declarative 3D framework for Svelte based on Three.js |

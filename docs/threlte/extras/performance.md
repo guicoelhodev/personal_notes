@@ -1,12 +1,12 @@
 # @threlte/extras - Performance
 
-> Componentes e hooks de otimizacao de performance do pacote [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/).
+> Performance optimization components and hooks from the [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/) package.
 
 ---
 
 ## `<Instance>` + `<InstancedMesh>`
 
-Renderizacao instanciada para muitos objetos com mesma geometria e material. Reduz draw calls.
+Instanced rendering for many objects with the same geometry and material. Reduces draw calls.
 
 ```svelte
 <InstancedMesh limit={10000}>
@@ -21,9 +21,9 @@ Renderizacao instanciada para muitos objetos com mesma geometria e material. Red
 
 **`<InstancedMesh>` props:** `id`, `limit` (default 1000), `range`, `update`.
 
-**`<Instance>` props:** `color`, `id`. Suporta transform e interatividade.
+**`<Instance>` props:** `color`, `id`. Supports transforms and interactivity.
 
-**Multiplos InstancedMesh:**
+**Multiple InstancedMesh:**
 
 ```svelte
 <InstancedMesh id="tree">
@@ -44,7 +44,7 @@ Renderizacao instanciada para muitos objetos com mesma geometria e material. Red
 
 ## `<InstancedMeshes>`
 
-Cria `InstancedMesh` automaticamente para cada `THREE.Mesh` passado (util com `useGltf`).
+Automatically creates `InstancedMesh` for each `THREE.Mesh` passed (useful with `useGltf`).
 
 ```svelte
 <script>
@@ -65,7 +65,7 @@ Cria `InstancedMesh` automaticamente para cada `THREE.Mesh` passado (util com `u
 
 ## `<InstancedSprite>`
 
-Sprites animados instanciados (early version). Requer metadata de spritesheet.
+Instanced animated sprites (early version). Requires spritesheet metadata.
 
 ```svelte
 <InstancedSprite {spritesheet} count={500} fps={9} billboarding>
@@ -79,13 +79,13 @@ Sprites animados instanciados (early version). Requer metadata de spritesheet.
 
 Props: `count`, `spritesheet`, `fps`, `playmode` (`'FORWARD'|'REVERSE'|'PAUSE'|'PINGPONG'`), `billboarding`, `randomPlaybackOffset`, `transparent`, `alphaTest`, `autoUpdate`.
 
-Hook: `useInstancedSprite()` retorna `{ updatePosition, count, animationMap, sprite }`.
+Hook: `useInstancedSprite()` returns `{ updatePosition, count, animationMap, sprite }`.
 
 ---
 
 ## `<Detailed>`
 
-Abstracao de Three.js LOD. Troca modelos por versoes de menor detalhe com base na distancia.
+Three.js LOD abstraction. Swaps models for lower-detail versions based on distance.
 
 ```svelte
 <Detailed>
@@ -100,13 +100,13 @@ Abstracao de Three.js LOD. Troca modelos por versoes de menor detalhe com base n
 </Detailed>
 ```
 
-Filhos aceitam `distance` e `hysteresis` props.
+Children accept `distance` and `hysteresis` props.
 
 ---
 
 ## `<PerfMonitor>`
 
-Monitor de performance (three-perf). Drop-in child de `<Canvas>`.
+Performance monitor (three-perf). Drop-in child of `<Canvas>`.
 
 ```svelte
 <Canvas>
@@ -121,7 +121,7 @@ Props: `anchorX`, `anchorY`, `logsPerSecond`, `visible`, `enabled`, `showGraph`,
 
 ## `meshBounds`
 
-Funcao de raycast otimizada (bounding sphere + box). Melhora performance trocando precisao.
+Optimized raycast function (bounding sphere + box). Improves performance by trading precision.
 
 ```svelte
 <T.Mesh raycast={meshBounds}>
@@ -129,7 +129,7 @@ Funcao de raycast otimizada (bounding sphere + box). Melhora performance trocand
 </T.Mesh>
 ```
 
-Pode ser aplicado via plugin global:
+Can be applied via a global plugin:
 
 ```svelte
 <script>

@@ -1,12 +1,12 @@
 # @threlte/extras - Interaction
 
-> Componentes e hooks de interacao do pacote [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/).
+> Interaction components and hooks from the [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/) package.
 
 ---
 
 ## `interactivity()`
 
-Plugin que registra um listener global no `<canvas>` e encaminha eventos de interacao para os componentes `<T>`. **Deve ser invocado no nivel raiz** (tipicamente `Scene.svelte`).
+Plugin that registers a global listener on the `<canvas>` and forwards interaction events to `<T>` components. **Must be invoked at the root level** (typically `Scene.svelte`).
 
 ```svelte
 <script>
@@ -20,7 +20,7 @@ Plugin que registra um listener global no `<canvas>` e encaminha eventos de inte
 </T.Mesh>
 ```
 
-### Eventos disponiveis
+### Available Events
 
 ```svelte
 <T.Mesh
@@ -39,32 +39,32 @@ Plugin que registra um listener global no `<canvas>` e encaminha eventos de inte
 />
 ```
 
-### Dados do Evento
+### Event Data
 
-Todos os eventos de interacao contem:
+All interaction events contain:
 
 ```typescript
 type Event = THREE.Intersection & {
-  object: THREE.Object3D           // Objeto atingido
-  distance: number                 // Distancia do ray origin
-  point: THREE.Vector3             // Ponto de intersecao (world)
-  face: THREE.Face | null          // Face atingida
-  eventObject: THREE.Object3D      // Objeto que registrou o handler
-  intersections: Intersection[]    // Todas as intersecoes
-  camera: THREE.Camera             // Camera usada
-  delta: number                    // Pixels desde pointerdown (0 para non-click)
+  object: THREE.Object3D           // Hit object
+  distance: number                 // Distance from ray origin
+  point: THREE.Vector3             // Intersection point (world)
+  face: THREE.Face | null          // Hit face
+  eventObject: THREE.Object3D      // Object that registered the handler
+  intersections: Intersection[]    // All intersections
+  camera: THREE.Camera             // Camera used
+  delta: number                    // Pixels since pointerdown (0 for non-click)
   nativeEvent: MouseEvent | PointerEvent | WheelEvent
-  pointer: Vector2                 // Pointer em NDC
-  ray: THREE.Ray                   // Ray usado
-  stopPropagation: () => void      // Para propagacao + bloqueia objetos atras
-  stopImmediatePropagation: () => void  // Delega ao DOM
+  pointer: Vector2                 // Pointer in NDC
+  ray: THREE.Ray                   // Ray used
+  stopPropagation: () => void      // Stops propagation + blocks objects behind
+  stopImmediatePropagation: () => void  // Delegates to DOM
   stopped: boolean
 }
 ```
 
-### Propagacao de Eventos
+### Event Propagation
 
-Objetos sao transparentes a pointer events por padrao. O evento e entregue ao objeto mais proximo, faz bubble pelos ancestors, depois ao proximo objeto, etc. Use `stopPropagation()` para bloquear objetos atras:
+Objects are transparent to pointer events by default. The event is delivered to the closest object, bubbles up through ancestors, then to the next object, etc. Use `stopPropagation()` to block objects behind:
 
 ```svelte
 <T.Mesh onclick={(e) => e.stopPropagation()} />
@@ -72,7 +72,7 @@ Objetos sao transparentes a pointer events por padrao. O evento e entregue ao ob
 
 ### Touch Interactions
 
-Em dispositivos touch, o browser pode cancelar `pointermove` mid-gesture. Use `touch-action: none` no wrapper do canvas:
+On touch devices, the browser may cancel `pointermove` mid-gesture. Use `touch-action: none` on the canvas wrapper:
 
 ```svelte
 <div style="touch-action: none;">
@@ -80,19 +80,19 @@ Em dispositivos touch, o browser pode cancelar `pointermove` mid-gesture. Use `t
 </div>
 ```
 
-### Event Target customizado
+### Custom Event Target
 
 ```svelte
 interactivity({ target: document })
 
-// Ou reativo:
+// Or reactive:
 const { target } = interactivity()
 $effect(() => { target.set(document) })
 ```
 
 ### Compute Function
 
-Quando o target nao e o mesmo tamanho do canvas:
+When the target is not the same size as the canvas:
 
 ```svelte
 interactivity({
@@ -109,7 +109,7 @@ interactivity({
 
 ### Filter Function
 
-Filtra e ordena hits antes da entrega:
+Filters and sorts hits before delivery:
 
 ```svelte
 interactivity({
@@ -117,7 +117,7 @@ interactivity({
 })
 ```
 
-### Estado da Interatividade
+### Interactivity State
 
 ```svelte
 const { pointer, pointerOverTarget } = useInteractivity()
@@ -159,7 +159,7 @@ export {}
 
 ## `<OrbitControls>`
 
-Controle de orbita da camera. **Deve ser filho direto de uma camera com `makeDefault`.**
+Camera orbit controls. **Must be a direct child of a camera with `makeDefault`.**
 
 ```svelte
 <T.PerspectiveCamera makeDefault position={[5, 5, 5]}>
@@ -167,17 +167,17 @@ Controle de orbita da camera. **Deve ser filho direto de uma camera com `makeDef
 </T.PerspectiveCamera>
 ```
 
-Extende `<T.OrbitControls>`. Suporta todos os 30+ props do Three.js: `enableDamping`, `autoRotate`, `rotateSpeed`, `zoomSpeed`, `zoomToCursor`, `minPolarAngle`, `maxPolarAngle`, `enableZoom`, etc.
+Extends `<T.OrbitControls>`. Supports all 30+ Three.js props: `enableDamping`, `autoRotate`, `rotateSpeed`, `zoomSpeed`, `zoomToCursor`, `minPolarAngle`, `maxPolarAngle`, `enableZoom`, etc.
 
-| Prop | Tipo | Descricao |
+| Prop | Type | Description |
 |---|---|---|
-| `camera` | `THREE.Camera` | Camera explicita (opcional, usa pai ou default) |
+| `camera` | `THREE.Camera` | Explicit camera (optional, uses parent or default) |
 
 ---
 
 ## `<CameraControls>`
 
-Controle de camera avancado (baseado em [camera-controls](https://github.com/yomotsu/camera-controls)). Suporta zoom, rotacao, pan, transicoes suaves, fit-to-box, first-person, etc.
+Advanced camera controls (based on [camera-controls](https://github.com/yomotsu/camera-controls)). Supports zoom, rotation, pan, smooth transitions, fit-to-box, first-person, etc.
 
 ```svelte
 <T.PerspectiveCamera makeDefault>
@@ -206,9 +206,9 @@ controls?.saveState()
 
 ### Props
 
-| Prop | Tipo | Descricao |
+| Prop | Type | Description |
 |---|---|---|
-| `camera` | `THREE.Camera` | Camera explicita (opcional) |
+| `camera` | `THREE.Camera` | Explicit camera (optional) |
 
 ### SSR Externalization (SvelteKit)
 
@@ -223,9 +223,9 @@ export default defineConfig({
 
 ## `<TransformControls>`
 
-Gizmo de transformacao (translacao, rotacao, escala) para objetos 3D. Baseado no Three.js TransformControls.
+Transform gizmo (translation, rotation, scale) for 3D objects. Based on Three.js TransformControls.
 
-### Uso basico (filho do objeto)
+### Basic Usage (child of the object)
 
 ```svelte
 <TransformControls translationSnap={1}>
@@ -236,7 +236,7 @@ Gizmo de transformacao (translacao, rotacao, escala) para objetos 3D. Baseado no
 </TransformControls>
 ```
 
-### Transformando objeto externo
+### Transforming an External Object
 
 ```svelte
 <T.Mesh bind:ref={mesh}>
@@ -247,7 +247,7 @@ Gizmo de transformacao (translacao, rotacao, escala) para objetos 3D. Baseado no
 <T.TransformControls object={mesh} />
 ```
 
-Ou via snippet:
+Or via snippet:
 
 ```svelte
 <T.Mesh>
@@ -259,26 +259,26 @@ Ou via snippet:
 
 ### Props
 
-| Prop | Tipo | Default | Descricao |
+| Prop | Type | Default | Description |
 |---|---|---|---|
-| `autoPauseControls` | `boolean` | `true` | Pausa camera controls ao arrastar |
-| `cameraControls` | `{ enabled: boolean }` | - | Controles customizados de terceiros |
-| `object` | `THREE.Object3D` | - | Objeto a transformar |
+| `autoPauseControls` | `boolean` | `true` | Pauses camera controls when dragging |
+| `cameraControls` | `{ enabled: boolean }` | - | Custom third-party controls |
+| `object` | `THREE.Object3D` | - | Object to transform |
 
 ### Bindings
 
-| Nome | Tipo |
+| Name | Type |
 |---|---|
 | `controls` | `THREE.TransformControls` |
 | `group` | `THREE.Group` |
 
-Auto-pausa `<OrbitControls>`, `<TrackballControls>` e `<CameraControls>` automaticamente. Desative com `autoPauseControls={false}`.
+Auto-pauses `<OrbitControls>`, `<TrackballControls>`, and `<CameraControls>` automatically. Disable with `autoPauseControls={false}`.
 
 ---
 
 ## `<Gizmo>`
 
-Gizmo visual de snap-to para camera controls. Usa [Three Viewport Gizmo](https://fennec-hub.github.io/three-viewport-gizmo/).
+Visual snap-to gizmo for camera controls. Uses [Three Viewport Gizmo](https://fennec-hub.github.io/three-viewport-gizmo/).
 
 ```svelte
 <OrbitControls>
@@ -288,24 +288,24 @@ Gizmo visual de snap-to para camera controls. Usa [Three Viewport Gizmo](https:/
 
 ### Props
 
-| Prop | Tipo | Descricao |
+| Prop | Type | Description |
 |---|---|---|
-| `controls` | `OrbitControls \| CameraControls` | Controles explicitos |
-| `renderTask` | `TaskOptions` | Opcoes da task de render |
+| `controls` | `OrbitControls \| CameraControls` | Explicit controls |
+| `renderTask` | `TaskOptions` | Render task options |
 
-Aceita qualquer opcao do [Three Viewport Gizmo](https://fennec-hub.github.io/three-viewport-gizmo/api.html#gizmooptions).
+Accepts any option from [Three Viewport Gizmo](https://fennec-hub.github.io/three-viewport-gizmo/api.html#gizmooptions).
 
 ---
 
 ## `<TrackballControls>`
 
-Controle de camera estilo trackball (rotacao livre sem constraint de eixo).
+Trackball-style camera controls (free rotation without axis constraint).
 
 ---
 
 ## `useCursor()`
 
-Hook que seta o cursor CSS baseado no hover state de um mesh.
+Hook that sets the CSS cursor based on the hover state of a mesh.
 
 ```svelte
 <script>
@@ -320,16 +320,16 @@ Hook que seta o cursor CSS baseado no hover state de um mesh.
 </T.Mesh>
 ```
 
-- Argumentos: `onPointerOverCursor = 'pointer'`, `onPointerOutCursor = 'auto'`
-- Aceita stores como argumento para mudar o cursor dinamicamente
-- `hovering` e um store reativo
-- Rename handlers para evitar conflitos: `const { onPointerEnter: cursorEnter } = useCursor()`
+- Arguments: `onPointerOverCursor = 'pointer'`, `onPointerOutCursor = 'auto'`
+- Accepts stores as arguments to change the cursor dynamically
+- `hovering` is a reactive store
+- Rename handlers to avoid conflicts: `const { onPointerEnter: cursorEnter } = useCursor()`
 
 ---
 
 ## `useKeyboard()`
 
-Tracking frame-accurate de teclas (estilo Godot `Input.is_action_just_pressed()`). Coleta key presses entre frames e aplica junto no inicio de cada frame.
+Frame-accurate key tracking (Godot-style `Input.is_action_just_pressed()`). Collects key presses between frames and applies them all at the start of each frame.
 
 ```svelte
 <script lang="ts">
@@ -352,19 +352,19 @@ Tracking frame-accurate de teclas (estilo Godot `Input.is_action_just_pressed()`
 
 ### Key State
 
-Cada tecla e identificada por `KeyboardEvent.key` (ex: `'w'`, `'Space'`, `'ArrowUp'`, `'Shift'`). Case-insensitive.
+Each key is identified by `KeyboardEvent.key` (e.g.: `'w'`, `'Space'`, `'ArrowUp'`, `'Shift'`). Case-insensitive.
 
-| Propriedade | Tipo | Descricao |
+| Property | Type | Description |
 |---|---|---|
-| `pressed` | `boolean` | Tecla pressionada |
-| `justPressed` | `boolean` | Primeiro frame pressionada |
-| `justReleased` | `boolean` | Primeiro frame liberada |
+| `pressed` | `boolean` | Key is pressed |
+| `justPressed` | `boolean` | First frame pressed |
+| `justReleased` | `boolean` | First frame released |
 
-O objeto `KeyState` e estavel -- `keyboard.key('Space')` sempre retorna a mesma referencia.
+The `KeyState` object is stable -- `keyboard.key('Space')` always returns the same reference.
 
-### Reatividade
+### Reactivity
 
-Propriedades sao reativas, usaveis em template ou `$derived`:
+Properties are reactive, usable in templates or `$derived`:
 
 ```svelte
 <p>{space.pressed ? 'Jumping!' : 'On the ground'}</p>
@@ -372,12 +372,12 @@ Propriedades sao reativas, usaveis em template ou `$derived`:
 
 ### Event Listeners
 
-Para reacoes imediatas (non-polling):
+For immediate reactions (non-polling):
 
 ```svelte
 keyboard.on('keydown', (e) => { console.log(`Pressed: ${e.key}`) })
 const off = keyboard.on('keyup', (e) => { /* ... */ })
-// off() para parar de ouvir
+// off() to stop listening
 ```
 
 ### Task Ordering
@@ -385,10 +385,10 @@ const off = keyboard.on('keyup', (e) => { /* ... */ })
 Schedule tasks **after** `keyboard.task`:
 
 ```svelte
-useTask(() => { /* state atualizado */ }, { after: keyboard.task })
+useTask(() => { /* updated state */ }, { after: keyboard.task })
 ```
 
-### Opcoes
+### Options
 
 ```svelte
 import { useThrelte } from '@threlte/core'
@@ -396,13 +396,13 @@ const { dom } = useThrelte()
 const keyboard = useKeyboard(() => ({ target: dom }))
 ```
 
-Default: `window` (global). Quando a janela perde foco (blur), todas as teclas pressionadas sao automaticamente liberadas.
+Default: `window` (global). When the window loses focus (blur), all pressed keys are automatically released.
 
 ---
 
 ## `useGamepad()`
 
-Tracking frame-accurate de gamepads usando [Standard Gamepad layout](https://w3c.github.io/gamepad/#remapping).
+Frame-accurate gamepad tracking using the [Standard Gamepad layout](https://w3c.github.io/gamepad/#remapping).
 
 ```svelte
 <script lang="ts">
@@ -423,7 +423,7 @@ Tracking frame-accurate de gamepads usando [Standard Gamepad layout](https://w3c
 </script>
 ```
 
-### Multiplos Gamepads
+### Multiple Gamepads
 
 ```svelte
 const gamepad1 = useGamepad({ index: 0 })
@@ -439,19 +439,19 @@ if (a.justPressed) jump()
 if (lt.value > 0.5) accelerate()
 ```
 
-| Propriedade | Tipo | Descricao |
+| Property | Type | Description |
 |---|---|---|
-| `pressed` | `boolean` | Botao pressionado |
-| `justPressed` | `boolean` | Primeiro frame pressionado |
-| `justReleased` | `boolean` | Primeiro frame liberado |
-| `touched` | `boolean` | Botao sendo tocado (se suportado) |
-| `value` | `number` | Valor analogico 0-1 (ex: triggers) |
+| `pressed` | `boolean` | Button is pressed |
+| `justPressed` | `boolean` | First frame pressed |
+| `justReleased` | `boolean` | First frame released |
+| `touched` | `boolean` | Button is being touched (if supported) |
+| `value` | `number` | Analog value 0-1 (e.g.: triggers) |
 
 ### Stick State
 
 ```svelte
 const left = gamepad.stick('leftStick')
-console.log(left.x, left.y) // x: -1 a 1, y: -1 a 1
+console.log(left.x, left.y) // x: -1 to 1, y: -1 to 1
 ```
 
 ### Event Listeners
@@ -462,32 +462,32 @@ gamepad.stick('leftStick').on('change', (event) => { /* ... */ })
 gamepad.on('press', (event) => { /* ... */ })
 ```
 
-| Evento | Descricao |
+| Event | Description |
 |---|---|
-| `down` | Inicio do press |
-| `up` | Fim do press |
-| `press` | Press completo (apos release) |
-| `change` | Valor mudou |
-| `touchstart` / `touchend` / `touch` | Eventos de toque |
+| `down` | Start of press |
+| `up` | End of press |
+| `press` | Complete press (after release) |
+| `change` | Value changed |
+| `touchstart` / `touchend` / `touch` | Touch events |
 
-### Opcoes
+### Options
 
-| Opcao | Default | Descricao |
+| Option | Default | Description |
 |---|---|---|
-| `index` | `0` | Indice do gamepad |
-| `axisDeadzone` | `0.05` | Minimo para disparar change events |
+| `index` | `0` | Gamepad index |
+| `axisDeadzone` | `0.05` | Minimum to trigger change events |
 
-### Conexao
+### Connection
 
 ```svelte
 const { connected } = gamepad
 <p>{$connected ? 'Gamepad connected' : 'No gamepad'}</p>
-const raw = gamepad.raw // Gamepad nativo ou null
+const raw = gamepad.raw // Native Gamepad or null
 ```
 
 ### Button Mapping
 
-**Botoes:** `clusterBottom`, `clusterRight`, `clusterLeft`, `clusterTop`, `leftBumper`, `rightBumper`, `leftTrigger`, `rightTrigger`, `select`, `start`, `center`, `leftStickButton`, `rightStickButton`, `directionalTop`, `directionalBottom`, `directionalLeft`, `directionalRight`
+**Buttons:** `clusterBottom`, `clusterRight`, `clusterLeft`, `clusterTop`, `leftBumper`, `rightBumper`, `leftTrigger`, `rightTrigger`, `select`, `start`, `center`, `leftStickButton`, `rightStickButton`, `directionalTop`, `directionalBottom`, `directionalLeft`, `directionalRight`
 
 **Sticks:** `leftStick`, `rightStick`
 
@@ -505,7 +505,7 @@ XR Sticks: `touchpad`, `thumbstick`
 
 ## `useInputMap()`
 
-Sistema de action mapping que abstrai inputs fisicos em acoes nomeadas. Decouple game logic de dispositivos especificos.
+Action mapping system that abstracts physical inputs into named actions. Decouples game logic from specific devices.
 
 ```svelte
 <script lang="ts">
@@ -539,9 +539,9 @@ Sistema de action mapping que abstrai inputs fisicos em acoes nomeadas. Decouple
 </script>
 ```
 
-### Definicoes Reativas
+### Reactive Definitions
 
-Passar como funcao permite remapping em runtime:
+Passing as a function allows runtime remapping:
 
 ```svelte
 let jumpKey = $state('Space')
@@ -549,16 +549,16 @@ const input = useInputMap(
   ({ key }) => ({ jump: [key(jumpKey)] }),
   { keyboard }
 )
-// Depois: jumpKey = 'j'
+// Later: jumpKey = 'j'
 ```
 
 ### Binding Helpers
 
-| Helper | Descricao |
+| Helper | Description |
 |---|---|
-| `key('w')` | Tecla por `KeyboardEvent.key` (case-insensitive) |
-| `gamepadButton('clusterBottom')` | Botao do gamepad |
-| `gamepadAxis('leftStick', 'x', 1, threshold?)` | Eixo do stick com direcao (threshold default 0.1) |
+| `key('w')` | Key by `KeyboardEvent.key` (case-insensitive) |
+| `gamepadButton('clusterBottom')` | Gamepad button |
+| `gamepadAxis('leftStick', 'x', 1, threshold?)` | Stick axis with direction (default threshold 0.1) |
 
 ### Action State
 
@@ -569,20 +569,20 @@ if (jump.pressed) holdJump()
 if (jump.justReleased) releaseJump()
 ```
 
-| Propriedade | Tipo | Descricao |
+| Property | Type | Description |
 |---|---|---|
-| `pressed` | `boolean` | Algum binding ativo |
-| `justPressed` | `boolean` | Primeiro frame ativo |
-| `justReleased` | `boolean` | Primeiro frame inativo |
-| `strength` | `number` | Forca analogica 0-1 |
+| `pressed` | `boolean` | Any binding is active |
+| `justPressed` | `boolean` | First frame active |
+| `justReleased` | `boolean` | First frame inactive |
+| `strength` | `number` | Analog strength 0-1 |
 
-### Axes e Vectors
+### Axes and Vectors
 
 ```svelte
-const horizontal = input.axis('moveLeft', 'moveRight')   // -1 a 1
+const horizontal = input.axis('moveLeft', 'moveRight')   // -1 to 1
 const move = input.vector('moveLeft', 'moveRight', 'moveForward', 'moveBack')
-// move.x: -1 a 1, move.y: -1 a 1
-// magnitude clamped a 1 (sem movimento diagonal mais rapido)
+// move.x: -1 to 1, move.y: -1 to 1
+// magnitude clamped to 1 (no faster diagonal movement)
 ```
 
 ### Active Device
@@ -591,13 +591,13 @@ const move = input.vector('moveLeft', 'moveRight', 'moveForward', 'moveBack')
 input.activeDevice.current // 'keyboard' | 'gamepad'
 ```
 
-Reativo -- reflete o ultimo dispositivo que forneceu input.
+Reactive -- reflects the last device that provided input.
 
 ---
 
 ## `bvh`
 
-Plugin que usa `three-mesh-bvh` para acelerar raycasting e habilitar queries espaciais. Funciona com Mesh, BatchedMesh e Points.
+Plugin that uses `three-mesh-bvh` to accelerate raycasting and enable spatial queries. Works with Mesh, BatchedMesh, and Points.
 
 ```svelte
 <script lang="ts">
@@ -627,21 +627,21 @@ Plugin que usa `three-mesh-bvh` para acelerar raycasting e habilitar queries esp
 </T.Mesh>
 ```
 
-### Opcoes
+### Options
 
-| Opcao | Default | Descricao |
+| Option | Default | Description |
 |---|---|---|
-| `enabled` | `true` | Habilita BVH |
-| `strategy` | `SAH` | `SAH`, `CENTER` ou `AVERAGE` |
-| `indirect` | `false` | Indireto |
+| `enabled` | `true` | Enables BVH |
+| `strategy` | `SAH` | `SAH`, `CENTER`, or `AVERAGE` |
+| `indirect` | `false` | Indirect |
 | `verbose` | `false` | Verbose logging |
-| `maxDepth` | `20` | Profundidade maxima |
-| `maxLeafTris` | `10` | Triangulos maximos por folha |
+| `maxDepth` | `20` | Maximum depth |
+| `maxLeafTris` | `10` | Maximum triangles per leaf |
 | `setBoundingBox` | `true` | Auto-set bounding box |
 
-### Limitacao
+### Limitation
 
-BVH nao recompute quando geometria muda -- use `{#key}` para forcar recomputacao:
+BVH does not recompute when geometry changes -- use `{#key}` to force recomputation:
 
 ```svelte
 {#key geometry}
@@ -665,7 +665,7 @@ export {}
 
 ## `useTrailTexture()`
 
-Hook que cria uma textura canvas-based de trilha movida por eventos de pointer.
+Hook that creates a canvas-based trail texture driven by pointer events.
 
 ```svelte
 <script>
@@ -683,4 +683,4 @@ Hook que cria uma textura canvas-based de trilha movida por eventos de pointer.
 </T.Mesh>
 ```
 
-Opcoes: `size`, `maxAge`, `radius`, `intensity`, `interpolate`, `smoothing`, `minForce`, `blend`, `ease`. Retorna `{ texture, onPointerMove, setTrail }`.
+Options: `size`, `maxAge`, `radius`, `intensity`, `interpolate`, `smoothing`, `minForce`, `blend`, `ease`. Returns `{ texture, onPointerMove, setTrail }`.

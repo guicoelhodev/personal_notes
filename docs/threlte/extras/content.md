@@ -1,12 +1,12 @@
 # @threlte/extras - Content
 
-> Componentes e hooks para carregamento e renderizacao de conteudo do pacote [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/).
+> Components and hooks for loading and rendering content from the [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/) package.
 
 ---
 
 ## `<GLTF>`
 
-Carrega um modelo glTF/glb. A prop `url` e reativa.
+Loads a glTF/glb model. The `url` prop is reactive.
 
 ```svelte
 <script>
@@ -16,11 +16,11 @@ Carrega um modelo glTF/glb. A prop `url` e reativa.
 <GLTF url="/models/helmet/DamagedHelmet.gltf" />
 ```
 
-**Compressao:**
+**Compression:**
 
 ```svelte
 <script>
-  const dracoLoader = useDraco()       // DRACO (default: CDN Google)
+  const dracoLoader = useDraco()       // DRACO (default: Google CDN)
   const ktx2Loader = useKtx2('path')   // KTX2 textures
   const meshoptDecoder = useMeshopt()  // Meshopt
 </script>
@@ -38,7 +38,7 @@ Carrega um modelo glTF/glb. A prop `url` e reativa.
 
 ## `useGltf()`
 
-Hook para carregar glTF e acessar nodes/materials individualmente. Retorna `AsyncWritable` (suspense-ready).
+Hook for loading glTF and accessing nodes/materials individually. Returns `AsyncWritable` (suspense-ready).
 
 ```svelte
 <script lang="ts">
@@ -56,13 +56,13 @@ Hook para carregar glTF e acessar nodes/materials individualmente. Retorna `Asyn
 {/if}
 ```
 
-Suporta DRACO, KTX2 e Meshopt (mesmos hooks do `<GLTF>`).
+Supports DRACO, KTX2, and Meshopt (same hooks as `<GLTF>`).
 
 ---
 
 ## `useGltfAnimations()`
 
-Hook para controlar animacoes de um modelo GLTF.
+Hook for controlling animations of a GLTF model.
 
 ```svelte
 <script>
@@ -76,13 +76,13 @@ Hook para controlar animacoes de um modelo GLTF.
 </script>
 ```
 
-Pode ser usado com `<GLTF>` (sem argumentos, bind `gltf`) ou com `useGltf` (passando o store). Aceita um segundo argumento opcional para aplicar animacoes a uma root diferente.
+Can be used with `<GLTF>` (no arguments, bind `gltf`) or with `useGltf` (passing the store). Accepts an optional second argument to apply animations to a different root.
 
 ---
 
 ## `useTexture()`
 
-Hook conveniente que retorna `AsyncWritable<Texture>`. Atribui automaticamente o `colorSpace` do renderer.
+Convenience hook that returns `AsyncWritable<Texture>`. Automatically assigns the renderer's `colorSpace`.
 
 ```svelte
 <script>
@@ -111,7 +111,7 @@ Hook conveniente que retorna `AsyncWritable<Texture>`. Atribui automaticamente o
 
 ## `<HTML>`
 
-Vincula conteudo HTML a qualquer objeto da cena. Projeta automaticamente para a posicao do objeto.
+Binds HTML content to any scene object. Automatically projects to the object's position.
 
 ```svelte
 <HTML transform>
@@ -119,24 +119,24 @@ Vincula conteudo HTML a qualquer objeto da cena. Projeta automaticamente para a 
 </HTML>
 ```
 
-**Props principais:**
+**Main props:**
 
-| Prop | Tipo | Default | Descricao |
+| Prop | Type | Default | Description |
 |---|---|---|---|
-| `transform` | `boolean` | `false` | Aplica matrix3d CSS |
-| `center` | `boolean` | `false` | Adiciona CSS transform -50%/-50% (somente sem transform) |
-| `occlude` | `boolean \| Object3D[] \| 'blending'` | `false` | Oculta HTML atras de geometria |
-| `sprite` | `boolean` | `false` | Renderiza como sprite (com transform) |
-| `portal` | `HTMLElement` | - | Monta conteudo em outro elemento |
-| `pointerEvents` | `string` | `'auto'` | Controle de pointer events |
-| `autoRender` | `boolean` | `true` | Pausa task de render |
-| `distanceFactor` | `number` | - | Escala baseada na distancia da camera |
-| `fullscreen` | `boolean` | `false` | Tela cheia |
-| `zIndexRange` | `[number, number]` | `[16777271, 0]` | Range de z-index |
+| `transform` | `boolean` | `false` | Applies CSS matrix3d |
+| `center` | `boolean` | `false` | Adds CSS transform -50%/-50% (only without transform) |
+| `occlude` | `boolean \| Object3D[] \| 'blending'` | `false` | Hides HTML behind geometry |
+| `sprite` | `boolean` | `false` | Renders as sprite (with transform) |
+| `portal` | `HTMLElement` | - | Mounts content in another element |
+| `pointerEvents` | `string` | `'auto'` | Pointer events control |
+| `autoRender` | `boolean` | `true` | Pauses render task |
+| `distanceFactor` | `number` | - | Scales based on camera distance |
+| `fullscreen` | `boolean` | `false` | Fullscreen |
+| `zIndexRange` | `[number, number]` | `[16777271, 0]` | z-index range |
 
-**Oclusao blending** requer `pointer-events: none` no canvas.
+**Blending occlusion** requires `pointer-events: none` on the canvas.
 
-**Render manual:**
+**Manual rendering:**
 
 ```svelte
 <HTML autoRender={false} bind:this={html}>
@@ -144,39 +144,39 @@ Vincula conteudo HTML a qualquer objeto da cena. Projeta automaticamente para a 
 </HTML>
 ```
 
-`html.render()` para renderizar um frame manualmente.
+`html.render()` to manually render a frame.
 
-> **Alternativa:** Use [threlte-uikit](https://github.com/threlte/threlte-uikit) para sessoes XR onde `<HTML>` nao funciona.
+> **Alternative:** Use [threlte-uikit](https://github.com/threlte/threlte-uikit) for XR sessions where `<HTML>` doesn't work.
 
 ---
 
 ## `<SVG>`
 
-Renderiza SVG usando Three.js SVGLoader.
+Renders SVG using Three.js SVGLoader.
 
 ```svelte
 <SVG src="/icon.svg" scale={0.005} position.x={-1} />
 ```
 
-**Props:** `src` (URL ou dados SVG), `fillMaterialProps`, `fillMeshProps`, `skipFill`, `skipStrokes`, `strokeMaterialProps`, `strokeMeshProps`
+**Props:** `src` (URL or SVG data), `fillMaterialProps`, `fillMeshProps`, `skipFill`, `skipStrokes`, `strokeMaterialProps`, `strokeMeshProps`
 
 ---
 
 ## `<Text>`
 
-Renderiza texto 2D usando troika-three-text. **Suspense-ready**.
+Renders 2D text using troika-three-text. **Suspense-ready**.
 
 ```svelte
 <Text text="Hello World" color="white" fontSize={1} anchorX="50%" anchorY="100%" />
 ```
 
-Props principais: `text`, `fontSize`, `color`, `font`, `anchorX`, `anchorY`, `textAlign`, `maxWidth`, `letterSpacing`, `lineHeight`, `outlineWidth`, `outlineColor`, `strokeWidth`, `strokeColor`, `characters` (para preload), `whiteSpace`, `direction`, `depthOffset`, `curveRadius`, `overflowWrap`.
+Main props: `text`, `fontSize`, `color`, `font`, `anchorX`, `anchorY`, `textAlign`, `maxWidth`, `letterSpacing`, `lineHeight`, `outlineWidth`, `outlineColor`, `strokeWidth`, `strokeColor`, `characters` (for preload), `whiteSpace`, `direction`, `depthOffset`, `curveRadius`, `overflowWrap`.
 
 ---
 
 ## `<Text3DGeometry>`
 
-Renderiza texto 3D como geometria extrudada (Three.js TextGeometry). **Suspense-ready**.
+Renders 3D text as extruded geometry (Three.js TextGeometry). **Suspense-ready**.
 
 ```svelte
 <T.Mesh>
@@ -185,9 +185,9 @@ Renderiza texto 3D como geometria extrudada (Three.js TextGeometry). **Suspense-
 </T.Mesh>
 ```
 
-**Props:** `font` (Font ou path), `text`, `size`, `depth`/`height`, `bevelEnabled`, `bevelSize`, `bevelThickness`, `bevelOffset`, `bevelSegments`, `curveSegments`, `smooth`, `extrudePath`, `steps`.
+**Props:** `font` (Font or path), `text`, `size`, `depth`/`height`, `bevelEnabled`, `bevelSize`, `bevelThickness`, `bevelOffset`, `bevelSegments`, `curveSegments`, `smooth`, `extrudePath`, `steps`.
 
-**Centralizar texto:**
+**Centering text:**
 
 ```svelte
 <Align>
@@ -204,10 +204,10 @@ Renderiza texto 3D como geometria extrudada (Three.js TextGeometry). **Suspense-
 
 ## `<Decal>`
 
-Aplica decalque (textura projetada) sobre geometria.
+Applies a decal (projected texture) onto geometry.
 
 ---
 
 ## `<RoundedBoxGeometry>`
 
-Geometria de caixa com cantos arredondados.
+Box geometry with rounded corners.

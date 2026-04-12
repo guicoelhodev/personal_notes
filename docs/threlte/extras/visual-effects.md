@@ -1,12 +1,12 @@
 # @threlte/extras - Visual Effects
 
-> Componentes e hooks de efeitos visuais do pacote [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/).
+> Visual effect components and hooks from the [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/) package.
 
 ---
 
 ## `<Edges>`
 
-Exibe arestas da geometria do pai (EdgesGeometry). Arestas visiveis quando angulo entre faces excede `thresholdAngle`.
+Displays edges of the parent geometry (EdgesGeometry). Edges are visible when the angle between faces exceeds `thresholdAngle`.
 
 ```svelte
 <T.Mesh>
@@ -20,7 +20,7 @@ Exibe arestas da geometria do pai (EdgesGeometry). Arestas visiveis quando angul
 
 ## `<Wireframe>`
 
-Wireframe anti-aliased baseado em shader (usa coordenadas baricentricas).
+Anti-aliased shader-based wireframe (uses barycentric coordinates).
 
 ```svelte
 <T.Mesh>
@@ -30,7 +30,7 @@ Wireframe anti-aliased baseado em shader (usa coordenadas baricentricas).
 </T.Mesh>
 ```
 
-**Converte geometrias indexed para non-indexed automaticamente.**
+**Automatically converts indexed geometries to non-indexed.**
 
 Props: `thickness`, `stroke`, `strokeOpacity`, `fill`, `fillOpacity`, `fillMix`, `squeeze`, `squeezeMin`, `squeezeMax`, `dash`, `dashInvert`, `dashLength`, `dashRepeats`, `colorBackfaces`, `backfaceStroke`, `simplify`.
 
@@ -38,7 +38,7 @@ Props: `thickness`, `stroke`, `strokeOpacity`, `fill`, `fillOpacity`, `fillMix`,
 
 ## `<Outlines>`
 
-Outline ornamental via inverted-hull. Suporta Mesh, SkinnedMesh e InstancedMesh.
+Ornamental outline via inverted-hull. Supports Mesh, SkinnedMesh, and InstancedMesh.
 
 ```svelte
 <T.Mesh>
@@ -48,13 +48,13 @@ Outline ornamental via inverted-hull. Suporta Mesh, SkinnedMesh e InstancedMesh.
 </T.Mesh>
 ```
 
-Props: `color`, `thickness`, `angle`, `opacity`, `screenspace` (espessura independente do zoom), `polygonOffset`, `renderOrder`, `toneMapped`.
+Props: `color`, `thickness`, `angle`, `opacity`, `screenspace` (zoom-independent thickness), `polygonOffset`, `renderOrder`, `toneMapped`.
 
 ---
 
 ## `<AsciiRenderer>`
 
-Renderiza a cena como ASCII (porta de Three.js AsciiEffect).
+Renders the scene as ASCII (port of Three.js AsciiEffect).
 
 ```svelte
 <AsciiRenderer characters=" .:-+*=%@#" fgColor="#ff2400" bgColor="#000" />
@@ -68,7 +68,7 @@ Exports: `start()`, `stop()`, `getEffect()`.
 
 ## `<CubeCamera>`
 
-Wrapper de Three.js CubeCamera com controle de updates.
+Three.js CubeCamera wrapper with update control.
 
 ```svelte
 <CubeCamera resolution={256} frames={Infinity} near={0.1}>
@@ -89,7 +89,7 @@ Exports: `update()`, `restart()`.
 
 ## `<FakeGlowMaterial>`
 
-Outline de brilho usando shader customizado (sem post-processing).
+Glow outline using a custom shader (no post-processing).
 
 ```svelte
 <T.Mesh>
@@ -98,13 +98,13 @@ Outline de brilho usando shader customizado (sem post-processing).
 </T.Mesh>
 ```
 
-**Requer mesh suave.** Para meshes sharp, use esfera como substituto.
+**Requires a smooth mesh.** For sharp meshes, use a sphere as a substitute.
 
 ---
 
 ## `<ImageMaterial>`
 
-Material de imagem com auto-cover e processamento de cor.
+Image material with auto-cover and color processing.
 
 ```svelte
 <T.Mesh>
@@ -113,13 +113,13 @@ Material de imagem com auto-cover e processamento de cor.
 </T.Mesh>
 ```
 
-**Processamento de cor:** `brightness`, `contrast`, `hue` (0-1), `saturation`, `lightness`, `negative`, `monochromeColor`, `monochromeStrength`, `colorProcessingTexture` (canais RGBA controlam HSLA).
+**Color processing:** `brightness`, `contrast`, `hue` (0-1), `saturation`, `lightness`, `negative`, `monochromeColor`, `monochromeStrength`, `colorProcessingTexture` (RGBA channels control HSLA).
 
 ---
 
 ## `<MeshRefractionMaterial>`
 
-Material de refracao (vidro/diamante). Requer `npm install three-mesh-bvh`.
+Refraction material (glass/diamond). Requires `npm install three-mesh-bvh`.
 
 ```svelte
 <T.Mesh>
@@ -134,7 +134,7 @@ Props: `envMap`, `ior`, `bounces`, `fresnel`, `aberrationStrength`, `color`, `fa
 
 ## `<MeshDiscardMaterial>`
 
-Material que renderiza nada (descarta fragmentos). Diferente de `visible={false}`: sombras e filhos continuam visiveis.
+Material that renders nothing (discards fragments). Unlike `visible={false}`: shadows and children remain visible.
 
 ```svelte
 <T.Mesh castShadow>
@@ -147,52 +147,52 @@ Material que renderiza nada (descarta fragmentos). Diferente de `visible={false}
 
 ## `<ShadowMaterial>`
 
-Material barato que imita sombra sem luzes. Baseado em CanvasTexture.
+Cheap material that mimics shadows without lights. Based on CanvasTexture.
 
 ---
 
 ## `<Mask>`
 
-Mascara de stencil para efeitos de revelacao.
+Stencil mask for reveal effects.
 
 ---
 
 ## `<UvMaterial>`
 
-Material que visualiza UVs de uma geometria.
+Material that visualizes the UVs of a geometry.
 
 ---
 
 ## `<PointsMaterial>`
 
-Material para pontos/particulas.
+Material for points/particles.
 
 ---
 
 ## `<AnimatedSpriteMaterial>`
 
-Material para sprites animados.
+Material for animated sprites.
 
 ---
 
 ## `<MeshLineGeometry>` / `<MeshLineMaterial>`
 
-Geometria e material para linhas 3D baseadas em mesh (suave, grossa).
+Geometry and material for mesh-based 3D lines (smooth, thick).
 
 ---
 
 ## `<LinearGradientTexture>` / `<RadialGradientTexture>`
 
-Texturas de gradiente (linear e radial).
+Gradient textures (linear and radial).
 
 ---
 
 ## `useFBO()`
 
-Cria `WebGLRenderTarget` (Framebuffer Object). Util para postprocessing.
+Creates a `WebGLRenderTarget` (Framebuffer Object). Useful for post-processing.
 
 ```svelte
 const target = useFBO({ size: { width: 512, height: 512 }, depth: true })
 ```
 
-Se `size` nao fornecido, acompanha tamanho do canvas. `depth`: boolean, objeto `{ width, height }`, ou `DepthTexture`.
+If `size` is not provided, it follows the canvas size. `depth`: boolean, `{ width, height }` object, or `DepthTexture`.

@@ -1,20 +1,20 @@
 # @threlte/extras - Staging
 
-> Componentes e hooks de preparacao de cena do pacote [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/).
+> Scene preparation components and hooks from the [Threlte Extras](https://threlte.xyz/docs/reference/extras/getting-started/) package.
 
 ---
 
 ## `<Environment>`
 
-Carrega textura equirectangular e define `scene.environment` e/ou `scene.background`.
+Loads an equirectangular texture and sets `scene.environment` and/or `scene.background`.
 
 ```svelte
 <Environment url="/env.hdr" isBackground />
 ```
 
-**Suporta:** `.exr`, `.hdr`, `.jpg` e outros via TextureLoader.
+**Supports:** `.exr`, `.hdr`, `.jpg` and others via TextureLoader.
 
-**Props:** `url`, `texture` (pre-loaded), `isBackground`, `scene`, `ground` (boolean | `{ height, radius, resolution }` para skybox com chao).
+**Props:** `url`, `texture` (pre-loaded), `isBackground`, `scene`, `ground` (boolean | `{ height, radius, resolution }` for skybox with floor).
 
 **Ground projected skybox:**
 
@@ -22,19 +22,19 @@ Carrega textura equirectangular e define `scene.environment` e/ou `scene.backgro
 <Environment url="/env.hdr" isBackground ground={{ height: 15, radius: 100 }} bind:skybox />
 ```
 
-**Suspense:** texturas carregadas via `url` sao suspense-ready.
+**Suspense:** textures loaded via `url` are suspense-ready.
 
 ---
 
 ## `<CubeEnvironment>`
 
-Similar a `<Environment>` mas usa `CubeTexture` (6 URLs). Ordem: `[+X, -X, +Y, -Y, +Z, -Z]`.
+Similar to `<Environment>` but uses `CubeTexture` (6 URLs). Order: `[+X, -X, +Y, -Y, +Z, -Z]`.
 
 ---
 
 ## `<VirtualEnvironment>`
 
-Cria environment maps dinamicos via cube camera. Renderiza conteudo interno como cubemap.
+Creates dynamic environment maps via cube camera. Renders internal content as a cubemap.
 
 ```svelte
 <VirtualEnvironment frames={1} visible={false} resolution={256} />
@@ -48,7 +48,7 @@ Exports: `restart()`, `update()`.
 
 ## `<ContactShadows>`
 
-Sombras de contato (port de drei). Face para cima (Y+) por default.
+Contact shadows (port of drei). Faces up (Y+) by default.
 
 ```svelte
 <ContactShadows
@@ -65,13 +65,13 @@ Props: `blur`, `color`, `depthWrite`, `far`, `frames`, `height`, `opacity`, `res
 
 Export: `refresh()`.
 
-**Otimizacao:** Use `frames={1}` para cenas estaticas.
+**Optimization:** Use `frames={1}` for static scenes.
 
 ---
 
 ## `<SoftShadows>`
 
-Injeta PCSS (Percentage-Closer Soft Shadows) nos shaders. Montar/desmontar recompila shaders.
+Injects PCSS (Percentage-Closer Soft Shadows) into shaders. Mounting/unmounting recompiles shaders.
 
 ```svelte
 <SoftShadows samples={10} size={25} focus={0} />
@@ -81,7 +81,7 @@ Injeta PCSS (Percentage-Closer Soft Shadows) nos shaders. Montar/desmontar recom
 
 ## `<BakeShadows>`
 
-Congela shadow maps ao montar. Sombras estaticas, calculadas uma vez.
+Freezes shadow maps on mount. Static shadows, calculated once.
 
 ```svelte
 <BakeShadows />
@@ -91,7 +91,7 @@ Congela shadow maps ao montar. Sombras estaticas, calculadas uma vez.
 
 ## `<ShadowAlpha>`
 
-Faz sombras respeitarem opacidade e alphaMap do material pai.
+Makes shadows respect the parent material's opacity and alphaMap.
 
 ```svelte
 <T.Mesh castShadow>
@@ -107,7 +107,7 @@ Props: `opacity`, `alphaMap`.
 
 ## `<Float>`
 
-Faz conteudo flutuar/hover (port de drei).
+Makes content float/hover (port of drei).
 
 ```svelte
 <Float floatIntensity={5} rotationIntensity={2} rotationSpeed={1}>
@@ -118,13 +118,13 @@ Faz conteudo flutuar/hover (port de drei).
 </Float>
 ```
 
-Props: `floatingRange`, `floatIntensity`, `rotationIntensity`, `rotationSpeed`, `speed`, `seed`. Todos aceitam `number` ou `[x, y, z]`.
+Props: `floatingRange`, `floatIntensity`, `rotationIntensity`, `rotationSpeed`, `speed`, `seed`. All accept `number` or `[x, y, z]`.
 
 ---
 
 ## `<Grid>`
 
-Grid robusto com parametros ajustaveis.
+Robust grid with adjustable parameters.
 
 ```svelte
 <Grid
@@ -143,13 +143,13 @@ Grid robusto com parametros ajustaveis.
 />
 ```
 
-**Tipos:** `grid` (default), `lines` (com prop `axis`), `circular`, `polar` (com `maxRadius`, `cellDividers`, `sectionDividers`).
+**Types:** `grid` (default), `lines` (with `axis` prop), `circular`, `polar` (with `maxRadius`, `cellDividers`, `sectionDividers`).
 
 ---
 
 ## `<Stars>`
 
-Campo estelar com shader de piscar (port de drei).
+Star field with twinkling shader (port of drei).
 
 ```svelte
 <Stars count={5000} radius={50} depth={50} factor={6} speed={0.5} fade />
@@ -159,7 +159,7 @@ Campo estelar com shader de piscar (port de drei).
 
 ## `<Sky>`
 
-Objeto Three.js Sky renderizado como cubemap para environment.
+Three.js Sky object rendered as a cubemap for the environment.
 
 ```svelte
 <Sky elevation={0.5} azimuth={180} turbidity={10} rayleigh={3} />
@@ -171,7 +171,7 @@ Props: `azimuth`, `cubeMapSize`, `elevation`, `mieCoefficient`, `mieDirectionalG
 
 ## `<Sparkles>`
 
-Particulas baseadas em shader.
+Shader-based particles.
 
 ```svelte
 <Sparkles count={100} color="yellow" scale={5} size={3} speed={0.4} />
@@ -183,7 +183,7 @@ Props: `count`, `color`, `size`, `scale`, `speed`, `noise`, `opacity`.
 
 ## `<BackdropGeometry>`
 
-Plano curvo estilo estudio (para quebrar luz/sombras).
+Studio-style curved plane (for breaking light/shadows).
 
 ```svelte
 <BackdropGeometry height={1} length={1} width={1} />
@@ -193,7 +193,7 @@ Plano curvo estilo estudio (para quebrar luz/sombras).
 
 ## `<Billboard>`
 
-Rotaciona conteudo para sempre encarar a camera.
+Rotates content to always face the camera.
 
 ```svelte
 <Billboard>
@@ -210,24 +210,24 @@ Props: `follow` (boolean | Object3D, default true).
 
 ## `<CSM>`
 
-Cascaded Shadow Maps para sombras de sol em terrenos vastos.
+Cascaded Shadow Maps for sun shadows over large terrains.
 
 ```svelte
 <CSM
   enabled
   args={{ lightDirection: new Vector3(1, -1, 1).normalize() }}
 >
-  <!-- cena -->
+  <!-- scene -->
 </CSM>
 ```
 
-**Apenas suporta** `MeshStandardMaterial` e `MeshPhongMaterial`. **Nao use** `castShadow` em luzes com CSM ativo.
+**Only supports** `MeshStandardMaterial` and `MeshPhongMaterial`. **Do not use** `castShadow` on lights with CSM active.
 
 ---
 
 ## `<Align>`
 
-Calcula bounding box e alinha filhos. Aceita `x`, `y`, `z` (-1 a 1 ou false para ignorar).
+Calculates bounding box and aligns children. Accepts `x`, `y`, `z` (-1 to 1 or false to ignore).
 
 ```svelte
 <Align x={0} y={0} z={false}>
@@ -242,11 +242,11 @@ Props: `x`, `y`, `z`, `auto`, `precise`. Event: `align`. Export: `align()`.
 
 ## `<Bounds>`
 
-Centraliza a camera automaticamente nos filhos.
+Automatically centers the camera on children.
 
 ```svelte
 <Bounds animate={true} margin={1} enabled={true}>
-  <!-- objetos -->
+  <!-- objects -->
 </Bounds>
 ```
 
@@ -254,7 +254,7 @@ Centraliza a camera automaticamente nos filhos.
 
 ## `<Resize>`
 
-Normaliza dimensoes dos filhos (escala pelo bounding box maximo para range 0-1).
+Normalizes children dimensions (scales by max bounding box to 0-1 range).
 
 ```svelte
 <Resize axis="x">
@@ -268,15 +268,15 @@ Props: `auto`, `axis`, `box`, `precise`. Export: `resize()`.
 
 ## `<Portal>` / `<PortalTarget>`
 
-Renderiza filhos em outro local da arvore de componentes.
+Renders children at another location in the component tree.
 
 ```svelte
-<!-- Em ComponentA: -->
+<!-- In ComponentA: -->
 <T.Object3D>
   <PortalTarget id="trail" />
 </T.Object3D>
 
-<!-- Em ComponentB: -->
+<!-- In ComponentB: -->
 <Portal id="trail">
   <T.Mesh><T.BoxGeometry /><T.MeshStandardMaterial color="red" /></T.Mesh>
 </Portal>
@@ -286,7 +286,7 @@ Renderiza filhos em outro local da arvore de componentes.
 
 ## `<View>`
 
-Multiplas cenas em um canvas usando scissor-cut.
+Multiple scenes in a single canvas using scissor-cut.
 
 ```svelte
 <View dom={targetElement}>
@@ -298,7 +298,7 @@ Multiplas cenas em um canvas usando scissor-cut.
 
 ## `<HUD>`
 
-Heads-up display - nova cena renderizada sobre a principal com contexto separado.
+Heads-up display - a new scene rendered on top of the main one with a separate context.
 
 ```svelte
 <HUD>
@@ -312,7 +312,7 @@ Props: `autoRender`, `stage`, `toneMapping`.
 
 ## `layers()`
 
-Plugin que fornece heranca de `layers` para componentes `<T>` filhos.
+Plugin that provides `layers` inheritance for child `<T>` components.
 
 ```svelte
 <script>
@@ -322,10 +322,10 @@ Plugin que fornece heranca de `layers` para componentes `<T>` filhos.
 
 <T.PerspectiveCamera layers={[4, 5]} />
 <T.Group layers={4}>
-  <T.Mesh> <!-- herda layer 4 -->
+  <T.Mesh> <!-- inherits layer 4 -->
     <T.BoxGeometry /><T.MeshStandardMaterial />
   </T.Mesh>
-  <T.Mesh layers="all"> <!-- em todas as layers -->
+  <T.Mesh layers="all"> <!-- on all layers -->
     <T.BoxGeometry /><T.MeshStandardMaterial />
   </T.Mesh>
 </T.Group>
@@ -335,7 +335,7 @@ Plugin que fornece heranca de `layers` para componentes `<T>` filhos.
 
 ## `transitions()`
 
-Plugin experimental que habilita transicoes estilo Svelte em componentes Threlte.
+Experimental plugin that enables Svelte-style transitions on Threlte components.
 
 ```svelte
 <script>
@@ -353,19 +353,19 @@ Plugin experimental que habilita transicoes estilo Svelte em componentes Threlte
 {/if}
 ```
 
-Direcoes: `in={fade}`, `out={fade}`, `transition={fade}`. Events: `onintrostart`, `onoutrostart`, `onintroend`, `onoutroend`.
+Directions: `in={fade}`, `out={fade}`, `transition={fade}`. Events: `onintrostart`, `onoutrostart`, `onintroend`, `onoutroend`.
 
-**TypeScript:** estenda `Threlte.UserProps` com `TransitionsProps` em `app.d.ts`.
+**TypeScript:** extend `Threlte.UserProps` with `TransitionsProps` in `app.d.ts`.
 
 ---
 
 ## `useViewport()`
 
-Retorna informacoes da tela em unidades Three.js.
+Returns viewport information in Three.js units.
 
 ```svelte
 const viewport = useViewport()
 // $viewport.width, $viewport.height, $viewport.factor, $viewport.distance
 ```
 
-Aceita origin customizado: `useViewport([1, 0, 1])`.
+Accepts custom origin: `useViewport([1, 0, 1])`.
