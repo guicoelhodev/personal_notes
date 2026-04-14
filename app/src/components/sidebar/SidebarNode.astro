@@ -15,7 +15,7 @@ const { node, currentSlug, depth } = Astro.props;
 
 function formatLabel(label: string): string {
 	return label
-		.replace(/-/g, " ")
+		.replace(/[-_]/g, " ")
 		.replace(/\b\w/g, (c) => c.toUpperCase())
 		.replace(/\.(md|mdx)$/, "");
 }
