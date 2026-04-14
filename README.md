@@ -1,19 +1,19 @@
-# IA Notes
+# AI Notes
 
-Base de resumos de referencia rapida das principais ferramentas e frameworks usados para criar projetos.
+Quick reference summaries for the main tools and frameworks used in projects.
 
-O objetivo e economizar **tokens de leitura e contexto** ao usar assistentes de IA (como Claude, ChatGPT, GLM, etc.) durante o desenvolvimento. Em vez de pedir ao modelo que leia a documentacao completa toda vez, basta fornecer o resumo relevante.
+The goal is to save **reading and context tokens** when using AI assistants (such as Claude, ChatGPT, GLM, etc.) during development. Instead of asking the model to read the full documentation every time, just provide the relevant summary.
 
-## Estrutura
+## Structure
 
 ```
 threlte/
-    threlte-core-guide.md      # @threlte/core - framework 3D para Svelte
-    rapier-guide.md            # @threlte/rapier - fisica 3D (Rapier + Threlte)
+    threlte-core-guide.md      # @threlte/core - 3D framework for Svelte
+    rapier-guide.md            # @threlte/rapier - 3D physics (Rapier + Threlte)
     extras/
-        README.md              # Indice do pacote @threlte/extras
-        interaction.md         # Interacao: interactivity, OrbitControls, CameraControls, etc.
-        content.md             # Conteudo: GLTF, useTexture, HTML, Text, SVG, etc.
+        README.md              # Index for the @threlte/extras package
+        interaction.md         # Interaction: interactivity, OrbitControls, CameraControls, etc.
+        content.md             # Content: GLTF, useTexture, HTML, Text, SVG, etc.
         audio.md               # Audio: AudioListener, Audio, PositionalAudio, etc.
         loading.md             # Loading: Suspense, useSuspense, useProgress, etc.
         performance.md         # Performance: InstancedMesh, Detailed, PerfMonitor, etc.
@@ -21,12 +21,12 @@ threlte/
         visual-effects.md      # Visual Effects: Edges, Wireframe, Outlines, etc.
 ```
 
-Cada pasta representa uma ferramenta/framework, e cada arquivo e um resumo autonomo de um pacote ou modulo.
+Each folder represents a tool/framework, and each file is a standalone summary of a package or module.
 
-## Como usar
+## How to use
 
-Ao iniciar uma sessao com um assistente de IA para trabalhar em um projeto, carregue o(s) resumo(s) relevante(s) como contexto. Exemplo:
+When starting a session with an AI assistant to work on a project, load the relevant summary(ies) as context. Example:
 
-> "Leia o arquivo `threlte/threlte-core-guide.md` e use-o como referencia para me ajudar a construir uma cena 3D."
+> "Read the file `threlte/threlte-core-guide.md` and use it as a reference to help me build a 3D scene."
 
-Isso substitui a necessidade de o modelo buscar e ler a documentacao completa, economizando tokens e tempo.
+This replaces the need for the model to fetch and read the full documentation, saving tokens and time.
