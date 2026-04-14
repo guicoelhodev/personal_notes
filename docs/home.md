@@ -12,4 +12,5 @@ Each summary is focused on **practical and direct** information: APIs, component
 
 | Technology | Description |
 |---|---|
+| [Linux Setup](/linux_setup/tmux) | Linux development environment setup guides |
 | [Threlte](/threlte/threlte-core-guide) | Declarative 3D framework for Svelte based on Three.js |

@@ -1,6 +1,6 @@
 # Tmux Setup
 
-## Prerequisites
+## Pre requisites
 
 [Tmux Plugin Manager (tpm)](https://github.com/tmux-plugins/tpm) is required to manage the plugins listed in the config. After installing tpm and setting up `~/.tmux.conf`, press `prefix + I` (default `Ctrl+b` then `I`) to install all declared plugins.
 
