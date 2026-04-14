@@ -1,8 +1,13 @@
+# Tmux Setup
 
-first, u need to install tmux plugin manager https://github.com/tmux-plugins/tpm
+## Prerequisites
 
-- `~/.tmux.conf` 
-```
+[Tmux Plugin Manager (tpm)](https://github.com/tmux-plugins/tpm) is required to manage the plugins listed in the config. After installing tpm and setting up `~/.tmux.conf`, press `prefix + I` (default `Ctrl+b` then `I`) to install all declared plugins.
+
+## Configuration
+
+- `~/.tmux.conf`
+```tmux
 set -g mouse on
 
 bind-key v split-window -h
@@ -50,3 +55,61 @@ bind-key o choose-session
 # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
 run '~/.tmux/plugins/tpm/tpm'
 ```
+
+## Sessionizer
+
+Script to quickly create/switch tmux sessions from project directories using `fzf`.
+
+- `~/.local/share/scripts/tmux-sessionizer`
+
+```sh
+#!/usr/bin/env bash
+
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    selected=$(find ~/Projects/ ~/Projects/personal -mindepth 1 -maxdepth 1 -type d | fzf) # Here you add your paths
+fi
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+selected_name=$(basename "$selected" | tr . _)
+tmux_running=$(pgrep tmux)
+
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    tmux new-session -s $selected_name -c $selected
+    exit 0
+fi
+
+if ! tmux has-session -t=$selected_name 2> /dev/null; then
+    tmux new-session -ds $selected_name -c $selected
+fi
+
+if [[ -z $TMUX ]]; then
+    tmux attach -t $selected_name
+else
+    tmux switch-client -t $selected_name
+fi
+
+```
+
+## Keybinding
+
+Add this to your `.zshrc` to bind `Ctrl+f` to launch the sessionizer:
+
+```sh
+bindkey -s ^f "~/.local/share/scripts/tmux-sessionizer\n"
+```
+
+## Keybindings Summary
+
+| Key | Action |
+|-----|--------|
+| `prefix + v` | Split pane horizontally |
+| `prefix + s` | Split pane vertically |
+| `prefix + h/j/k/l` | Navigate between panes |
+| `prefix + f` | Launch sessionizer |
+| `prefix + o` | Choose existing session |
+
