@@ -136,10 +136,7 @@ const { items } = Astro.props;
 
 		input.addEventListener("keydown", (e) => {
 			const resultItems = results.querySelectorAll("li[data-index]");
-			if (e.key === "Escape") {
-				hide();
-				e.preventDefault();
-			} else if (e.key === "ArrowDown") {
+			if (e.key === "ArrowDown") {
 				e.preventDefault();
 				activeIndex = Math.min(activeIndex + 1, resultItems.length - 1);
 				updateActive(resultItems);
@@ -154,6 +151,11 @@ const { items } = Astro.props;
 		});
 
 		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape" && open) {
+				hide();
+				e.preventDefault();
+				return;
+			}
 			if ((e.metaKey || e.ctrlKey) && e.key === "k") {
 				e.preventDefault();
 				if (open) hide();
