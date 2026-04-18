@@ -3,6 +3,8 @@ import "../global.css";
 import ThemeToggle from "../components/ThemeToggle.astro";
 import Sidebar from "../components/Sidebar.astro";
 import SearchModal from "../components/SearchModal.astro";
+import SearchIcon from "../icons/search.svg?raw";
+import MenuIcon from "../icons/menu.svg?raw";
 import { getCollection, render } from "astro:content";
 
 interface Props {
@@ -57,9 +59,7 @@ const searchItems = await Promise.all(
 					aria-label="Search"
 					class="flex items-center gap-2 p-2 rounded-lg bg-[var(--color-surface)] hover:opacity-80 transition-opacity cursor-pointer text-[var(--color-muted)]"
 				>
-					<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-					</svg>
+					<span class="w-4 h-4 inline-block" set:html={SearchIcon} />
 					<kbd class="text-xs border border-[var(--color-muted)]/40 rounded px-1.5 py-0.5 hidden sm:inline">Ctrl+K</kbd>
 				</button>
 				<ThemeToggle />
@@ -68,9 +68,7 @@ const searchItems = await Promise.all(
 					class="md:hidden p-2 rounded-lg bg-[var(--color-surface)] hover:opacity-80 transition-opacity cursor-pointer text-[var(--color-text)]"
 					aria-label="Toggle menu"
 				>
-					<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-					</svg>
+					<span class="w-5 h-5 inline-block" set:html={MenuIcon} />
 				</button>
 			</div>
 			<slot />

@@ -1,13 +1,11 @@
 ---
+import MoonIcon from "../icons/moon.svg?raw";
+import SunIcon from "../icons/sun.svg?raw";
 ---
 
-<button id="theme-toggle" type="button" aria-label="Toggle theme" class="p-2 rounded-lg bg-[var(--color-surface)] hover:opacity-80 transition-opacity cursor-pointer">
-	<svg id="icon-moon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-		<path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-	</svg>
-	<svg id="icon-sun" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-		<path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-	</svg>
+<button id="theme-toggle" type="button" aria-label="Toggle theme" class="grid place-content-center p-2 rounded-lg bg-[var(--color-surface)] hover:opacity-80 transition-opacity cursor-pointer">
+	<span id="icon-moon" class="w-5 h-5" set:html={MoonIcon} />
+	<span id="icon-sun" class="w-5 h-5" style="display:none" set:html={SunIcon} />
 </button>
 
 <script>
@@ -23,8 +21,8 @@
 		const moon = document.getElementById("icon-moon");
 		const sun = document.getElementById("icon-sun");
 		if (moon && sun) {
-			moon.classList.toggle("hidden", theme === "light");
-			sun.classList.toggle("hidden", theme === "dark");
+			moon.style.display = theme === "light" ? "none" : "inline-block";
+			sun.style.display = theme === "dark" ? "none" : "inline-block";
 		}
 	}
 

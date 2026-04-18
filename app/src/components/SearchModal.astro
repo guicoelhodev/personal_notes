@@ -1,4 +1,6 @@
 ---
+import SearchIcon from "../icons/search.svg?raw";
+
 interface Props {
 	items: { id: string; title: string }[];
 }
@@ -9,9 +11,7 @@ const { items } = Astro.props;
 <div id="search-overlay" class="fixed inset-0 bg-black/50 z-50 hidden items-start justify-center pt-[20vh]">
 	<div id="search-modal" class="w-full max-w-lg mx-4 rounded-lg border border-[var(--color-muted)]/30 bg-[var(--color-surface)] shadow-2xl overflow-hidden">
 		<div class="flex items-center gap-2 px-4 py-3 border-b border-[var(--color-muted)]/20">
-			<svg class="w-4 h-4 text-[var(--color-muted)] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-				<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-			</svg>
+			<span class="w-4 h-4 text-[var(--color-muted)] shrink-0 inline-block" set:html={SearchIcon} />
 			<input
 				id="search-input"
 				type="text"
