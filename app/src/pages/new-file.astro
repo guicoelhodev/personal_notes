@@ -1,0 +1,46 @@
+---
+import Layout from "../layout/Layout.astro";
+import "../milkdown.css";
+
+export const prerender = false;
+---
+
+<Layout title="New File — AI Notes">
+	<div class="flex flex-col h-full -m-8">
+		<header class="flex items-center justify-between px-4 py-2 border-b border-(--color-muted)/20 bg-(--color-surface)">
+			<div class="flex items-center gap-3">
+
+				<button
+					id="save-btn"
+					class="px-3 py-1.5 text-sm rounded-lg bg-(--color-heading) text-white hover:opacity-80 transition-opacity cursor-pointer"
+				>
+					Save
+				</button>
+				<h1 class="text-sm font-medium text-(--color-text)">New File</h1>
+			</div>
+			<div class="flex items-center gap-2">
+			</div>
+		</header>
+
+		<div class="flex-1 overflow-hidden">
+			<div id="editor" class="h-full"></div>
+		</div>
+	</div>
+
+	<script>
+		import { Crepe } from "@milkdown/crepe";
+
+		const editor = new Crepe({
+			root: "#editor",
+			defaultValue: "# Untitled\n\nStart writing...",
+		});
+
+		editor.create();
+
+		const saveBtn = document.getElementById("save-btn");
+		saveBtn?.addEventListener("click", () => {
+			const markdown = editor.getMarkdown();
+			console.log("Markdown content:", markdown);
+		});
+	</script>
+</Layout>

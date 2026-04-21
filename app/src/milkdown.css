@@ -1,0 +1,48 @@
+@import "@milkdown/crepe/theme/common/style.css";
+
+.milkdown {
+	--crepe-font-title: system-ui, -apple-system, sans-serif;
+	--crepe-font-default: system-ui, -apple-system, sans-serif;
+	--crepe-font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+	--crepe-color-background: var(--color-base);
+	--crepe-color-on-background: var(--color-text);
+	--crepe-color-surface: var(--color-surface);
+	--crepe-color-surface-low: var(--color-surface);
+	--crepe-color-on-surface: var(--color-text);
+	--crepe-color-on-surface-variant: var(--color-muted);
+	--crepe-color-outline: var(--color-muted);
+	--crepe-color-primary: var(--color-heading);
+	--crepe-color-secondary: var(--color-muted);
+	--crepe-color-on-secondary: var(--color-text);
+	--crepe-color-inverse: var(--color-text);
+	--crepe-color-on-inverse: var(--color-base);
+	--crepe-color-inline-code: var(--color-link);
+	--crepe-color-error: #ff6666;
+	--crepe-color-hover: color-mix(in srgb, var(--color-surface) 80%, var(--color-text) 20%);
+	--crepe-color-selected: color-mix(in srgb, var(--color-heading) 30%, var(--color-surface) 70%);
+	--crepe-color-inline-area: var(--color-muted);
+
+	--crepe-shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+	--crepe-shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.milkdown h1,
+.milkdown h2,
+.milkdown h3,
+.milkdown h4,
+.milkdown h5,
+.milkdown h6 {
+	color: var(--color-heading);
+}
+
+.milkdown .ProseMirror {
+	padding: 0 6rem 2rem 6rem;
+}
+
+.light .milkdown {
+	--crepe-color-hover: color-mix(in srgb, var(--color-surface) 80%, var(--color-text) 10%);
+	--crepe-color-selected: color-mix(in srgb, var(--color-heading) 20%, var(--color-surface) 80%);
+	--crepe-shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.1), 0px 1px 2px 0px rgba(0, 0, 0, 0.06);
+	--crepe-shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.1), 0px 1px 2px 0px rgba(0, 0, 0, 0.06);
+}
