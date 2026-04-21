@@ -27,17 +27,112 @@
 	--crepe-shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
 }
 
-.milkdown h1,
-.milkdown h2,
-.milkdown h3,
-.milkdown h4,
-.milkdown h5,
-.milkdown h6 {
+.milkdown .ProseMirror h1,
+.milkdown .ProseMirror h2,
+.milkdown .ProseMirror h3,
+.milkdown .ProseMirror h4,
+.milkdown .ProseMirror h5,
+.milkdown .ProseMirror h6 {
 	color: var(--color-heading);
+	font-weight: 700;
+	line-height: 1.3;
+	margin-top: 2em;
+	margin-bottom: 0.5em;
+}
+
+.milkdown .ProseMirror h1 { font-size: 2.25em; margin-top: 0; }
+.milkdown .ProseMirror h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid var(--color-muted); }
+.milkdown .ProseMirror h3 { font-size: 1.25em; }
+.milkdown .ProseMirror h4 { font-size: 1.125em; }
+
+.milkdown .ProseMirror p {
+	margin-top: 1.25em;
+	margin-bottom: 1.25em;
+	line-height: 1.75;
+}
+
+.milkdown .ProseMirror ul,
+.milkdown .ProseMirror ol {
+	margin-top: 1.25em;
+	margin-bottom: 1.25em;
+	padding-left: 1.625em;
+}
+
+.milkdown .ProseMirror li {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.milkdown .ProseMirror blockquote {
+	border-left: 4px solid var(--color-heading);
+	padding-left: 1rem;
+	color: var(--color-muted);
+	font-style: italic;
+	margin-top: 1.6em;
+	margin-bottom: 1.6em;
+}
+
+.milkdown .ProseMirror a {
+	color: var(--color-link);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.milkdown .ProseMirror code {
+	color: var(--color-link);
+	background: var(--color-surface);
+	padding: 0.2em 0.4em;
+	border-radius: 0.25rem;
+	font-size: 0.875em;
+}
+
+.milkdown .ProseMirror pre {
+	background: var(--color-surface);
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+	overflow-x: auto;
+}
+
+.milkdown .ProseMirror pre code {
+	background: none;
+	padding: 0;
+	font-size: 0.875em;
+}
+
+.milkdown .ProseMirror hr {
+	border-color: var(--color-muted);
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+.milkdown .ProseMirror img {
+	border-radius: 0.5rem;
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+}
+
+.milkdown .ProseMirror table {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.milkdown .ProseMirror th,
+.milkdown .ProseMirror td {
+	border: 1px solid var(--color-muted);
+	padding: 0.5rem 0.75rem;
+}
+
+.milkdown .ProseMirror th {
+	font-weight: 700;
+	background: var(--color-surface);
 }
 
 .milkdown .ProseMirror {
-	padding: 0 6rem 2rem 6rem;
+	padding: 2rem 6rem;
 }
 
 .light .milkdown {
