@@ -52,7 +52,7 @@ function hasActiveChild(n: TreeNode, slug?: string): boolean {
 		</div>
 	) : (
 		<a
-			href={`/${node.slug}`}
+			href={`/file?path=${node.slug}.md`}
 			class:list={[
 				"block text-sm py-1 px-2 rounded transition-colors text-(--color-text)",
 				currentSlug === node.slug && "bg-(--color-heading)/20 font-medium",

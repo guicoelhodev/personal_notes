@@ -1,0 +1,52 @@
+---
+import Layout from "../layout/Layout.astro";
+import { getFile } from "../lib/github";
+import "../milkdown.css";
+
+export const prerender = false;
+
+const path = Astro.url.searchParams.get("path");
+
+let content = "";
+
+if (path) {
+	try {
+		content = await getFile(path);
+
+		console.log('content', content)
+	} catch (error: any) {
+		content = `# Error\n\nFile not found: ${path}`;
+	}
+}
+---
+
+<Layout title={path ? `${path} — AI Notes` : "AI Notes"}>
+	<div class="flex flex-col h-full -m-8">
+		<header class="flex items-center justify-between px-4 py-2 border-b border-(--color-muted)/20 bg-(--color-surface)">
+			<h1 class="text-sm font-medium text-(--color-text)">
+				{path || "No file selected"}
+			</h1>
+		</header>
+
+		<div class="flex-1 overflow-hidden">
+			<div id="editor" class="h-full"></div>
+		</div>
+	</div>
+
+	<div id="editor-content" class="hidden">{content}</div>
+
+	<script>
+		import { Crepe } from "@milkdown/crepe";
+
+		const el = document.getElementById("editor-content");
+		const content = el ? el.textContent : "# Select a file";
+		el?.remove();
+
+		const editor = new Crepe({
+			root: "#editor",
+			defaultValue: content,
+		});
+
+		editor.create();
+	</script>
+</Layout>
