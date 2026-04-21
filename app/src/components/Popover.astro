@@ -1,0 +1,62 @@
+---
+import FolderIcon from "../icons/folder.svg?raw";
+import FileIcon from "../icons/file.svg?raw";
+
+interface Props {
+	id?: string;
+}
+
+const { id } = Astro.props;
+---
+
+<div class="relative inline-flex" id={id}>
+	<button
+		type="button"
+		aria-label="Options"
+		class="popover-trigger p-1 rounded hover:bg-(--color-surface) transition-colors cursor-pointer text-(--color-muted) opacity-0 group-hover:opacity-100"
+	>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+	</button>
+	<div class="popover-menu fixed bg-(--color-surface) border border-(--color-muted)/20 rounded-lg shadow-lg py-1 min-w-[180px] hidden z-50">
+		<button type="button" class="popover-action flex items-center gap-2 w-full text-left text-sm px-3 py-1.5 hover:bg-(--color-muted)/10 transition-colors cursor-pointer text-(--color-text)" data-action="create-folder">
+			<span class="w-4 h-4 shrink-0" set:html={FolderIcon} />
+			<span>Create Folder</span>
+		</button>
+		<button type="button" class="popover-action flex items-center gap-2 w-full text-left text-sm px-3 py-1.5 hover:bg-(--color-muted)/10 transition-colors cursor-pointer text-(--color-text)" data-action="create-file">
+			<span class="w-4 h-4 shrink-0" set:html={FileIcon} />
+			<span>Create File</span>
+		</button>
+		<slot />
+	</div>
+</div>
+
+<script>
+	function setupPopovers() {
+		document.querySelectorAll(".popover-trigger").forEach((trigger) => {
+			const menu = trigger.nextElementSibling;
+			if (!menu) return;
+
+			trigger.addEventListener("click", (e) => {
+				e.stopPropagation();
+				document.querySelectorAll(".popover-menu").forEach((m) => {
+					if (m !== menu) m.classList.add("hidden");
+				});
+				if (!menu.classList.contains("hidden")) {
+					menu.classList.add("hidden");
+					return;
+				}
+				const rect = trigger.getBoundingClientRect();
+				menu.style.left = `${rect.right + 4}px`;
+				menu.style.top = `${rect.top}px`;
+				menu.classList.remove("hidden");
+			});
+		});
+
+		document.addEventListener("click", () => {
+			document.querySelectorAll(".popover-menu").forEach((m) => m.classList.add("hidden"));
+		});
+	}
+
+	setupPopovers();
+	document.addEventListener("astro:page-load", setupPopovers);
+</script>
