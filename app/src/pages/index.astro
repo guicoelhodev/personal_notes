@@ -2,6 +2,8 @@
 import Layout from "../layout/Layout.astro";
 import { getCollection, render } from "astro:content";
 
+export const prerender = true;
+
 const docs = await getCollection("docs");
 const homeDoc = docs.find((d) => d.id === "home");
 const { Content } = homeDoc ? await render(homeDoc) : { Content: () => null };
