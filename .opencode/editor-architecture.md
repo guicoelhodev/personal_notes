@@ -25,9 +25,48 @@ Browser (Client)                    Astro Server                    GitHub API
                                └──────────────────┘
 ```
 
+## Current File Structure
+
+### Created files
+
+```
+app/
+├── src/
+│   ├── milkdown.css                         # Milkdown theme + typography styles
+│   ├── pages/
+│   │   └── new-file.astro                   # Editor page (SSR, prerender = false)
+```
+
+### Modified files
+
+```
+app/
+├── astro.config.mjs                         # Added @astrojs/vercel adapter (no output: 'hybrid', removed in Astro 6)
+├── package.json                             # Added @astrojs/vercel + @milkdown/crepe
+├── src/
+│   ├── components/
+│   │   └── Sidebar.astro                    # Added "Criar +" button at bottom
+│   └── pages/
+│       ├── index.astro                      # Added export const prerender = true
+│       └── [...slug].astro                  # Added export const prerender = true
+```
+
+### Planned files (not yet created)
+
+```
+app/
+├── src/
+│   ├── lib/
+│   │   └── github.ts                        # GitHub API helper functions
+│   └── pages/
+│       └── api/
+│           └── docs/
+│               └── [...path].ts             # API route (SSR)
+```
+
 ## Data Flow
 
-### List docs tree
+### List docs tree (planned)
 
 ```
 Browser                          Server                          GitHub
@@ -38,7 +77,7 @@ Browser                          Server                          GitHub
   │<── JSON [{name,path,sha}] ───│                               │
 ```
 
-### Open file for editing
+### Open file for editing (planned)
 
 ```
 Browser                          Server                          GitHub
@@ -56,7 +95,7 @@ Browser                          Server                          GitHub
   │   })                          │                               │
 ```
 
-### Save file (update)
+### Save file (update) (planned)
 
 ```
 Browser                          Server                          GitHub
@@ -71,11 +110,11 @@ Browser                          Server                          GitHub
   │<── { sha: "new-sha" } ────────│                               │
 ```
 
-### Create new file
+### Create new file (planned)
 
 Same as save, but omit `sha` in the PUT body.
 
-### Delete file
+### Delete file (planned)
 
 ```
 Browser                          Server                          GitHub
@@ -87,77 +126,25 @@ Browser                          Server                          GitHub
   │<── { success: true } ─────────│                               │
 ```
 
-## File Structure
+## Implementation Progress
 
-### New files to create
-
-```
-app/
-├── src/
-│   ├── lib/
-│   │   └── github.ts                    # GitHub API helper functions
-│   ├── pages/
-│   │   ├── editor/
-│   │   │   └── index.astro              # Editor page (SSR)
-│   │   └── api/
-│   │       └── docs/
-│   │           └── [...path].ts         # API route (SSR)
-```
-
-### Existing files to modify
-
-```
-app/
-├── astro.config.mjs                     # Add hybrid + vercel adapter
-├── package.json                         # Add @astrojs/vercel + @milkdown/crepe
-├── src/
-│   └── pages/
-│       └── [...slug].astro              # Add export const prerender = true
-```
-
-## Implementation Order
-
-1. **Configure Astro for hybrid mode**
-   - Install `@astrojs/vercel` (`npx astro add vercel`)
-   - Update `astro.config.mjs` with `output: 'hybrid'` and adapter
-   - Add `export const prerender = true` to `src/pages/[...slug].astro`
-
-2. **Create GitHub helper** (`src/lib/github.ts`)
-   - `listDocsTree()` — fetch recursive tree, filter docs
-   - `getFile(path)` — fetch and decode file content
-   - `saveFile(path, content, sha?)` — encode and push
-   - `deleteFile(path, sha)` — delete via API
-   - Base64 encode/decode utilities
-
-3. **Create API route** (`src/pages/api/docs/[...path].ts`)
-   - `GET` — list tree or read file
-   - `PUT` — create or update file
-   - `DELETE` — delete file
-   - Error handling with proper status codes
-
-4. **Install Milkdown**
-   - `npm install @milkdown/crepe`
-
-5. **Create editor page** (`src/pages/editor/index.astro`)
-   - `export const prerender = false`
-   - File tree sidebar (fetch from `GET /api/docs`)
-   - Milkdown editor initialization
-   - Save button → `PUT /api/docs/{path}`
-   - New file button
-   - Delete button
-   - Loading and error states
-
-6. **Style the editor**
-   - Import Milkdown theme CSS
-   - Layout: sidebar + editor area
-   - Responsive design with Tailwind
-   - Dark mode support
-
-7. **Test full flow**
-   - List → Open → Edit → Save → Verify on GitHub
-   - Create new file
-   - Delete file
-   - Handle conflicts (SHA mismatch)
+- [x] Install `@astrojs/vercel` and `@milkdown/crepe`
+- [x] Configure `astro.config.mjs` with Vercel adapter
+- [x] Add `prerender = true` to existing static pages (`index.astro`, `[...slug].astro`)
+- [x] Create editor page at `src/pages/new-file.astro` with Milkdown Crepe
+- [x] Add "Criar +" button in sidebar linking to `/new-file`
+- [x] Theme integration — Milkdown uses app CSS variables for colors and fonts
+- [x] Typography styles — headings, paragraphs, lists, blockquotes, code, tables
+- [x] Tailwind v4 canonical class syntax (`(--color-*)` instead of `[var(--color-*)]`)
+- [ ] Create GitHub API helper (`src/lib/github.ts`)
+- [ ] Create API route (`src/pages/api/docs/[...path].ts`)
+- [ ] Connect save button to API route
+- [ ] Connect load from API route for editing existing files
+- [ ] File tree sidebar in editor page
+- [ ] Delete file functionality
+- [ ] New file creation via API
+- [ ] Handle SHA conflicts (409)
+- [ ] Loading and error states
 
 ## Environment Variables
 
@@ -175,3 +162,4 @@ app/
 - **File size** — GitHub Contents API has a 1 MB limit per file.
 - **SHA conflicts** — If a file is modified externally between read and write, GitHub returns 409. The editor should re-fetch the file and prompt the user.
 - **Vercel function size** — The `@milkdown/crepe` package is client-side only (loaded in the browser). The API route only uses `fetch` to call GitHub, so server bundle size is minimal.
+- **Astro 6** — `output: 'hybrid'` was removed. Use `prerender = false` on individual pages for SSR.

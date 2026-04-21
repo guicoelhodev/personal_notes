@@ -1,25 +1,16 @@
-# Astro API Routes — Hybrid Mode + Vercel
+# Astro API Routes — Vercel Adapter
 
 ## Overview
 
-The project currently runs as a **static site** (Astro's default `output: 'static'`). To add API routes for the GitHub editor, we need to switch to **hybrid mode** and add the Vercel adapter.
+The project uses Astro 6 with the `@astrojs/vercel` adapter. In Astro 6, `output: 'hybrid'` was removed — the default static output now supports per-page prerendering. Pages are prerendered by default; set `export const prerender = false` on pages that need SSR.
 
-In hybrid mode:
-- Pages with `export const prerender = true` are built at build time (static)
-- Pages without `prerender` or with `export const prerender = false` are rendered on demand (SSR)
+- Pages with `export const prerender = true` (or no export) are built at build time (static)
+- Pages with `export const prerender = false` are rendered on demand (SSR)
 - Files in `src/pages/api/` become server-side API endpoints
 
-## Configuration
+## Current Configuration
 
-### Install Vercel adapter
-
-```bash
-npx astro add vercel
-```
-
-This adds `@astrojs/vercel` to dependencies and updates `astro.config.mjs`.
-
-### Update astro.config.mjs
+### astro.config.mjs
 
 ```js
 // @ts-check
@@ -28,15 +19,40 @@ import tailwindcss from '@tailwindcss/vite';
 import vercel from '@astrojs/vercel';
 
 export default defineConfig({
-  output: 'hybrid',
   adapter: vercel(),
+  markdown: {
+    shikiConfig: {
+      theme: 'tokyo-night'
+    }
+  },
   vite: {
     plugins: [tailwindcss()],
   },
 });
 ```
 
-## API Routes
+Note: No `output` field — Astro 6 defaults to static with per-page prerender control.
+
+### Dependencies
+
+```json
+{
+  "@astrojs/vercel": "^x.x.x",
+  "@milkdown/crepe": "^x.x.x",
+  "astro": "^6.1.5",
+  "tailwindcss": "^4.2.2"
+}
+```
+
+## Current Prerender Status
+
+| Page | Prerender | Status |
+|------|-----------|--------|
+| `src/pages/index.astro` | `true` | Static |
+| `src/pages/[...slug].astro` | `true` | Static |
+| `src/pages/new-file.astro` | `false` | SSR (Vercel function) |
+
+## API Routes (Planned)
 
 ### File: `src/pages/api/docs/[...path].ts`
 
@@ -138,23 +154,6 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 }
 ```
 
-## Existing Pages
-
-The current pages use `getStaticPaths()` which requires static prerendering. Add this export to keep them static:
-
-```astro
----
-// src/pages/[...slug].astro
-export const prerender = true
-
-export async function getStaticPaths() {
-  // ... existing code
-}
----
-```
-
-The `index.astro` page is already static by default in hybrid mode.
-
 ## Environment Variables
 
 ### Local development
@@ -192,3 +191,4 @@ The `APIRoute` type provides:
 - Return `new Response()` with appropriate status codes and headers
 - Always set `Content-Type` header for JSON responses
 - The `[...path]` catch-all route captures the rest of the URL after `/api/docs/`
+- Astro 6 removed `output: 'hybrid'` — use `prerender = false` on individual pages instead
