@@ -18,6 +18,24 @@ interface TreeEntry {
 	sha: string
 }
 
+export async function getFile(path: string): Promise<string> {
+	const res = await fetch(
+		`${GITHUB_API}/repos/${owner}/${repo}/contents/docs/${path}`,
+		{
+			headers: {
+				...headers(),
+				Accept: 'application/vnd.github.raw+json',
+			},
+		}
+	)
+
+	if (!res.ok) {
+		throw { status: res.status, message: `File not found: ${path}` }
+	}
+
+	return await res.text()
+}
+
 export async function listDocsTree(): Promise<TreeEntry[]> {
 	const res = await fetch(
 		`${GITHUB_API}/repos/${owner}/${repo}/git/trees/master:docs?recursive=1`,
