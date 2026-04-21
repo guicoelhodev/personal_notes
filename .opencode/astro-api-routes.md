@@ -38,9 +38,20 @@ Note: No `output` field — Astro 6 defaults to static with per-page prerender c
 ```json
 {
   "@astrojs/vercel": "^x.x.x",
-  "@milkdown/crepe": "^x.x.x",
+  "@milkdown/crepe": "^7.20.0",
   "astro": "^6.1.5",
-  "tailwindcss": "^4.2.2"
+  "tailwindcss": "^4.2.2",
+  "fuse.js": "^7.3.0"
+}
+```
+
+### Vite Override
+
+Astro requires Vite 7. Added to `package.json`:
+
+```json
+"overrides": {
+  "vite": "^7"
 }
 ```
 
@@ -50,109 +61,47 @@ Note: No `output` field — Astro 6 defaults to static with per-page prerender c
 |------|-----------|--------|
 | `src/pages/index.astro` | `true` | Static |
 | `src/pages/[...slug].astro` | `true` | Static |
-| `src/pages/new-file.astro` | `false` | SSR (Vercel function) |
+| `src/pages/file.astro` | `false` | SSR (file viewer/editor) |
+| `src/pages/api/docs/[...path].ts` | `false` | SSR (docs tree API) |
+| `src/pages/api/save.ts` | `false` | SSR (file save API) |
 
-## API Routes (Planned)
+## API Routes
 
-### File: `src/pages/api/docs/[...path].ts`
+### `GET /api/docs` — List docs tree
 
-This is a catch-all route that handles all operations on docs files.
+Returns the full recursive tree of files under `docs/`.
 
-The dynamic parameter `path` comes from the URL. For example:
-- `GET /api/docs` → `Astro.params.path` is `undefined`
-- `GET /api/docs/threlte/rapier-guide.md` → `Astro.params.path` is `threlte/rapier-guide.md`
+**File**: `src/pages/api/docs/[...path].ts`
 
-### Full Example
+```
+GET /api/docs → listDocsTree()
+```
+
+### `PUT /api/save` — Update file
+
+Updates an existing file on GitHub. Receives `{ path, content }`, fetches the current SHA internally, and pushes the update.
+
+**File**: `src/pages/api/save.ts`
 
 ```ts
-import type { APIRoute } from 'astro'
-import { listDocsTree, getFile, saveFile, deleteFile } from '../../lib/github'
-
-export const prerender = false
-
-export const GET: APIRoute = async ({ params, url }) => {
-  const { path } = params
-
-  try {
-    if (!path) {
-      const tree = await listDocsTree()
-      return new Response(JSON.stringify(tree), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
-
-    const file = await getFile(path)
-    return new Response(JSON.stringify(file), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  } catch (error: any) {
-    const status = error?.status || 500
-    return new Response(JSON.stringify({ error: error.message }), {
-      status,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
-}
-
-export const PUT: APIRoute = async ({ params, request }) => {
-  const { path } = params
-
-  if (!path) {
-    return new Response(JSON.stringify({ error: 'Path is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
-
-  try {
-    const body = await request.json()
-    const { content, sha, message } = body
-    const commitMessage = message || `Update ${path}`
-    const newSha = await saveFile(path, content, sha)
-
-    return new Response(JSON.stringify({ sha: newSha }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  } catch (error: any) {
-    const status = error?.status || 500
-    return new Response(JSON.stringify({ error: error.message }), {
-      status,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
-}
-
-export const DELETE: APIRoute = async ({ params, request }) => {
-  const { path } = params
-
-  if (!path) {
-    return new Response(JSON.stringify({ error: 'Path is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
-
-  try {
-    const body = await request.json()
-    const { sha, message } = body
-    await deleteFile(path, sha)
-
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  } catch (error: any) {
-    const status = error?.status || 500
-    return new Response(JSON.stringify({ error: error.message }), {
-      status,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
+export const PUT: APIRoute = async ({ request }) => {
+  const { path, content } = await request.json()
+  // path: relative path under docs/ (e.g. "notes/file.md")
+  // content: raw markdown string
+  await updateFile(path, content)
+  return { success: true }
 }
 ```
+
+Commit message format: `docs: update {path}`
+
+### Planned routes
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/docs/[...path]` | Get individual file content + SHA |
+| `PUT` | `/api/docs/[...path]` | Create new file |
+| `DELETE` | `/api/docs/[...path]` | Delete file |
 
 ## Environment Variables
 
@@ -170,25 +119,10 @@ GITHUB_REPO=AI_notes
 
 Configure in Vercel dashboard under **Settings > Environment Variables**.
 
-## APIRoute Type
-
-```ts
-import type { APIRoute } from 'astro'
-```
-
-The `APIRoute` type provides:
-
-- `Astro.params` — URL parameters from dynamic route segments
-- `Astro.request` — The incoming `Request` object
-- `Astro.url` — The parsed URL
-- `Astro.cookies` — Cookie access
-- `Astro.redirect(path, status)` — Helper for redirects
-
 ## Important Notes
 
 - API routes are **server-side only** — they run on the server, never in the browser
 - Environment variables like `GITHUB_TOKEN` are only accessible server-side
 - Return `new Response()` with appropriate status codes and headers
 - Always set `Content-Type` header for JSON responses
-- The `[...path]` catch-all route captures the rest of the URL after `/api/docs/`
 - Astro 6 removed `output: 'hybrid'` — use `prerender = false` on individual pages instead
