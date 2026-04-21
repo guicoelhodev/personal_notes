@@ -57,3 +57,38 @@ export async function listDocsTree(): Promise<TreeEntry[]> {
 
 	return docsEntries
 }
+
+export async function updateFile(path: string, content: string): Promise<void> {
+	const res = await fetch(
+		`${GITHUB_API}/repos/${owner}/${repo}/contents/docs/${path}`,
+		{ headers: headers() }
+	)
+
+	if (!res.ok) {
+		throw { status: res.status, message: `File not found: ${path}` }
+	}
+
+	const data = await res.json()
+	const sha = data.sha
+
+	const base64Content = Buffer.from(content).toString('base64')
+
+	const updateRes = await fetch(
+		`${GITHUB_API}/repos/${owner}/${repo}/contents/docs/${path}`,
+		{
+			method: 'PUT',
+			headers: headers(),
+			body: JSON.stringify({
+				message: `docs: update ${path}`,
+				content: base64Content,
+				sha,
+				branch: 'master',
+			}),
+		}
+	)
+
+	if (!updateRes.ok) {
+		const error = await updateRes.json()
+		throw { status: updateRes.status, message: error.message || 'Failed to update file' }
+	}
+}

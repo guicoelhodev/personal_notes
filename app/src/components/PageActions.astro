@@ -64,12 +64,27 @@ const { path } = Astro.props;
 				return;
 			}
 
+			const path = (window as any).__filePath ?? "";
+			if (!path) return;
+
 			setLoading(true);
-			setTimeout(() => {
-				console.log("Saved:", markdown);
-				(window as any).__originalContent = markdown;
-				setLoading(false);
-			}, 2000);
+			fetch("/api/save", {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ path, content: markdown }),
+			})
+				.then((res) => res.json())
+				.then((data) => {
+					if (data.error) throw new Error(data.error);
+					(window as any).__originalContent = markdown;
+					showToast("Saved successfully");
+				})
+				.catch((err) => {
+					showToast(err.message || "Failed to save");
+				})
+				.finally(() => {
+					setLoading(false);
+				});
 		}
 
 		saveBtn.addEventListener("click", save);

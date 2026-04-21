@@ -45,5 +45,6 @@ if (path) {
 		editor.create();
 		(window as any).__editor = editor;
 		(window as any).__originalContent = content;
+		(window as any).__filePath = new URLSearchParams(window.location.search).get("path") || "";
 	</script>
 </Layout>
