@@ -50,7 +50,17 @@ import Popover from "./Popover.astro";
 			}
 
 			const filePath = ul.dataset.folderPath + "/" + value + ".md";
-			window.location.href = "/file?path=" + encodeURIComponent(filePath) + "&mode=create";
+			const formattedName = value.replace(/[-_]/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+			li.remove();
+
+			const newContent = "# " + formattedName + "\n";
+
+			if (typeof (window as any).__loadEditor === "function") {
+				(window as any).__loadEditor(filePath, newContent, "create");
+			} else {
+				window.location.href = "/file?path=" + encodeURIComponent(filePath) + "&mode=create";
+			}
 		}
 
 		input.addEventListener("blur", confirmFile);
