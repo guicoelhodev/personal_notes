@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { TreeNode } from '$lib/types';
 	import ChevronDown from '$lib/icons/ChevronDown.svelte';
-	import FolderActions from './FolderActions.svelte';
+	import FileActions from './FileActions.svelte';
 	import SidebarNode from './SidebarNode.svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import { editorState } from '$lib/stores/editor.svelte';
@@ -134,7 +134,7 @@
 					</span>
 					<span class="truncate">{formatLabel(node.label)}</span>
 				</button>
-				<FolderActions {folderPath} onCreate={startCreate} />
+				<FileActions {folderPath} onCreate={startCreate} />
 			</div>
 			{#if isOpen}
 				<ul class="space-y-1 ml-3 mt-1" data-folder-path={folderPath}>
