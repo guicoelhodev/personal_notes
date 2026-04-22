@@ -11,6 +11,8 @@ export interface TreeNode {
 	isFolder?: boolean;
 }
 
+export type FileAction = 'add' | 'createFolder' | 'createFile' | 'delete' | 'rename';
+
 export interface SearchItem {
 	id: string;
 	title: string;

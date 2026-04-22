@@ -4,10 +4,13 @@
 	import FileActions from './FileActions.svelte';
 	import SidebarNode from './SidebarNode.svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
-	import { editorState } from '$lib/stores/editor.svelte';
 	import { goto } from '$app/navigation';
 
-	let { node, depth = 0, parentPath = '' }: { node: TreeNode; depth?: number; parentPath?: string } = $props();
+	let {
+		node,
+		depth = 0,
+		parentPath = ''
+	}: { node: TreeNode; depth?: number; parentPath?: string } = $props();
 
 	function formatLabel(label: string): string {
 		return label
@@ -21,17 +24,23 @@
 		return n.children.some((c) => hasActiveChild(c));
 	}
 
+	interface FileActionsInstance {
+		isCreating: boolean;
+		inputValue: string;
+		registerInput: (el: HTMLInputElement) => { update(): void; destroy(): void };
+		setInput: (v: string) => void;
+		confirmCreate: () => void;
+		handleKeydown: (e: KeyboardEvent) => void;
+	}
+
 	let manuallyToggled = $state(false);
 	let manuallyClosed = $state(false);
-	let isCreating = $state(false);
-	let creatingType = $state<'file' | 'folder'>('file');
-	let inputValue = $state('');
-	let inputRef: HTMLInputElement | undefined = $state();
+	let fileActions = $state<FileActionsInstance>();
 
 	let isOpen = $derived(
 		manuallyClosed
 			? false
-			: manuallyToggled || depth === 0 || hasActiveChild(node) || isCreating
+			: manuallyToggled || depth === 0 || hasActiveChild(node) || fileActions?.isCreating
 	);
 
 	function toggleFolder() {
@@ -50,64 +59,6 @@
 		goto(`/file?path=${encodeURIComponent(slug)}.md`);
 	}
 
-	function startCreate(type: 'file' | 'folder') {
-		manuallyClosed = false;
-		isCreating = true;
-		creatingType = type;
-		inputValue = type === 'file' ? 'New File' : 'New Folder';
-	}
-
-	function confirmCreate() {
-		const value = inputValue.trim();
-		if (!value || value === 'New File' || value === 'New Folder') {
-			isCreating = false;
-			return;
-		}
-
-		if (creatingType === 'file') {
-			const filePath = folderPath + '/' + value + '.md';
-			const formattedName = value.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-			editorState.path = filePath;
-			editorState.mode = 'create';
-			editorState.setContent('# ' + formattedName + '\n\n<br />\n\n');
-			editorState.setOriginalContent('');
-			goto(`/file?path=${encodeURIComponent(filePath)}&mode=create`);
-		} else if (creatingType === 'folder') {
-			const newFolder: TreeNode = {
-				label: value,
-				children: [],
-				isFolder: true
-			};
-			node.children.push(newFolder);
-			node.children.sort((a, b) => {
-				if (a.isFolder && !b.isFolder) return -1;
-				if (!a.isFolder && b.isFolder) return 1;
-				return a.label.localeCompare(b.label);
-			});
-			manuallyToggled = true;
-		}
-
-		isCreating = false;
-	}
-
-	function handleInputKeydown(e: KeyboardEvent) {
-		if (e.key === 'Enter') {
-			e.preventDefault();
-			confirmCreate();
-		} else if (e.key === 'Escape') {
-			isCreating = false;
-		} else if ([',', '.'].includes(e.key)) {
-			e.preventDefault();
-		}
-	}
-
-	$effect(() => {
-		if (isCreating && inputRef) {
-			inputRef.focus();
-			inputRef.select();
-		}
-	});
-
 	let folderPath = $derived(parentPath ? parentPath + '/' + node.label : node.label);
 
 	$effect(() => {
@@ -120,33 +71,45 @@
 <li>
 	{#if node.children.length > 0 || node.isFolder}
 		<div>
-			<div class="flex items-center py-1 rounded hover:bg-(--color-surface) transition-colors group">
+			<div
+				class="group flex items-center rounded py-1 transition-colors hover:bg-(--color-surface)"
+			>
 				<button
-					class="flex items-center gap-2 flex-1 min-w-0 text-sm font-semibold text-(--color-heading) cursor-pointer"
+					class="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm font-semibold text-(--color-heading)"
 					aria-expanded={isOpen}
 					onclick={toggleFolder}
 				>
 					<span
-						class="arrow w-3 h-3 transition-transform shrink-0 inline-block"
+						class="arrow inline-block h-3 w-3 shrink-0 transition-transform"
 						style={isOpen ? '' : 'transform: rotate(-90deg)'}
 					>
 						<ChevronDown />
 					</span>
 					<span class="truncate">{formatLabel(node.label)}</span>
 				</button>
-				<FileActions {folderPath} onCreate={startCreate} />
+				<FileActions
+					bind:this={fileActions}
+					{node}
+					{folderPath}
+					onFolderToggle={() => {
+						manuallyClosed = false;
+						manuallyToggled = true;
+					}}
+				/>
 			</div>
 			{#if isOpen}
-				<ul class="space-y-1 ml-3 mt-1" data-folder-path={folderPath}>
-					{#if isCreating}
+				<ul class="mt-1 ml-3 space-y-1" data-folder-path={folderPath}>
+					{#if fileActions?.isCreating}
+						{@const fa = fileActions}
 						<li>
 							<input
-								bind:this={inputRef}
 								type="text"
-								bind:value={inputValue}
-								class="w-full text-sm py-1 px-2 rounded border border-(--color-heading) bg-transparent text-(--color-text) outline-none"
-								onblur={confirmCreate}
-								onkeydown={handleInputKeydown}
+								use:fa.registerInput
+								value={fa.inputValue}
+								oninput={(e) => fa.setInput((e.target as HTMLInputElement).value)}
+								class="w-full rounded border border-(--color-heading) bg-transparent px-2 py-1 text-sm text-(--color-text) outline-none"
+								onblur={() => fa.confirmCreate()}
+								onkeydown={(e) => fa.handleKeydown(e)}
 							/>
 						</li>
 					{/if}

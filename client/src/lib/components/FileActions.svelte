@@ -1,39 +1,140 @@
 <script lang="ts">
+	import type { TreeNode, FileAction } from '$lib/types';
 	import Popover from './Popover.svelte';
 	import Plus from '$lib/icons/Plus.svelte';
 	import Folder from '$lib/icons/Folder.svelte';
 	import File from '$lib/icons/File.svelte';
+	import { editorState } from '$lib/stores/editor.svelte';
+	import { goto } from '$app/navigation';
 
-	let { folderPath, onCreate }: { folderPath: string; onCreate: (type: 'file' | 'folder') => void } = $props();
+	let {
+		node,
+		folderPath,
+		actions = ['add', 'createFolder', 'createFile'],
+		onFolderToggle
+	}: {
+		node: TreeNode;
+		folderPath: string;
+		actions?: FileAction[];
+		onFolderToggle: () => void;
+	} = $props();
+
+	let isCreating = $state(false);
+	let creatingType = $state<'file' | 'folder'>('file');
+	let inputValue = $state('');
+	let inputRef: HTMLInputElement | undefined = $state();
+
+	let popoverActions = $derived(actions.filter((a) => a !== 'add'));
+
+	export { isCreating, inputValue };
+
+	function startCreate(type: 'file' | 'folder') {
+		isCreating = true;
+		creatingType = type;
+		inputValue = type === 'file' ? 'New File' : 'New Folder';
+	}
+
+	export function confirmCreate() {
+		const value = inputValue.trim();
+		if (!value || value === 'New File' || value === 'New Folder') {
+			isCreating = false;
+			return;
+		}
+
+		if (creatingType === 'file') {
+			const filePath = folderPath + '/' + value + '.md';
+			const formattedName = value.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+			editorState.path = filePath;
+			editorState.mode = 'create';
+			editorState.setContent('# ' + formattedName + '\n\n<br />\n\n');
+			editorState.setOriginalContent('');
+			goto(`/file?path=${encodeURIComponent(filePath)}&mode=create`);
+		} else if (creatingType === 'folder') {
+			const newFolder: TreeNode = {
+				label: value,
+				children: [],
+				isFolder: true
+			};
+			node.children.push(newFolder);
+			node.children.sort((a, b) => {
+				if (a.isFolder && !b.isFolder) return -1;
+				if (!a.isFolder && b.isFolder) return 1;
+				return a.label.localeCompare(b.label);
+			});
+			onFolderToggle();
+		}
+
+		isCreating = false;
+	}
+
+	export function setInput(v: string) {
+		inputValue = v;
+	}
+
+	export function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			confirmCreate();
+		} else if (e.key === 'Escape') {
+			isCreating = false;
+		} else if ([',', '.'].includes(e.key)) {
+			e.preventDefault();
+		}
+	}
+
+	export function registerInput(el: HTMLInputElement) {
+		inputRef = el;
+		return {
+			update() {},
+			destroy() {
+				inputRef = undefined;
+			}
+		};
+	}
+
+	$effect(() => {
+		if (isCreating && inputRef) {
+			inputRef.focus();
+			inputRef.select();
+		}
+	});
 </script>
 
 <li>
 	<div class="flex items-center gap-1">
-		<button
-			type="button"
-			aria-label="Add"
-			class="folder-add-btn aspect-square rounded hover:bg-(--color-muted)/10 transition-colors cursor-pointer text-(--color-muted) opacity-0 group-hover:opacity-100"
-			onclick={() => onCreate('file')}
-		>
-			<Plus class="w-3.5 h-3.5" />
-		</button>
-		<Popover>
+		{#if actions.includes('add')}
 			<button
 				type="button"
-				class="flex items-center gap-2 w-full text-left text-sm px-3 py-1.5 hover:bg-(--color-muted)/10 transition-colors cursor-pointer text-(--color-text)"
-				onclick={() => onCreate('folder')}
+				aria-label="Add"
+				class="folder-add-btn aspect-square cursor-pointer rounded text-(--color-muted) opacity-0 transition-colors group-hover:opacity-100 hover:bg-(--color-muted)/10"
+				onclick={() => startCreate('file')}
 			>
-				<Folder class="w-4 h-4 shrink-0" />
-				<span>Create Folder</span>
+				<Plus class="h-3.5 w-3.5" />
 			</button>
-			<button
-				type="button"
-				class="flex items-center gap-2 w-full text-left text-sm px-3 py-1.5 hover:bg-(--color-muted)/10 transition-colors cursor-pointer text-(--color-text)"
-				onclick={() => onCreate('file')}
-			>
-				<File class="w-4 h-4 shrink-0" />
-				<span>Create File</span>
-			</button>
-		</Popover>
+		{/if}
+		{#if popoverActions.length > 0}
+			<Popover>
+				{#if actions.includes('createFolder')}
+					<button
+						type="button"
+						class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-sm text-(--color-text) transition-colors hover:bg-(--color-muted)/10"
+						onclick={() => startCreate('folder')}
+					>
+						<Folder class="h-4 w-4 shrink-0" />
+						<span>Create Folder</span>
+					</button>
+				{/if}
+				{#if actions.includes('createFile')}
+					<button
+						type="button"
+						class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-sm text-(--color-text) transition-colors hover:bg-(--color-muted)/10"
+						onclick={() => startCreate('file')}
+					>
+						<File class="h-4 w-4 shrink-0" />
+						<span>Create File</span>
+					</button>
+				{/if}
+			</Popover>
+		{/if}
 	</div>
 </li>
