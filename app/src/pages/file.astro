@@ -38,6 +38,82 @@ if (path && mode !== "create") {
 	<script>
 		import { Crepe } from "@milkdown/crepe";
 
+		function injectSidebarNode(filePath: string, formattedName: string) {
+			const parts = filePath.replace(/\.md$/, "").split("/");
+			const fileName = parts.pop();
+			const parentPath = parts.join("/");
+
+			const sidebarUls = document.querySelectorAll("ul[data-folder-path]");
+			let targetUl: Element | null = null;
+			for (const ul of sidebarUls) {
+				if (ul.getAttribute("data-folder-path") === parentPath) {
+					targetUl = ul;
+					break;
+				}
+			}
+
+			if (!targetUl) return;
+
+			targetUl.classList.remove("hidden");
+			const parentLi = targetUl.closest("li")?.querySelector("div");
+			if (parentLi) {
+				const arrow = parentLi.querySelector(".arrow") as HTMLElement | null;
+				if (arrow) arrow.style.transform = "";
+				const toggleBtn = parentLi.querySelector("button");
+				if (toggleBtn) toggleBtn.setAttribute("aria-expanded", "true");
+			}
+
+			if (targetUl.querySelector(`a[href="/file?path=${encodeURIComponent(filePath)}"]`)) return;
+
+			const li = document.createElement("li");
+			const a = document.createElement("a");
+			a.href = `/file?path=${encodeURIComponent(filePath)}`;
+			a.className = "block text-sm py-1 px-2 rounded transition-colors text-(--color-text) bg-(--color-heading)/20 font-medium";
+			a.textContent = formattedName;
+			li.appendChild(a);
+			targetUl.prepend(li);
+		}
+
+		async function loadEditor(path: string, content: string, mode: string) {
+			const editorEl = document.getElementById("editor");
+			if (!editorEl) return;
+
+			const oldEditor = (window as any).__editor;
+			if (oldEditor) {
+				try { await oldEditor.destroy(); } catch {}
+			}
+
+			editorEl.innerHTML = "";
+
+			const placeholder = mode === "create" ? "Type here, use / for more options" : "";
+
+			const newEditor = new Crepe({
+				root: "#editor",
+				defaultValue: content,
+				placeholder,
+			});
+			newEditor.create();
+
+			(window as any).__editor = newEditor;
+			(window as any).__originalContent = content;
+			(window as any).__filePath = path;
+			(window as any).__mode = mode;
+
+			const pageTitle = document.getElementById("page-title");
+			if (pageTitle) pageTitle.textContent = path;
+
+			history.pushState({}, "", `/file?path=${encodeURIComponent(path)}&mode=${mode}`);
+
+			if (mode === "create") {
+				const parts = path.replace(/\.md$/, "").split("/");
+				const fileName = parts.pop();
+				const formattedName = fileName!.replace(/[-_]/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+				injectSidebarNode(path, formattedName);
+			}
+		}
+
+		(window as any).__loadEditor = loadEditor;
+
 		const el = document.getElementById("editor-content");
 		const content = el ? el.textContent : "# Select a file";
 		el?.remove();
@@ -56,39 +132,10 @@ if (path && mode !== "create") {
 		if ((window as any).__mode === "create") {
 			const filePath = (window as any).__filePath;
 			if (!filePath) throw new Error("Missing path for create mode");
-
 			const parts = filePath.replace(/\.md$/, "").split("/");
 			const fileName = parts.pop();
-			const parentPath = parts.join("/");
 			const formattedName = fileName!.replace(/[-_]/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
-
-			const sidebarUls = document.querySelectorAll("ul[data-folder-path]");
-			let targetUl: Element | null = null;
-			for (const ul of sidebarUls) {
-				if (ul.getAttribute("data-folder-path") === parentPath) {
-					targetUl = ul;
-					break;
-				}
-			}
-
-			if (targetUl) {
-				targetUl.classList.remove("hidden");
-				const parentLi = targetUl.closest("li")?.querySelector("div");
-				if (parentLi) {
-					const arrow = parentLi.querySelector(".arrow") as HTMLElement | null;
-					if (arrow) arrow.style.transform = "";
-					const toggleBtn = parentLi.querySelector("button");
-					if (toggleBtn) toggleBtn.setAttribute("aria-expanded", "true");
-				}
-
-				const li = document.createElement("li");
-				const a = document.createElement("a");
-				a.href = `/file?path=${encodeURIComponent(filePath)}`;
-				a.className = "block text-sm py-1 px-2 rounded transition-colors text-(--color-text) bg-(--color-heading)/20 font-medium";
-				a.textContent = formattedName;
-				li.appendChild(a);
-				targetUl.prepend(li);
-			}
+			injectSidebarNode(filePath, formattedName);
 		}
 	</script>
 </Layout>
