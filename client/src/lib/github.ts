@@ -87,6 +87,49 @@ export async function updateFile(path: string, content: string): Promise<void> {
 	}
 }
 
+export async function deleteFile(path: string): Promise<void> {
+	const res = await fetch(
+		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${path}`,
+		{ headers: headers() }
+	);
+
+	if (!res.ok) {
+		throw { status: res.status, message: `File not found: ${path}` };
+	}
+
+	const data = await res.json();
+	const sha = data.sha;
+
+	const deleteRes = await fetch(
+		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${path}`,
+		{
+			method: 'DELETE',
+			headers: headers(),
+			body: JSON.stringify({
+				message: `docs: delete ${path}`,
+				sha,
+				branch: 'master'
+			})
+		}
+	);
+
+	if (!deleteRes.ok) {
+		const error = await deleteRes.json();
+		throw { status: deleteRes.status, message: error.message || 'Failed to delete file' };
+	}
+}
+
+export async function deleteFolder(path: string): Promise<void> {
+	const tree = await listDocsTree();
+	const filesInFolder = tree.filter(
+		(entry) => entry.type === 'blob' && entry.path.startsWith(path + '/')
+	);
+
+	for (const file of filesInFolder) {
+		await deleteFile(file.path);
+	}
+}
+
 export async function createFile(path: string, content: string): Promise<void> {
 	const base64Content = btoa(unescape(encodeURIComponent(content)));
 
