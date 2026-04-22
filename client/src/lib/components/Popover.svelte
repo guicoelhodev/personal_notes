@@ -29,7 +29,7 @@
 	{#if isOpen}
 		<div
 			bind:this={menuRef}
-			class="popover-menu fixed bg-(--color-surface) border border-(--color-muted)/20 rounded-lg shadow-lg py-1 min-w-45 z-50"
+			class="popover-menu fixed bg-(--color-surface) border border-(--color-muted)/20 rounded-lg shadow-lg py-1 min-w-45 z-50 translate-x-8"
 		>
 			{@render children()}
 		</div>
