@@ -4,7 +4,7 @@ class EditorState {
 	currentContent = $state('');
 	mode = $state<'edit' | 'create' | ''>('');
 	isSaving = $state(false);
-	isDirty = $derived(this.currentContent.trim() !== this.originalContent.trim() && this.currentContent.trim() !== '');
+	isDirty = $derived(this.currentContent !== this.originalContent && this.currentContent.trim() !== '');
 	toast = $state<{ message: string; type: 'success' | 'error' } | null>(null);
 
 	openFile(path: string, mode: 'edit' | 'create' | '') {
