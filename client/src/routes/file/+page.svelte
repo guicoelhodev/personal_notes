@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import { untrack } from 'svelte';
 	import { editorState } from '$lib/stores/editor.svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import PageActions from '$lib/components/PageActions.svelte';
@@ -100,19 +100,13 @@
 		});
 	}
 
-	onMount(async () => {
-		await loadContent();
-		await initEditor();
-
-		if (currentPath) {
-			sidebarState.activeSlug = currentPath.replace(/\.md$/, '');
-		}
-	});
-
 	$effect(() => {
 		const p = currentPath;
 		if (p) {
-			loadContent().then(() => initEditor());
+			untrack(() => {
+				loadContent().then(() => initEditor());
+			});
+			sidebarState.activeSlug = p.replace(/\.md$/, '');
 		}
 	});
 </script>

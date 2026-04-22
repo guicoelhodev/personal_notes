@@ -58,7 +58,8 @@
 		}
 
 		if (creatingType === 'file') {
-			const filePath = folderPath + '/' + value + '.md';
+			const slug = value.replaceAll(' ', '_');
+			const filePath = folderPath ? folderPath + '/' + slug + '.md' : slug + '.md';
 			const formattedName = value.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 			editorState.path = filePath;
 			editorState.mode = 'create';
@@ -66,8 +67,9 @@
 			editorState.setOriginalContent('');
 			goto(`/file?path=${encodeURIComponent(filePath)}&mode=create`);
 		} else if (creatingType === 'folder') {
+			const slug = value.replaceAll(' ', '_');
 			const newFolder: TreeNode = {
-				label: value,
+				label: slug,
 				children: [],
 				isFolder: true
 			};
