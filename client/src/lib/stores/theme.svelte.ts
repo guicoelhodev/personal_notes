@@ -12,10 +12,14 @@ class ThemeState {
 
 	constructor() {
 		if (typeof window !== 'undefined') {
-			$effect(() => {
-				localStorage.setItem('theme', this.theme);
-				document.documentElement.classList.toggle('light', this.theme === 'light');
-			});
+			this.theme = this.getInitial();
+		}
+	}
+
+	sync() {
+		if (typeof window !== 'undefined') {
+			localStorage.setItem('theme', this.theme);
+			document.documentElement.classList.toggle('light', this.theme === 'light');
 		}
 	}
 }

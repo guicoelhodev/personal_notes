@@ -4,11 +4,7 @@
 	import Sun from '$lib/icons/Sun.svelte';
 
 	$effect(() => {
-		if (themeState.theme === 'light') {
-			document.documentElement.classList.add('light');
-		} else {
-			document.documentElement.classList.remove('light');
-		}
+		themeState.sync();
 	});
 </script>
 
