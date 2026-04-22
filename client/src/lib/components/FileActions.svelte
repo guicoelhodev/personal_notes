@@ -114,7 +114,8 @@
 	});
 
 	function handleDelete() {
-		actionTarget = { name: node.label, path: folderPath, isFolder: true };
+		const isFolder = node.children.length > 0 || !!node.isFolder;
+		actionTarget = { name: node.label, path: folderPath, isFolder };
 		activeAction = 'deleteModal';
 	}
 

@@ -12,7 +12,7 @@ export async function DELETE({ request }) {
 		if (isFolder) {
 			await deleteFolder(path);
 		} else {
-			await deleteFile(path);
+			await deleteFile(path + '.md');
 		}
 
 		return json({ success: true });
