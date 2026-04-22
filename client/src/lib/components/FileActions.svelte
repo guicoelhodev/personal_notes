@@ -5,12 +5,14 @@
 	import Folder from '$lib/icons/Folder.svelte';
 	import File from '$lib/icons/File.svelte';
 	import Trash from '$lib/icons/Trash.svelte';
+	import Edit from '$lib/icons/Edit.svelte';
 	import DeleteFolderModal from './DeleteFolderModal.svelte';
+	import RenameModal from './RenameModal.svelte';
 	import { editorState } from '$lib/stores/editor.svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import { goto } from '$app/navigation';
 
-	type UserAction = 'deleteModal' | null;
+	type UserAction = 'deleteModal' | 'renameModal' | null;
 
 	let {
 		node,
@@ -30,7 +32,11 @@
 	let inputRef: HTMLInputElement | undefined = $state();
 
 	let activeAction = $state<UserAction>(null);
-	let actionTarget = $state<{ name: string; path: string }>({ name: '', path: '' });
+	let actionTarget = $state<{ name: string; path: string; isFolder: boolean }>({
+		name: '',
+		path: '',
+		isFolder: false
+	});
 
 	let popoverActions = $derived(actions.filter((a) => a !== 'add'));
 
@@ -108,20 +114,26 @@
 	});
 
 	function handleDelete() {
-		actionTarget = { name: node.label, path: folderPath };
+		actionTarget = { name: node.label, path: folderPath, isFolder: true };
 		activeAction = 'deleteModal';
+	}
+
+	function handleRename() {
+		const isFolder = node.children.length > 0 || !!node.isFolder;
+		actionTarget = { name: node.label, path: folderPath, isFolder };
+		activeAction = 'renameModal';
 	}
 
 	function cancelAction() {
 		activeAction = null;
-		actionTarget = { name: '', path: '' };
+		actionTarget = { name: '', path: '', isFolder: false };
 	}
 
 	async function confirmDelete(): Promise<void> {
 		const res = await fetch('/api/delete', {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ path: actionTarget.path, isFolder: true })
+			body: JSON.stringify({ path: actionTarget.path, isFolder: actionTarget.isFolder })
 		});
 
 		if (!res.ok) {
@@ -133,7 +145,42 @@
 		goto('/');
 		await sidebarState.loadTree();
 		activeAction = null;
-		actionTarget = { name: '', path: '' };
+		actionTarget = { name: '', path: '', isFolder: false };
+	}
+
+	async function confirmRename(newName: string): Promise<void> {
+		const res = await fetch('/api/rename', {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				path: actionTarget.path,
+				newName,
+				isFolder: actionTarget.isFolder
+			})
+		});
+
+		if (!res.ok) {
+			const data = await res.json();
+			const error = new Error(data.error || 'Failed to rename') as Error & { status: number };
+			error.status = res.status;
+			throw error;
+		}
+
+		const { newPath } = await res.json();
+
+		const isFile = !actionTarget.isFolder;
+		if (isFile && sidebarState.activeSlug === actionTarget.path) {
+			sidebarState.activeSlug = newPath.replace(/\.md$/, '');
+			editorState.path = newPath + '.md';
+			goto(`/file?path=${encodeURIComponent(newPath)}.md`);
+		} else if (isFile && editorState.path === actionTarget.path + '.md') {
+			editorState.path = newPath + '.md';
+			goto(`/file?path=${encodeURIComponent(newPath)}.md`);
+		}
+
+		await sidebarState.loadTree();
+		activeAction = null;
+		actionTarget = { name: '', path: '', isFolder: false };
 	}
 </script>
 
@@ -171,6 +218,16 @@
 						<span>Create File</span>
 					</button>
 				{/if}
+				{#if actions.includes('rename')}
+					<button
+						type="button"
+						class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[var(--color-muted)]/10"
+						onclick={handleRename}
+					>
+						<Edit class="h-4 w-4 shrink-0" />
+						<span>Rename</span>
+					</button>
+				{/if}
 				{#if actions.includes('delete')}
 					<button
 						type="button"
@@ -190,5 +247,13 @@
 	isOpen={activeAction === 'deleteModal'}
 	folderName={actionTarget.name}
 	onDelete={confirmDelete}
+	onCancel={cancelAction}
+/>
+
+<RenameModal
+	isOpen={activeAction === 'renameModal'}
+	itemName={actionTarget.name}
+	isFolder={actionTarget.isFolder}
+	onRename={confirmRename}
 	onCancel={cancelAction}
 />

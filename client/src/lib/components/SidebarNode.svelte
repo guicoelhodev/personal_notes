@@ -35,12 +35,12 @@
 
 	let manuallyToggled = $state(false);
 	let manuallyClosed = $state(false);
-	let fileActions = $state<FileActionsInstance>();
+	let folderActions = $state<FileActionsInstance>();
 
 	let isOpen = $derived(
 		manuallyClosed
 			? false
-			: manuallyToggled || depth === 0 || hasActiveChild(node) || fileActions?.isCreating
+			: manuallyToggled || depth === 0 || hasActiveChild(node) || folderActions?.isCreating
 	);
 
 	function toggleFolder() {
@@ -88,10 +88,10 @@
 					<span class="truncate">{formatLabel(node.label)}</span>
 				</button>
 				<FileActions
-					bind:this={fileActions}
+					bind:this={folderActions}
 					{node}
 					{folderPath}
-					actions={['add', 'createFolder', 'createFile', 'delete']}
+					actions={['add', 'createFolder', 'createFile', 'rename', 'delete']}
 					onFolderToggle={() => {
 						manuallyClosed = false;
 						manuallyToggled = true;
@@ -100,8 +100,8 @@
 			</div>
 			{#if isOpen}
 				<ul class="mt-1 ml-3 space-y-1" data-folder-path={folderPath}>
-					{#if fileActions?.isCreating}
-						{@const fa = fileActions}
+					{#if folderActions?.isCreating}
+						{@const fa = folderActions}
 						<li>
 							<input
 								type="text"
@@ -121,19 +121,29 @@
 			{/if}
 		</div>
 	{:else}
-		<a
-			href="/file?path={node.slug}.md"
-			class:list={[
-				'block text-sm py-1 px-2 rounded transition-colors text-(--color-text)',
-				sidebarState.activeSlug === node.slug && 'bg-(--color-heading)/20 font-medium',
-				sidebarState.activeSlug !== node.slug && 'hover:bg-(--color-surface)'
-			]}
-			onclick={(e) => {
-				e.preventDefault();
-				selectFile(node.slug || '');
-			}}
+		<div
+			class="group flex items-center justify-between rounded py-1 transition-colors hover:bg-(--color-surface)"
 		>
-			{formatLabel(node.label)}
-		</a>
+			<a
+				href="/file?path={node.slug}.md"
+				class:list={[
+					'block min-w-0 flex-1 text-sm py-1 px-2 rounded transition-colors text-(--color-text)',
+					sidebarState.activeSlug === node.slug && 'bg-(--color-heading)/20 font-medium',
+					sidebarState.activeSlug !== node.slug && 'hover:bg-(--color-surface)'
+				]}
+				onclick={(e) => {
+					e.preventDefault();
+					selectFile(node.slug || '');
+				}}
+			>
+				{formatLabel(node.label)}
+			</a>
+			<FileActions
+				{node}
+				folderPath={node.slug || ''}
+				actions={['rename', 'delete']}
+				onFolderToggle={() => {}}
+			/>
+		</div>
 	{/if}
 </li>
