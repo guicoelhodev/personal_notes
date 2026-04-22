@@ -18,12 +18,14 @@
 		node,
 		folderPath,
 		actions = ['add', 'createFolder', 'createFile'],
-		onFolderToggle
+		onFolderToggle,
+		alwaysVisible = false
 	}: {
 		node: TreeNode;
 		folderPath: string;
 		actions?: FileAction[];
 		onFolderToggle: () => void;
+		alwaysVisible?: boolean;
 	} = $props();
 
 	let isCreating = $state(false);
@@ -191,14 +193,14 @@
 			<button
 				type="button"
 				aria-label="Add"
-				class="folder-add-btn aspect-square cursor-pointer rounded text-(--color-muted) opacity-0 transition-colors group-hover:opacity-100 hover:bg-(--color-muted)/10"
+				class="folder-add-btn aspect-square cursor-pointer rounded text-(--color-muted) transition-colors hover:bg-(--color-muted)/10 {!alwaysVisible && 'opacity-0 group-hover:opacity-100'}"
 				onclick={() => startCreate('file')}
 			>
 				<Plus class="h-3.5 w-3.5" />
 			</button>
 		{/if}
 		{#if popoverActions.length > 0}
-			<Popover>
+			<Popover {alwaysVisible}>
 				{#if actions.includes('createFolder')}
 					<button
 						type="button"
