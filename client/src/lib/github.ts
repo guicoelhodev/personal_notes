@@ -130,6 +130,26 @@ export async function deleteFolder(path: string): Promise<void> {
 	}
 }
 
+export async function renameFile(oldPath: string, newPath: string): Promise<void> {
+	const content = await getFile(oldPath);
+	await createFile(newPath, content);
+	await deleteFile(oldPath);
+}
+
+export async function renameFolder(oldPath: string, newPath: string): Promise<void> {
+	const tree = await listDocsTree();
+	const filesInFolder = tree.filter(
+		(entry) => entry.type === 'blob' && entry.path.startsWith(oldPath + '/')
+	);
+
+	for (const file of filesInFolder) {
+		const content = await getFile(file.path);
+		const newFilePath = newPath + file.path.slice(oldPath.length);
+		await createFile(newFilePath, content);
+		await deleteFile(file.path);
+	}
+}
+
 export async function createFile(path: string, content: string): Promise<void> {
 	const base64Content = btoa(unescape(encodeURIComponent(content)));
 
