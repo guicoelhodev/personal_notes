@@ -62,6 +62,52 @@ const { id } = Astro.props;
 				const menu = btn.closest(".popover-menu");
 				if (menu) menu.classList.add("hidden");
 
+				if (action === "create-file") {
+					const folderRow = btn.closest("li");
+					const ul = folderRow?.querySelector("ul[data-folder-path]");
+					if (!ul) return;
+
+					ul.classList.remove("hidden");
+
+					if (ul.querySelector(".new-file-input")) return;
+
+					const li = document.createElement("li");
+					const input = document.createElement("input");
+					input.type = "text";
+					input.value = "New File";
+					input.className = "new-file-input w-full text-sm py-1 px-2 rounded border border-(--color-heading) bg-transparent text-(--color-text) outline-none";
+					li.appendChild(input);
+					ul.prepend(li);
+
+					requestAnimationFrame(() => {
+						input.focus();
+						input.select();
+					});
+
+					function confirmFile() {
+						const value = input.value.trim();
+						if (!value || value === "New File") {
+							li.remove();
+							return;
+						}
+
+						const filePath = ul.dataset.folderPath + "/" + value + ".md";
+						window.location.href = "/file?path=" + encodeURIComponent(filePath) + "&mode=create";
+					}
+
+					input.addEventListener("blur", confirmFile);
+					input.addEventListener("keydown", (ev) => {
+						if (ev.key === "Enter") {
+							ev.preventDefault();
+							input.blur();
+						} else if (ev.key === "Escape") {
+							li.remove();
+						} else if ([",", "."].includes(ev.key)) {
+							ev.preventDefault();
+						}
+					});
+				}
+
 				if (action === "create-folder") {
 					const folderRow = btn.closest("li");
 					const ul = folderRow?.querySelector("ul[data-folder-path]");

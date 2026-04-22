@@ -7,15 +7,20 @@ import "../milkdown.css";
 export const prerender = false;
 
 const path = Astro.url.searchParams.get("path");
+const mode = Astro.url.searchParams.get("mode");
 
 let content = "";
 
-if (path) {
+if (path && mode !== "create") {
 	try {
 		content = await getFile(path);
 	} catch (error: any) {
 		content = `# Error\n\nFile not found: ${path}`;
 	}
+} else if (path && mode === "create") {
+	const fileName = path.replace(/^.*\//, "").replace(/\.md$/, "");
+	const formattedName = fileName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+	content = `# ${formattedName}\n`;
 }
 ---
 
@@ -46,5 +51,44 @@ if (path) {
 		(window as any).__editor = editor;
 		(window as any).__originalContent = content;
 		(window as any).__filePath = new URLSearchParams(window.location.search).get("path") || "";
+		(window as any).__mode = new URLSearchParams(window.location.search).get("mode") || "";
+
+		if ((window as any).__mode === "create") {
+			const filePath = (window as any).__filePath;
+			if (!filePath) throw new Error("Missing path for create mode");
+
+			const parts = filePath.replace(/\.md$/, "").split("/");
+			const fileName = parts.pop();
+			const parentPath = parts.join("/");
+			const formattedName = fileName!.replace(/[-_]/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+			const sidebarUls = document.querySelectorAll("ul[data-folder-path]");
+			let targetUl: Element | null = null;
+			for (const ul of sidebarUls) {
+				if (ul.getAttribute("data-folder-path") === parentPath) {
+					targetUl = ul;
+					break;
+				}
+			}
+
+			if (targetUl) {
+				targetUl.classList.remove("hidden");
+				const parentLi = targetUl.closest("li")?.querySelector("div");
+				if (parentLi) {
+					const arrow = parentLi.querySelector(".arrow") as HTMLElement | null;
+					if (arrow) arrow.style.transform = "";
+					const toggleBtn = parentLi.querySelector("button");
+					if (toggleBtn) toggleBtn.setAttribute("aria-expanded", "true");
+				}
+
+				const li = document.createElement("li");
+				const a = document.createElement("a");
+				a.href = `/file?path=${encodeURIComponent(filePath)}`;
+				a.className = "block text-sm py-1 px-2 rounded transition-colors text-(--color-text) bg-(--color-heading)/20 font-medium";
+				a.textContent = formattedName;
+				li.appendChild(a);
+				targetUl.prepend(li);
+			}
+		}
 	</script>
 </Layout>
