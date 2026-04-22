@@ -4,8 +4,13 @@
 	import Plus from '$lib/icons/Plus.svelte';
 	import Folder from '$lib/icons/Folder.svelte';
 	import File from '$lib/icons/File.svelte';
+	import Trash from '$lib/icons/Trash.svelte';
+	import DeleteFolderModal from './DeleteFolderModal.svelte';
 	import { editorState } from '$lib/stores/editor.svelte';
+	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import { goto } from '$app/navigation';
+
+	type UserAction = 'deleteModal' | null;
 
 	let {
 		node,
@@ -23,6 +28,9 @@
 	let creatingType = $state<'file' | 'folder'>('file');
 	let inputValue = $state('');
 	let inputRef: HTMLInputElement | undefined = $state();
+
+	let activeAction = $state<UserAction>(null);
+	let actionTarget = $state<{ name: string; path: string }>({ name: '', path: '' });
 
 	let popoverActions = $derived(actions.filter((a) => a !== 'add'));
 
@@ -98,6 +106,35 @@
 			inputRef.select();
 		}
 	});
+
+	function handleDelete() {
+		actionTarget = { name: node.label, path: folderPath };
+		activeAction = 'deleteModal';
+	}
+
+	function cancelAction() {
+		activeAction = null;
+		actionTarget = { name: '', path: '' };
+	}
+
+	async function confirmDelete(): Promise<void> {
+		const res = await fetch('/api/delete', {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ path: actionTarget.path, isFolder: true })
+		});
+
+		if (!res.ok) {
+			const data = await res.json();
+			throw new Error(data.error || 'Failed to delete');
+		}
+
+		editorState.reset();
+		goto('/');
+		await sidebarState.loadTree();
+		activeAction = null;
+		actionTarget = { name: '', path: '' };
+	}
 </script>
 
 <li>
@@ -117,7 +154,7 @@
 				{#if actions.includes('createFolder')}
 					<button
 						type="button"
-						class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-sm text-(--color-text) transition-colors hover:bg-(--color-muted)/10"
+						class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[var(--color-muted)]/10"
 						onclick={() => startCreate('folder')}
 					>
 						<Folder class="h-4 w-4 shrink-0" />
@@ -127,14 +164,31 @@
 				{#if actions.includes('createFile')}
 					<button
 						type="button"
-						class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-sm text-(--color-text) transition-colors hover:bg-(--color-muted)/10"
+						class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[var(--color-muted)]/10"
 						onclick={() => startCreate('file')}
 					>
 						<File class="h-4 w-4 shrink-0" />
 						<span>Create File</span>
 					</button>
 				{/if}
+				{#if actions.includes('delete')}
+					<button
+						type="button"
+						class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-sm text-red-500 transition-colors hover:bg-[var(--color-muted)]/10"
+						onclick={handleDelete}
+					>
+						<Trash class="h-4 w-4 shrink-0" />
+						<span>Delete</span>
+					</button>
+				{/if}
 			</Popover>
 		{/if}
 	</div>
 </li>
+
+<DeleteFolderModal
+	isOpen={activeAction === 'deleteModal'}
+	folderName={actionTarget.name}
+	onDelete={confirmDelete}
+	onCancel={cancelAction}
+/>

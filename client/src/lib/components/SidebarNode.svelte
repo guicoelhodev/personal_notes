@@ -91,6 +91,7 @@
 					bind:this={fileActions}
 					{node}
 					{folderPath}
+					actions={['add', 'createFolder', 'createFile', 'delete']}
 					onFolderToggle={() => {
 						manuallyClosed = false;
 						manuallyToggled = true;
