@@ -37,15 +37,16 @@ app/
 │   ├── components/
 │   │   ├── Sidebar.astro                      # Sidebar with docs tree from GitHub API
 │   │   ├── sidebar/
-│   │   │   └── SidebarNode.astro              # Recursive tree node with folder toggle + popover
+│   │   │   └── SidebarNode.astro              # Recursive tree node with folder toggle
+│   │   ├── FolderActions.astro                # Create folder/file logic, plus button, popover actions
 │   │   ├── PageActions.astro                  # Save button (Ctrl+S), loading state, toast notifications
-│   │   ├── Popover.astro                      # Reusable popover component (fixed positioning)
+│   │   ├── Popover.astro                      # Dumb reusable popover (trigger + positioning only)
 │   │   ├── SearchModal.astro                  # Fuzzy search modal
 │   │   └── ThemeToggle.astro                  # Dark/light theme toggle
 │   ├── layout/
 │   │   └── Layout.astro                       # Main layout: sidebar (static) + main content area
 │   ├── pages/
-│   │   ├── file.astro                         # File viewer/editor page (SSR)
+│   │   ├── file.astro                         # File viewer/editor page (SSR), supports mode=create
 │   │   └── api/
 │   │       ├── docs/[...path].ts              # GET /api/docs — docs tree listing
 │   │       └── save.ts                        # PUT /api/save — update file on GitHub
@@ -98,6 +99,42 @@ Server (SSR)                     GitHub
   │   → window.__filePath         │
 ```
 
+### Create file (in-place, no page reload)
+
+```
+Browser (already on /file)
+  │
+  │  [Plus button] or [Popover > Create File]
+  │       │
+  │  → inline input appears in sidebar <ul>
+  │  → Enter → confirmFile()
+  │       │
+  │  → window.__loadEditor(path, "# Title\n", "create")
+  │       │
+  │  → destroys old Crepe editor
+  │  → creates new Crepe editor (with placeholder)
+  │  → updates __editor, __originalContent, __filePath, __mode
+  │  → updates page title and URL via history.pushState
+  │  → injects sidebar node with active highlight
+  │
+  │  Fallback: if not on /file page, does window.location.href (full reload)
+```
+
+### Create folder (in-place, no page reload)
+
+```
+Browser
+  │
+  │  [Popover > Create Folder]
+  │       │
+  │  → inline input appears in sidebar <ul>
+  │  → Enter → confirmFolder()
+  │       │
+  │  → replaces input <li> with full folder node HTML
+  │  → includes chevron toggle, plus button, popover (three-dots)
+  │  → calls setupFolderActions() to bind new node events
+```
+
 ### Save file (update)
 
 ```
@@ -143,8 +180,8 @@ Browser
 - [x] Change detection — compares editor content with original from API
 - [x] Popover component on folder nodes (three-dots menu, fixed positioning to avoid overflow clipping)
 - [x] Layout fixes — static sidebar, proper flex container, scroll inside editor
-- [ ] Create file via popover action
-- [ ] Create folder via popover action
+- [x] Create file via popover action (in-place, no page reload, with sidebar injection)
+- [x] Create folder via popover action (in-place DOM rendering with event re-binding)
 - [ ] Delete file functionality
 - [ ] Handle SHA conflicts (409)
 - [ ] Loading states for initial file load
@@ -158,6 +195,8 @@ The editor exposes globals on `window`:
 | `window.__editor` | `Crepe` | Milkdown Crepe editor instance |
 | `window.__originalContent` | `string` | Original content from API (for change detection) |
 | `window.__filePath` | `string` | Current file path relative to `docs/` (e.g. `"notes/file.md"`) |
+| `window.__mode` | `string` | Current mode: `""` (edit) or `"create"` |
+| `window.__loadEditor` | `function` | Destroys current editor, creates new one in-place, updates globals, URL, sidebar |
 
 ## Components
 
@@ -171,12 +210,23 @@ Bottom bar with file path display and save button.
 
 ### Popover
 
-Reusable popover component with fixed positioning (avoids `overflow` clipping from sidebar).
+Dumb/reusable popover component — UI only, no business logic.
 
 - Trigger: three-dots icon (visible on parent hover via `group-hover:opacity-100`)
 - Menu: positioned via JS using `getBoundingClientRect()` of trigger
 - Auto-closes on outside click
-- Currently contains "Create Folder" and "Create File" actions (HTML only)
+- Actions are passed via `<slot />` (managed by FolderActions)
+
+### FolderActions
+
+Owns all create folder/file logic. Used inside SidebarNode for folder rows.
+
+- **Plus button** (`.folder-add-btn`): directly triggers `handleCreateFile(ul)`
+- **Popover actions**: listens for clicks on `.popover-action[data-action]`
+- `handleCreateFile(ul)`: creates inline input, validates (blocks `,` and `.`), on Enter calls `window.__loadEditor()` (in-place) or falls back to `window.location.href`
+- `handleCreateFolder(ul)`: creates inline input, on Enter renders full folder node HTML with chevron, plus button, and popover, then calls `setupFolderActions()` to rebind events
+- Uses `dataset.folderActionsSetup` flag to prevent duplicate listeners
+- New folders created dynamically include their own FolderActions (plus + popover) via inline HTML
 
 ### SidebarNode
 
