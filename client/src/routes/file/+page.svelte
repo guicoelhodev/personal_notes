@@ -3,6 +3,8 @@
 	import { untrack } from 'svelte';
 	import { editorState } from '$lib/stores/editor.svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
+	import { editorViewCtx } from '@milkdown/kit/core';
+	import { Selection } from 'prosemirror-state';
 	import PageActions from '$lib/components/PageActions.svelte';
 
 	let editorEl: HTMLDivElement | undefined = $state();
@@ -61,11 +63,21 @@
 			root: editorEl,
 			defaultValue: editorState.currentContent
 		});
-		editorInstance.create();
+		await editorInstance.create();
 
 		if (currentMode === 'create') {
-			const editable = editorEl.querySelector('.ProseMirror') as HTMLElement | null;
-			editable?.focus();
+			requestAnimationFrame(() => {
+				editorInstance.editor.action((ctx: any) => {
+					const view = ctx.get(editorViewCtx);
+					view.focus();
+					const endPos = view.state.doc.content.size;
+					view.dispatch(
+						view.state.tr.setSelection(
+							Selection.near(view.state.doc.resolve(endPos))
+						)
+					);
+				});
+			});
 		}
 
 		const observer = new MutationObserver(() => {
