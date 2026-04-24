@@ -34,7 +34,7 @@ class EditorState {
 	async save(): Promise<boolean> {
 		if (!this.path || this.isSaving) return false;
 		if (!this.isDirty) {
-			this.showToast('No changes to save', 'success');
+			this.triggerToast('No changes to save', 'success');
 			return false;
 		}
 		this.isSaving = true;
@@ -50,21 +50,21 @@ class EditorState {
 				throw new Error(data.error || 'Failed to save');
 			}
 			this.markSaved();
-			this.showToast('Saved successfully', 'success');
+			this.triggerToast('Saved successfully', 'success');
 			return true;
 		} catch (error: any) {
-			this.showToast(error.message || 'Failed to save', 'error');
+			this.triggerToast(error.message || 'Failed to save', 'error');
 			return false;
 		} finally {
 			this.isSaving = false;
 		}
 	}
 
-	private showToast(message: string, type: 'success' | 'error') {
+	triggerToast(message: string, type: 'success' | 'error') {
 		this.toast = { message, type };
 		setTimeout(() => {
 			this.toast = null;
-		}, 2500);
+		}, 2000);
 	}
 
 	reset() {

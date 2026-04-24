@@ -17,13 +17,19 @@ export const POST: RequestHandler = async ({ request }) => {
 	const formData = await request.formData();
 	const file = formData.get('file') as File;
 
+	const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
 	if (!file) {
 		return json({ error: 'No file provided' }, { status: 400 });
 	}
 
-const timestamp = Date.now().toString(16);
-		const randomPart = Math.random().toString(16).substring(2, 10);
-		const hash = `${timestamp}_${randomPart}`;
+	if (file.size > MAX_SIZE) {
+		return json({ error: 'File too large (max 5MB)' }, { status: 400 });
+	}
+
+	const timestamp = Date.now().toString(16);
+	const randomPart = Math.random().toString(16).substring(2, 10);
+	const hash = `${timestamp}_${randomPart}`;
 
 	const extension = file.name.split('.').pop() || 'png';
 	const filename = `img_${hash}.${extension}`;
@@ -35,18 +41,15 @@ const timestamp = Date.now().toString(16);
 		.join('');
 	const base64Content = btoa(binaryString);
 
-	const res = await fetch(
-		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,
-		{
-			method: 'PUT',
-			headers: headers(),
-			body: JSON.stringify({
-				message: `images: upload ${filename}`,
-				content: base64Content,
-				branch: 'master'
-			})
-		}
-	);
+	const res = await fetch(`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+		method: 'PUT',
+		headers: headers(),
+		body: JSON.stringify({
+			message: `images: upload ${filename}`,
+			content: base64Content,
+			branch: 'master'
+		})
+	});
 
 	if (!res.ok) {
 		return json({ error: 'Upload failed' }, { status: res.status });

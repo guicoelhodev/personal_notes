@@ -71,6 +71,7 @@
 						if (data.url) {
 							return data.url;
 						}
+						editorState.triggerToast(data.error || 'Upload failed', 'error');
 						throw new Error(data.error || 'Upload failed');
 					}
 				}
