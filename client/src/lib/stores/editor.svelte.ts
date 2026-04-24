@@ -18,7 +18,6 @@ class EditorState {
 
 	setContent(content: string) {
 		this.currentContent = content;
-		console.log('content', content);
 	}
 
 	setOriginalContent(content: string) {

@@ -5,6 +5,7 @@
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import { editorViewCtx } from '@milkdown/kit/core';
 	import { Selection } from 'prosemirror-state';
+	import { Crepe } from '@milkdown/crepe';
 	import PageActions from '$lib/components/PageActions.svelte';
 
 	let editorEl: HTMLDivElement | undefined = $state();
@@ -57,11 +58,23 @@
 
 		editorEl.innerHTML = '';
 
-		const { Crepe } = await import('@milkdown/crepe');
-
 		editorInstance = new Crepe({
 			root: editorEl,
-			defaultValue: editorState.currentContent
+			defaultValue: editorState.currentContent,
+			featureConfigs: {
+				[Crepe.Feature.ImageBlock]: {
+					onUpload: async (file: File) => {
+						const formData = new FormData();
+						formData.append('file', file);
+						const res = await fetch('/api/upload', { method: 'POST', body: formData });
+						const data = await res.json();
+						if (data.url) {
+							return data.url;
+						}
+						throw new Error(data.error || 'Upload failed');
+					}
+				}
+			}
 		});
 		await editorInstance.create();
 
