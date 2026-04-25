@@ -10,13 +10,11 @@
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import { searchState } from '$lib/stores/search.svelte';
 	import { themeState } from '$lib/stores/theme.svelte';
-	import { authState } from '$lib/stores/auth.svelte';
 
 	let { children } = $props();
 
 	onMount(() => {
 		themeState.sync();
-		authState.fetchCurrentUser();
 	});
 </script>
 
