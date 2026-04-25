@@ -101,6 +101,10 @@ body {
 	color: var(--color-text);
 }
 
+button {
+	cursor: pointer;
+}
+
 .prose {
 	--tw-prose-body: var(--color-text);
 	--tw-prose-headings: var(--color-heading);
