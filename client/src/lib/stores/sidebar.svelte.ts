@@ -1,6 +1,6 @@
 import type { TreeNode } from '$lib/types';
 import { buildTree } from '$lib/utils/tree';
-import { PUBLIC_READ_ONLY } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 
 const HOME_ID = 'home';
 
@@ -19,7 +19,7 @@ class SidebarState {
 	async loadTree() {
 		this.isLoading = true;
 		try {
-			const apiBase = PUBLIC_READ_ONLY ? '/api/local-docs' : '/api/docs';
+			const apiBase = env.PUBLIC_READ_ONLY === 'true' ? '/api/local-docs' : '/api/docs';
 			const res = await fetch(apiBase);
 			if (!res.ok) throw new Error('Failed to load docs tree');
 			const entries: TreeEntry[] = await res.json();
