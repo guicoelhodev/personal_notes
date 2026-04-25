@@ -8,9 +8,11 @@
 	import Edit from '$lib/icons/Edit.svelte';
 	import DeleteFolderModal from './DeleteFolderModal.svelte';
 	import RenameModal from './RenameModal.svelte';
+	import FeatureBlockedModal from './FeatureBlockedModal.svelte';
 	import { editorState } from '$lib/stores/editor.svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import { goto } from '$app/navigation';
+	import { env } from '$env/dynamic/public';
 
 	type UserAction = 'deleteModal' | 'renameModal' | null;
 
@@ -41,6 +43,8 @@
 	});
 
 	let popoverActions = $derived(actions.filter((a) => a !== 'add'));
+
+	let showBlockedModal = $state(false);
 
 	export { isCreating, inputValue };
 
@@ -118,12 +122,20 @@
 	});
 
 	function handleDelete() {
+		if (env.PUBLIC_READ_ONLY === 'true') {
+			showBlockedModal = true;
+			return;
+		}
 		const isFolder = node.children.length > 0 || !!node.isFolder;
 		actionTarget = { name: node.label, path: folderPath, isFolder };
 		activeAction = 'deleteModal';
 	}
 
 	function handleRename() {
+		if (env.PUBLIC_READ_ONLY === 'true') {
+			showBlockedModal = true;
+			return;
+		}
 		const isFolder = node.children.length > 0 || !!node.isFolder;
 		actionTarget = { name: node.label, path: folderPath, isFolder };
 		activeAction = 'renameModal';
@@ -262,3 +274,5 @@
 	onRename={confirmRename}
 	onCancel={cancelAction}
 />
+
+<FeatureBlockedModal bind:isOpen={showBlockedModal} onClose={() => showBlockedModal = false} />

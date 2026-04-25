@@ -4,10 +4,17 @@
 	import Save from '$lib/icons/Save.svelte';
 	import CopyContext from '$lib/icons/CopyContext.svelte';
 	import Spinner from '$lib/icons/Spinner.svelte';
+	import FeatureBlockedModal from './FeatureBlockedModal.svelte';
+	import { env } from '$env/dynamic/public';
 
 	let isCopied = $state(false);
+	let showBlockedModal = $state(false);
 
 	async function handleSave() {
+		if (env.PUBLIC_READ_ONLY === 'true') {
+			showBlockedModal = true;
+			return;
+		}
 		const saved = await editorState.save();
 		if (saved) {
 			await sidebarState.loadTree();
@@ -68,3 +75,5 @@
 		</button>
 	</div>
 </div>
+
+<FeatureBlockedModal bind:isOpen={showBlockedModal} onClose={() => showBlockedModal = false} />
