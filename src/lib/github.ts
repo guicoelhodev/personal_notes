@@ -13,15 +13,15 @@ function headers(): HeadersInit {
 }
 
 export async function getFile(path: string): Promise<string> {
-	const res = await fetch(
-		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${path}`,
-		{
-			headers: {
-				...headers(),
-				Accept: 'application/vnd.github.raw+json'
-			}
+	const url = `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${path}`;
+
+
+	const res = await fetch(url, {
+		headers: {
+			...headers(),
+			Accept: 'application/vnd.github.raw+json'
 		}
-	);
+	});
 
 	if (!res.ok) {
 		throw { status: res.status, message: `File not found: ${path}` };
@@ -31,10 +31,9 @@ export async function getFile(path: string): Promise<string> {
 }
 
 export async function listDocsTree(): Promise<TreeEntry[]> {
-	const res = await fetch(
-		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}:docs?recursive=1`,
-		{ headers: headers() }
-	);
+	const url = `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}:docs?recursive=1`;
+
+	const res = await fetch(url, { headers: headers() });
 
 	if (!res.ok) {
 		const error = await res.json();

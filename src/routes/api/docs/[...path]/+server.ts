@@ -2,6 +2,7 @@ import { listDocsTree, getFile } from '$lib/github';
 
 export async function GET({ params }) {
 	const { path } = params;
+
 	try {
 		if (!path) {
 			const tree = await listDocsTree();
