@@ -18,7 +18,7 @@ function headers(): HeadersInit {
 }
 
 export async function getFile(path: string): Promise<string> {
-  const url = `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/docs/${path}?ref=${GITHUB_BRANCH}`;
+  const url = `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/lib/docs/${path}?ref=${GITHUB_BRANCH}`;
 
   const res = await fetch(url, {
     headers: {
@@ -35,7 +35,7 @@ export async function getFile(path: string): Promise<string> {
 }
 
 export async function listDocsTree(): Promise<TreeEntry[]> {
-  const url = `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}:src/docs?recursive=1`;
+  const url = `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}:src/lib/docs?recursive=1`;
 
   const res = await fetch(url, { headers: headers() });
 
@@ -60,7 +60,7 @@ export async function listDocsTree(): Promise<TreeEntry[]> {
 
 export async function updateFile(path: string, content: string): Promise<void> {
   const res = await fetch(
-    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/docs/${path}`,
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/lib/docs/${path}?ref=${GITHUB_BRANCH}`,
     { headers: headers() },
   );
 
@@ -74,7 +74,7 @@ export async function updateFile(path: string, content: string): Promise<void> {
   const base64Content = btoa(unescape(encodeURIComponent(content)));
 
   const updateRes = await fetch(
-    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/docs/${path}`,
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/lib/docs/${path}`,
     {
       method: "PUT",
       headers: headers(),
@@ -98,7 +98,7 @@ export async function updateFile(path: string, content: string): Promise<void> {
 
 export async function deleteFile(path: string): Promise<void> {
   const res = await fetch(
-    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/docs/${path}`,
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/lib/docs/${path}?ref=${GITHUB_BRANCH}`,
     { headers: headers() },
   );
 
@@ -110,7 +110,7 @@ export async function deleteFile(path: string): Promise<void> {
   const sha = data.sha;
 
   const deleteRes = await fetch(
-    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/docs/${path}`,
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/lib/docs/${path}`,
     {
       method: "DELETE",
       headers: headers(),
@@ -173,7 +173,7 @@ export async function createFile(path: string, content: string): Promise<void> {
 
   const pathFile = path.replaceAll(" ", "_");
   const res = await fetch(
-    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${pathFile}`,
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${pathFile}?ref=${GITHUB_BRANCH}`,
     {
       method: "PUT",
       headers: headers(),
@@ -210,7 +210,7 @@ export async function uploadImage(file: File): Promise<string> {
   const base64Content = btoa(binaryString);
 
   const res = await fetch(
-    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?ref=${GITHUB_BRANCH}`,
     {
       method: "PUT",
       headers: headers(),
@@ -233,7 +233,7 @@ export async function deleteImage(imageUrl: string): Promise<void> {
   const path = `.github/images/${imageUrl.split("/").pop()}`;
 
   const res = await fetch(
-    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?ref=${GITHUB_BRANCH}`,
     { headers: headers() },
   );
 
