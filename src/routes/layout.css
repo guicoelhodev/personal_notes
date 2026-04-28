@@ -1,216 +1,230 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @plugin '@tailwindcss/typography';
 @import "@milkdown/crepe/theme/common/style.css";
 
 [data-theme="catpuccin-dark"] {
-	--color-base: #24273a;
-	--color-surface: #363a4f;
-	--color-text: #cad3f5;
-	--color-heading: #c6a0f6;
-	--color-link: #8aadf4;
-	--color-muted: #6e738d;
+  --color-base: #24273a;
+  --color-surface: #363a4f;
+  --color-text: #cad3f5;
+  --color-heading: #c6a0f6;
+  --color-link: #8aadf4;
+  --color-muted: #6e738d;
 }
 
 [data-theme="catpuccin-light"] {
-	--color-base: #eff1f5;
-	--color-surface: #dcdee5;
-	--color-text: #4c4f69;
-	--color-heading: #8839ef;
-	--color-link: #7287fd;
-	--color-muted: #6c7086;
+  --color-base: #eff1f5;
+  --color-surface: #dcdee5;
+  --color-text: #4c4f69;
+  --color-heading: #8839ef;
+  --color-link: #7287fd;
+  --color-muted: #6c7086;
 }
 
 [data-theme="tokyo-night-dark"] {
-	--color-base: #1a1b26;
-	--color-surface: #24283b;
-	--color-text: #a9b1d6;
-	--color-heading: #7aa2f7;
-	--color-link: #7aa2f7;
-	--color-muted: #565f89;
+  --color-base: #1a1b26;
+  --color-surface: #24283b;
+  --color-text: #a9b1d6;
+  --color-heading: #7aa2f7;
+  --color-link: #7aa2f7;
+  --color-muted: #565f89;
 }
 
 [data-theme="tokyo-night-light"] {
-	--color-base: #e4e7eb;
-	--color-surface: #d3d8e0;
-	--color-text: #343a4d;
-	--color-heading: #4c7aef;
-	--color-link: #4c7aef;
-	--color-muted: #6b7280;
+  --color-base: #e4e7eb;
+  --color-surface: #d3d8e0;
+  --color-text: #343a4d;
+  --color-heading: #4c7aef;
+  --color-link: #4c7aef;
+  --color-muted: #6b7280;
 }
 
 [data-theme="gruvbox-dark"] {
-	--color-base: #282828;
-	--color-surface: #3c3836;
-	--color-text: #ebdbb2;
-	--color-heading: #fb4934;
-	--color-link: #f2e9de;
-	--color-muted: #928374;
+  --color-base: #282828;
+  --color-surface: #3c3836;
+  --color-text: #ebdbb2;
+  --color-heading: #fb4934;
+  --color-link: #f2e9de;
+  --color-muted: #928374;
 }
 
 [data-theme="gruvbox-light"] {
-	--color-base: #f2e9de;
-	--color-surface: #ebdbb2;
-	--color-text: #3c3836;
-	--color-heading: #cc241d;
-	--color-link: #282828;
-	--color-muted: #928374;
+  --color-base: #f2e9de;
+  --color-surface: #ebdbb2;
+  --color-text: #3c3836;
+  --color-heading: #cc241d;
+  --color-link: #282828;
+  --color-muted: #928374;
 }
 
 [data-theme="solarized-dark"] {
-	--color-base: #002b36;
-	--color-surface: #073642;
-	--color-text: #839496;
-	--color-heading: #268bd2;
-	--color-link: #268bd2;
-	--color-muted: #586e75;
+  --color-base: #002b36;
+  --color-surface: #073642;
+  --color-text: #839496;
+  --color-heading: #268bd2;
+  --color-link: #268bd2;
+  --color-muted: #586e75;
 }
 
 [data-theme="solarized-light"] {
-	--color-base: #fdf6e3;
-	--color-surface: #eee8d5;
-	--color-text: #657b83;
-	--color-heading: #268bd2;
-	--color-link: #268bd2;
-	--color-muted: #93a1a1;
+  --color-base: #fdf6e3;
+  --color-surface: #eee8d5;
+  --color-text: #657b83;
+  --color-heading: #268bd2;
+  --color-link: #268bd2;
+  --color-muted: #93a1a1;
 }
 
 [data-theme="rose-pine-dark"] {
-	--color-base: #232136;
-	--color-surface: #2a273f;
-	--color-text: #e0def4;
-	--color-heading: #c4a7e7;
-	--color-link: #9ccfd8;
-	--color-muted: #6e6a86;
+  --color-base: #232136;
+  --color-surface: #2a273f;
+  --color-text: #e0def4;
+  --color-heading: #c4a7e7;
+  --color-link: #9ccfd8;
+  --color-muted: #6e6a86;
 }
 
 [data-theme="rose-pine-light"] {
-	--color-base: #faf4ed;
-	--color-surface: #f2e9de;
-	--color-text: #575279;
-	--color-heading: #b4637a;
-	--color-link: #56949f;
-	--color-muted: #908ca0;
+  --color-base: #faf4ed;
+  --color-surface: #f2e9de;
+  --color-text: #575279;
+  --color-heading: #b4637a;
+  --color-link: #56949f;
+  --color-muted: #908ca0;
 }
 
 * {
-	transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 body {
-	background-color: var(--color-base);
-	color: var(--color-text);
+  background-color: var(--color-base);
+  color: var(--color-text);
 }
 
 button {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 .prose {
-	--tw-prose-body: var(--color-text);
-	--tw-prose-headings: var(--color-heading);
-	--tw-prose-links: var(--color-link);
-	--tw-prose-bold: var(--color-text);
-	--tw-prose-code: var(--color-text);
-	--tw-prose-quotes: var(--color-muted);
-	--tw-prose-counters: var(--color-muted);
-	--tw-prose-bullets: var(--color-muted);
-	--tw-prose-hr: var(--color-muted);
+  --tw-prose-body: var(--color-text);
+  --tw-prose-headings: var(--color-heading);
+  --tw-prose-links: var(--color-link);
+  --tw-prose-bold: var(--color-text);
+  --tw-prose-code: var(--color-text);
+  --tw-prose-quotes: var(--color-muted);
+  --tw-prose-counters: var(--color-muted);
+  --tw-prose-bullets: var(--color-muted);
+  --tw-prose-hr: var(--color-muted);
 }
 
 .prose table {
-	display: block;
-	overflow-x: auto;
-	-webkit-overflow-scrolling: touch;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .prose pre,
 .prose code {
-	overflow-x: auto;
-	max-width: 100%;
-	max-height: 40rem;
+  overflow-x: auto;
+  max-width: 100%;
+  max-height: 40rem;
 }
 
 .prose pre {
-	position: relative;
+  position: relative;
 }
 
 .prose pre button.copy-btn {
-	position: absolute;
-	top: 0.5rem;
-	right: 0.5rem;
-	padding: 0.25rem 0.5rem;
-	font-size: 0.75rem;
-	border-radius: 0.25rem;
-	cursor: pointer;
-	border: 1px solid var(--color-muted);
-	background: var(--color-surface);
-	color: var(--color-text);
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  border: 1px solid var(--color-muted);
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .prose blockquote {
-	overflow-wrap: break-word;
-	word-break: break-word;
-	max-width: 100%;
-	margin-left: 0;
-	padding-left: 1rem;
-	border-left-width: 3px;
-	font-size: 0.9em;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+  margin-left: 0;
+  padding-left: 1rem;
+  border-left-width: 3px;
+  font-size: 0.9em;
 }
 
 .prose blockquote p {
-	max-width: 100%;
+  max-width: 100%;
 }
 
 .prose blockquote a {
-	word-break: break-all;
+  word-break: break-all;
 }
 
 .prose ul,
 .prose ol {
-	overflow-wrap: break-word;
-	word-break: break-word;
-	max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .prose li {
-	max-width: 100%;
+  max-width: 100%;
 }
 
 .prose li a {
-	word-break: break-all;
+  word-break: break-all;
 }
 
 @media (max-width: 640px) {
-	.prose h1 {
-		padding-top: 1.5rem;
-	}
+  .prose h1 {
+    padding-top: 1.5rem;
+  }
 }
 
 .milkdown {
-	--crepe-font-title: system-ui, -apple-system, sans-serif;
-	--crepe-font-default: system-ui, -apple-system, sans-serif;
-	--crepe-font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --crepe-font-title: system-ui, -apple-system, sans-serif;
+  --crepe-font-default: system-ui, -apple-system, sans-serif;
+  --crepe-font-code:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-	--crepe-color-background: var(--color-base);
-	--crepe-color-on-background: var(--color-text);
-	--crepe-color-surface: var(--color-surface);
-	--crepe-color-surface-low: var(--color-surface);
-	--crepe-color-on-surface: var(--color-text);
-	--crepe-color-on-surface-variant: var(--color-muted);
-	--crepe-color-outline: var(--color-muted);
-	--crepe-color-primary: var(--color-heading);
-	--crepe-color-secondary: var(--color-muted);
-	--crepe-color-on-secondary: var(--color-text);
-	--crepe-color-inverse: var(--color-text);
-	--crepe-color-on-inverse: var(--color-base);
-	--crepe-color-inline-code: var(--color-link);
-	--crepe-color-error: #ff6666;
-	--crepe-color-hover: color-mix(in srgb, var(--color-surface) 80%, var(--color-text) 20%);
-	--crepe-color-selected: color-mix(in srgb, var(--color-heading) 30%, var(--color-surface) 70%);
-	--crepe-color-inline-area: var(--color-muted);
+  --crepe-color-background: var(--color-base);
+  --crepe-color-on-background: var(--color-text);
+  --crepe-color-surface: var(--color-surface);
+  --crepe-color-surface-low: var(--color-surface);
+  --crepe-color-on-surface: var(--color-text);
+  --crepe-color-on-surface-variant: var(--color-muted);
+  --crepe-color-outline: var(--color-muted);
+  --crepe-color-primary: var(--color-heading);
+  --crepe-color-secondary: var(--color-muted);
+  --crepe-color-on-secondary: var(--color-text);
+  --crepe-color-inverse: var(--color-text);
+  --crepe-color-on-inverse: var(--color-base);
+  --crepe-color-inline-code: var(--color-link);
+  --crepe-color-error: #ff6666;
+  --crepe-color-hover: color-mix(
+    in srgb,
+    var(--color-surface) 80%,
+    var(--color-text) 20%
+  );
+  --crepe-color-selected: color-mix(
+    in srgb,
+    var(--color-heading) 30%,
+    var(--color-surface) 70%
+  );
+  --crepe-color-inline-area: var(--color-muted);
 
-	--crepe-shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
-	--crepe-shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --crepe-shadow-1:
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --crepe-shadow-2:
+    0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
 }
 
 .milkdown .ProseMirror h1,
@@ -219,157 +233,181 @@ button {
 .milkdown .ProseMirror h4,
 .milkdown .ProseMirror h5,
 .milkdown .ProseMirror h6 {
-	color: var(--color-heading);
-	font-weight: 700;
-	line-height: 1.3;
-	margin-top: 2em;
-	margin-bottom: 0.5em;
+  color: var(--color-heading);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
 }
 
-.milkdown .ProseMirror h1 { font-size: 2.25em; margin-top: 0; }
-.milkdown .ProseMirror h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid var(--color-muted); }
-.milkdown .ProseMirror h3 { font-size: 1.25em; }
-.milkdown .ProseMirror h4 { font-size: 1.125em; }
+.milkdown .ProseMirror h1 {
+  font-size: 2.25em;
+  margin-top: 0;
+}
+
+.milkdown .ProseMirror h2 {
+  font-size: 1.5em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--color-muted);
+}
+
+.milkdown .ProseMirror h3 {
+  font-size: 1.25em;
+}
+
+.milkdown .ProseMirror h4 {
+  font-size: 1.125em;
+}
 
 .milkdown .ProseMirror p {
-	margin-top: 1.25em;
-	margin-bottom: 1.25em;
-	line-height: 1.75;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  line-height: 1.75;
 }
 
 .milkdown .ProseMirror ul,
 .milkdown .ProseMirror ol {
-	margin-top: 1.25em;
-	margin-bottom: 1.25em;
-	padding-left: 1.625em;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
 }
 
 .milkdown .ProseMirror li {
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
 
 .milkdown .ProseMirror blockquote {
-	border-left: 4px solid var(--color-heading);
-	padding-left: 1rem;
-	color: var(--color-muted);
-	font-style: italic;
-	margin-top: 1.6em;
-	margin-bottom: 1.6em;
+  border-left: 4px solid var(--color-heading);
+  padding-left: 1rem;
+  color: var(--color-muted);
+  font-style: italic;
+  margin-top: 1.6em;
+  margin-bottom: 1.6em;
 }
 
 .milkdown .ProseMirror a {
-	color: var(--color-link);
-	text-decoration: underline;
-	text-underline-offset: 2px;
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .milkdown .ProseMirror code {
-	color: var(--color-link);
-	background: var(--color-surface);
-	padding: 0.2em 0.4em;
-	border-radius: 0.25rem;
-	font-size: 0.875em;
+  color: var(--color-link);
+  background: var(--color-surface);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
 }
 
 .milkdown .ProseMirror pre {
-	background: var(--color-surface);
-	border-radius: 0.5rem;
-	padding: 1rem;
-	margin-top: 1.5em;
-	margin-bottom: 1.5em;
-	overflow-x: auto;
+  background: var(--color-surface);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  overflow-x: auto;
 }
 
 .copy-button {
-	background: var(--color-surface) !important;
-	color: var(--color-text) !important;
-	border: 1px solid var(--color-muted) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-muted) !important;
 }
 
 .copy-button .milkdown-icon {
-	color: var(--color-muted) !important;
+  color: var(--color-muted) !important;
 }
 
 .milkdown .ProseMirror pre .copy-button {
-	background: var(--color-surface) !important;
-	color: var(--color-text) !important;
-	border: 1px solid var(--color-muted) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-muted) !important;
 }
 
 .milkdown .copy-button .milkdown-icon {
-	color: var(--color-muted) !important;
+  color: var(--color-muted) !important;
 }
 
 .milkdown .ProseMirror pre code {
-	background: none;
-	padding: 0;
-	font-size: 0.875em;
+  background: none;
+  padding: 0;
+  font-size: 0.875em;
 }
 
 .milkdown .ProseMirror hr {
-	border-color: var(--color-muted);
-	margin-top: 2em;
-	margin-bottom: 2em;
+  border-color: var(--color-muted);
+  margin-top: 2em;
+  margin-bottom: 2em;
 }
 
 .milkdown .ProseMirror img {
-	border-radius: 0.5rem;
-	margin-top: 1.5em;
-	margin-bottom: 1.5em;
+  border-radius: 0.5rem;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
 }
 
 .milkdown .ProseMirror table {
-	margin-top: 1.5em;
-	margin-bottom: 1.5em;
-	width: 100%;
-	border-collapse: collapse;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .milkdown .ProseMirror th,
 .milkdown .ProseMirror td {
-	border: 1px solid var(--color-muted);
-	padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-muted);
+  padding: 0.5rem 0.75rem;
 }
 
 .milkdown .ProseMirror th {
-	font-weight: 700;
-	background: var(--color-surface);
+  font-weight: 700;
+  background: var(--color-surface);
 }
 
 .milkdown .ProseMirror p {
-	margin: 0;
+  margin: 0;
 }
 
 .milkdown .ProseMirror {
-	padding: 2rem 1.5rem;
-	min-width: 0;
-	max-width: 100%;
-	overflow-wrap: anywhere;
-	box-sizing: border-box;
+  padding: 2rem 1.5rem 2rem 5.5rem !important;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
-	.milkdown .ProseMirror {
-		padding: 2rem 3rem;
-	}
+  .milkdown .ProseMirror {
+    padding: 2rem 3rem;
+  }
 }
 
 @media (min-width: 1024px) {
-	.milkdown .ProseMirror {
-		padding: 2rem 4rem;
-	}
+  .milkdown .ProseMirror {
+    padding: 2rem 4rem;
+  }
 }
 
 @media (min-width: 1280px) {
-	.milkdown .ProseMirror {
-		padding: 2rem 6rem;
-	}
+  .milkdown .ProseMirror {
+    padding: 2rem 6rem;
+  }
 }
 
 [data-theme$="-light"] .milkdown {
-	--crepe-color-hover: color-mix(in srgb, var(--color-surface) 80%, var(--color-text) 10%);
-	--crepe-color-selected: color-mix(in srgb, var(--color-heading) 20%, var(--color-surface) 80%);
-	--crepe-shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.1), 0px 1px 2px 0px rgba(0, 0, 0, 0.06);
-	--crepe-shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.1), 0px 1px 2px 0px rgba(0, 0, 0, 0.06);
+  --crepe-color-hover: color-mix(
+    in srgb,
+    var(--color-surface) 80%,
+    var(--color-text) 10%
+  );
+  --crepe-color-selected: color-mix(
+    in srgb,
+    var(--color-heading) 20%,
+    var(--color-surface) 80%
+  );
+  --crepe-shadow-1:
+    0px 1px 3px 1px rgba(0, 0, 0, 0.1), 0px 1px 2px 0px rgba(0, 0, 0, 0.06);
+  --crepe-shadow-2:
+    0px 2px 6px 2px rgba(0, 0, 0, 0.1), 0px 1px 2px 0px rgba(0, 0, 0, 0.06);
 }
