@@ -1,61 +1,66 @@
-import { readFile, readdir } from "fs/promises";
-import { join } from "path";
-
-const DOCS_PATH = join(process.cwd(), 'src/docs/');
-
-async function walkDir(
-  dir: string,
-  basePath = "",
-): Promise<{ path: string; type: string; sha: string }[]> {
-  const entries = await readdir(dir, { withFileTypes: true });
-  const result: { path: string; type: string; sha: string }[] = [];
-
-  for (const entry of entries) {
-    const fullPath = join(dir, entry.name);
-    const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
-
-    if (entry.isDirectory()) {
-      result.push({ path: relativePath + "/", type: "tree", sha: "local" });
-      result.push(...(await walkDir(fullPath, relativePath)));
-    } else if (entry.isFile() && entry.name.endsWith(".md")) {
-      result.push({ path: relativePath, type: "blob", sha: "local" });
-    }
-  }
-
-  return result;
-}
+const docs = import.meta.glob("/src/lib/docs/**/*.md", {
+  query: '?raw', // Isso é crucial para o Vite não tentar parsear o MD
+  import: 'default',
+  eager: true,
+});
 
 export async function GET({ params }) {
   const { path } = params;
 
   try {
+    // 1. LISTAGEM (Se não houver path)
     if (!path) {
-      const entries = await walkDir(DOCS_PATH);
-      return new Response(JSON.stringify(entries), {
-        status: 200,
+      const result: { path: string; type: string; sha: string }[] = [];
+      const directories = new Set<string>();
+
+      for (const fullPath in docs) {
+        // Limpa o caminho: "/src/lib/docs/folder/file.md" -> "folder/file.md"
+        const relativePath = fullPath.replace("/src/lib/docs/", "");
+        result.push({ path: relativePath, type: "blob", sha: "local" });
+
+        // Adiciona pastas à listagem
+        const segments = relativePath.split("/");
+        if (segments.length > 1) {
+          directories.add(segments.slice(0, -1).join("/") + "/");
+        }
+      }
+
+      // Une pastas e arquivos
+      const finalResult = [
+        ...Array.from(directories).map((d) => ({
+          path: d,
+          type: "tree",
+          sha: "local",
+        })),
+        ...result,
+      ];
+
+      return new Response(JSON.stringify(finalResult), {
         headers: { "Content-Type": "application/json" },
       });
     }
 
+    // 2. LEITURA DE ARQUIVO ESPECÍFICO
     const decodedPath = decodeURIComponent(path);
-    const filePath = join(DOCS_PATH, decodedPath);
+    // Reconstrói o caminho interno que o Vite conhece
+    const internalPath = `/src/lib/docs/${decodedPath}`;
 
-    if (!filePath.startsWith(DOCS_PATH)) {
-      return new Response(JSON.stringify({ error: "Invalid path" }), {
-        status: 403,
+    const content = docs[internalPath];
+
+    if (!content) {
+      return new Response(JSON.stringify({ error: "File not found" }), {
+        status: 404,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    const content = await readFile(filePath, "utf-8");
     return new Response(content, {
       status: 200,
       headers: { "Content-Type": "text/plain" },
     });
   } catch (error: any) {
-    const status = error?.code === "ENOENT" ? 404 : 500;
     return new Response(JSON.stringify({ error: error.message }), {
-      status,
+      status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
