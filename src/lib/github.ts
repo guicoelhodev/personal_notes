@@ -1,240 +1,267 @@
-import { GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '$env/static/private';
-import type { TreeEntry } from './types';
+import {
+  GITHUB_TOKEN,
+  GITHUB_OWNER,
+  GITHUB_REPO,
+  GITHUB_BRANCH,
+} from "$env/static/private";
+import type { TreeEntry } from "./types";
 
-const GITHUB_API = 'https://api.github.com';
-const API_VERSION = '2022-11-28';
+const GITHUB_API = "https://api.github.com";
+const API_VERSION = "2022-11-28";
 
 function headers(): HeadersInit {
-	return {
-		Authorization: `Bearer ${GITHUB_TOKEN}`,
-		Accept: 'application/vnd.github+json',
-		'X-GitHub-Api-Version': API_VERSION
-	};
+  return {
+    Authorization: `Bearer ${GITHUB_TOKEN}`,
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": API_VERSION,
+  };
 }
 
 export async function getFile(path: string): Promise<string> {
-	const url = `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${path}`;
+  const url = `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/docs/${path}?ref=${GITHUB_BRANCH}`;
 
+  const res = await fetch(url, {
+    headers: {
+      ...headers(),
+      Accept: "application/vnd.github.raw+json",
+    },
+  });
 
-	const res = await fetch(url, {
-		headers: {
-			...headers(),
-			Accept: 'application/vnd.github.raw+json'
-		}
-	});
+  if (!res.ok) {
+    throw { status: res.status, message: `File not found: ${path}` };
+  }
 
-	if (!res.ok) {
-		throw { status: res.status, message: `File not found: ${path}` };
-	}
-
-	return await res.text();
+  return await res.text();
 }
 
 export async function listDocsTree(): Promise<TreeEntry[]> {
-	const url = `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}:docs?recursive=1`;
+  const url = `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}:src/docs?recursive=1`;
 
-	const res = await fetch(url, { headers: headers() });
+  const res = await fetch(url, { headers: headers() });
 
-	if (!res.ok) {
-		const error = await res.json();
-		throw { status: res.status, message: error.message || 'Failed to fetch tree' };
-	}
+  if (!res.ok) {
+    const error = await res.json();
+    throw {
+      status: res.status,
+      message: error.message || "Failed to fetch tree",
+    };
+  }
 
-	const data = await res.json();
+  const data = await res.json();
 
-	const docsEntries = data.tree.map((entry: any) => ({
-		path: entry.path,
-		type: entry.type,
-		sha: entry.sha
-	}));
+  const docsEntries = data.tree.map((entry: any) => ({
+    path: entry.path,
+    type: entry.type,
+    sha: entry.sha,
+  }));
 
-	return docsEntries;
+  return docsEntries;
 }
 
 export async function updateFile(path: string, content: string): Promise<void> {
-	const res = await fetch(
-		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${path}`,
-		{ headers: headers() }
-	);
+  const res = await fetch(
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/docs/${path}`,
+    { headers: headers() },
+  );
 
-	if (!res.ok) {
-		throw { status: res.status, message: `File not found: ${path}` };
-	}
+  if (!res.ok) {
+    throw { status: res.status, message: `File not found: ${path}` };
+  }
 
-	const data = await res.json();
-	const sha = data.sha;
+  const data = await res.json();
+  const sha = data.sha;
 
-	const base64Content = btoa(unescape(encodeURIComponent(content)));
+  const base64Content = btoa(unescape(encodeURIComponent(content)));
 
-	const updateRes = await fetch(
-		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${path}`,
-		{
-			method: 'PUT',
-			headers: headers(),
-			body: JSON.stringify({
-				message: `docs: update ${path}`,
-				content: base64Content,
-				sha,
-				branch: GITHUB_BRANCH
-			})
-		}
-	);
+  const updateRes = await fetch(
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/docs/${path}`,
+    {
+      method: "PUT",
+      headers: headers(),
+      body: JSON.stringify({
+        message: `docs: update ${path}`,
+        content: base64Content,
+        sha,
+        branch: GITHUB_BRANCH,
+      }),
+    },
+  );
 
-	if (!updateRes.ok) {
-		const error = await updateRes.json();
-		throw { status: updateRes.status, message: error.message || 'Failed to update file' };
-	}
+  if (!updateRes.ok) {
+    const error = await updateRes.json();
+    throw {
+      status: updateRes.status,
+      message: error.message || "Failed to update file",
+    };
+  }
 }
 
 export async function deleteFile(path: string): Promise<void> {
-	const res = await fetch(
-		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${path}`,
-		{ headers: headers() }
-	);
+  const res = await fetch(
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/docs/${path}`,
+    { headers: headers() },
+  );
 
-	if (!res.ok) {
-		throw { status: res.status, message: `File not found: ${path}` };
-	}
+  if (!res.ok) {
+    throw { status: res.status, message: `File not found: ${path}` };
+  }
 
-	const data = await res.json();
-	const sha = data.sha;
+  const data = await res.json();
+  const sha = data.sha;
 
-	const deleteRes = await fetch(
-		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${path}`,
-		{
-			method: 'DELETE',
-			headers: headers(),
-			body: JSON.stringify({
-				message: `docs: delete ${path}`,
-				sha,
-				branch: GITHUB_BRANCH
-			})
-		}
-	);
+  const deleteRes = await fetch(
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/docs/${path}`,
+    {
+      method: "DELETE",
+      headers: headers(),
+      body: JSON.stringify({
+        message: `docs: delete ${path}`,
+        sha,
+        branch: GITHUB_BRANCH,
+      }),
+    },
+  );
 
-	if (!deleteRes.ok) {
-		const error = await deleteRes.json();
-		throw { status: deleteRes.status, message: error.message || 'Failed to delete file' };
-	}
+  if (!deleteRes.ok) {
+    const error = await deleteRes.json();
+    throw {
+      status: deleteRes.status,
+      message: error.message || "Failed to delete file",
+    };
+  }
 }
 
 export async function deleteFolder(path: string): Promise<void> {
-	const tree = await listDocsTree();
-	const filesInFolder = tree.filter(
-		(entry) => entry.type === 'blob' && entry.path.startsWith(path + '/')
-	);
+  const tree = await listDocsTree();
+  const filesInFolder = tree.filter(
+    (entry) => entry.type === "blob" && entry.path.startsWith(path + "/"),
+  );
 
-	for (const file of filesInFolder) {
-		await deleteFile(file.path);
-	}
+  for (const file of filesInFolder) {
+    await deleteFile(file.path);
+  }
 }
 
-export async function renameFile(oldPath: string, newPath: string): Promise<void> {
-	const content = await getFile(oldPath);
-	await createFile(newPath, content);
-	await deleteFile(oldPath);
+export async function renameFile(
+  oldPath: string,
+  newPath: string,
+): Promise<void> {
+  const content = await getFile(oldPath);
+  await createFile(newPath, content);
+  await deleteFile(oldPath);
 }
 
-export async function renameFolder(oldPath: string, newPath: string): Promise<void> {
-	const tree = await listDocsTree();
-	const filesInFolder = tree.filter(
-		(entry) => entry.type === 'blob' && entry.path.startsWith(oldPath + '/')
-	);
+export async function renameFolder(
+  oldPath: string,
+  newPath: string,
+): Promise<void> {
+  const tree = await listDocsTree();
+  const filesInFolder = tree.filter(
+    (entry) => entry.type === "blob" && entry.path.startsWith(oldPath + "/"),
+  );
 
-	for (const file of filesInFolder) {
-		const content = await getFile(file.path);
-		const newFilePath = newPath + file.path.slice(oldPath.length);
-		await createFile(newFilePath, content);
-		await deleteFile(file.path);
-	}
+  for (const file of filesInFolder) {
+    const content = await getFile(file.path);
+    const newFilePath = newPath + file.path.slice(oldPath.length);
+    await createFile(newFilePath, content);
+    await deleteFile(file.path);
+  }
 }
 
 export async function createFile(path: string, content: string): Promise<void> {
-	const base64Content = btoa(unescape(encodeURIComponent(content)));
+  const base64Content = btoa(unescape(encodeURIComponent(content)));
 
-	const pathFile = path.replaceAll(' ', '_');
-	const res = await fetch(
-		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${pathFile}`,
-		{
-			method: 'PUT',
-			headers: headers(),
-			body: JSON.stringify({
-				message: `docs: create ${path}`,
-				content: base64Content,
-				branch: GITHUB_BRANCH
-			})
-		}
-	);
+  const pathFile = path.replaceAll(" ", "_");
+  const res = await fetch(
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${pathFile}`,
+    {
+      method: "PUT",
+      headers: headers(),
+      body: JSON.stringify({
+        message: `docs: create ${path}`,
+        content: base64Content,
+        branch: GITHUB_BRANCH,
+      }),
+    },
+  );
 
-	if (!res.ok) {
-		const error = await res.json();
-		throw { status: res.status, message: error.message || 'Failed to create file' };
-	}
+  if (!res.ok) {
+    const error = await res.json();
+    throw {
+      status: res.status,
+      message: error.message || "Failed to create file",
+    };
+  }
 }
 
 export async function uploadImage(file: File): Promise<string> {
+  const timestamp = Date.now().toString(16);
+  const randomPart = Math.random().toString(16).substring(2, 10);
+  const hash = `${timestamp}_${randomPart}`;
 
-	const timestamp = Date.now().toString(16);
-	const randomPart = Math.random().toString(16).substring(2, 10);
-	const hash = `${timestamp}_${randomPart}`;
+  const extension = file.name.split(".").pop() || "png";
+  const filename = `img_${hash}.${extension}`;
+  const path = `.github/images/${filename}`;
 
-	const extension = file.name.split('.').pop() || 'png';
-	const filename = `img_${hash}.${extension}`;
-	const path = `.github/images/${filename}`;
+  const arrayBuffer = await file.arrayBuffer();
+  const binaryString = Array.from(new Uint8Array(arrayBuffer))
+    .map((byte) => String.fromCharCode(byte))
+    .join("");
+  const base64Content = btoa(binaryString);
 
-	const arrayBuffer = await file.arrayBuffer();
-	const binaryString = Array.from(new Uint8Array(arrayBuffer))
-		.map((byte) => String.fromCharCode(byte))
-		.join('');
-	const base64Content = btoa(binaryString);
+  const res = await fetch(
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,
+    {
+      method: "PUT",
+      headers: headers(),
+      body: JSON.stringify({
+        message: `images: upload ${filename}`,
+        content: base64Content,
+        branch: GITHUB_BRANCH,
+      }),
+    },
+  );
 
-	const res = await fetch(`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
-		method: 'PUT',
-		headers: headers(),
-		body: JSON.stringify({
-			message: `images: upload ${filename}`,
-			content: base64Content,
-			branch: GITHUB_BRANCH
-		})
-	});
+  if (!res.ok) {
+    throw { status: res.status, message: "Upload failed" };
+  }
 
-	if (!res.ok) {
-		throw { status: res.status, message: 'Upload failed' };
-	}
-
-	return `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${path}`;
+  return `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${path}`;
 }
 
 export async function deleteImage(imageUrl: string): Promise<void> {
-	const path = `.github/images/${imageUrl.split('/').pop()}`;
+  const path = `.github/images/${imageUrl.split("/").pop()}`;
 
-	const res = await fetch(
-		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,
-		{ headers: headers() }
-	);
+  const res = await fetch(
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,
+    { headers: headers() },
+  );
 
-	if (!res.ok) {
-		throw { status: res.status, message: `Image not found: ${path}` };
-	}
+  if (!res.ok) {
+    throw { status: res.status, message: `Image not found: ${path}` };
+  }
 
-	const data = await res.json();
-	const sha = data.sha;
+  const data = await res.json();
+  const sha = data.sha;
 
-	const deleteRes = await fetch(
-		`${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,
-		{
-			method: 'DELETE',
-			headers: headers(),
-			body: JSON.stringify({
-				message: `images: delete ${path}`,
-				sha,
-				branch: GITHUB_BRANCH
-			})
-		}
-	);
+  const deleteRes = await fetch(
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,
+    {
+      method: "DELETE",
+      headers: headers(),
+      body: JSON.stringify({
+        message: `images: delete ${path}`,
+        sha,
+        branch: GITHUB_BRANCH,
+      }),
+    },
+  );
 
-	if (!deleteRes.ok) {
-		const error = await deleteRes.json();
-		throw { status: deleteRes.status, message: error.message || 'Failed to delete image' };
-	}
+  if (!deleteRes.ok) {
+    const error = await deleteRes.json();
+    throw {
+      status: deleteRes.status,
+      message: error.message || "Failed to delete image",
+    };
+  }
 }
