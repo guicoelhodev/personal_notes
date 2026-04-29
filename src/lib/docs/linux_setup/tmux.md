@@ -6,7 +6,8 @@
 
 ## Configuration
 
-- `~/.tmux.conf`
+* `~/.tmux.conf`
+
 ```tmux
 set -g mouse on
 
@@ -17,6 +18,8 @@ bind-key h select-pane -L
 bind-key j select-pane -D
 bind-key k select-pane -U
 bind-key l select-pane -R
+
+bind-key y display-popup -d "#{pane_current_path}"
 
 set-option -g status-position bottom
 
@@ -78,7 +81,7 @@ run '~/.tmux/plugins/tpm/tpm'
 
 Script to quickly create/switch tmux sessions from project directories using `fzf`.
 
-- `~/.local/share/scripts/tmux-sessionizer`
+* `~/.local/share/scripts/tmux-sessionizer`
 
 ```sh
 #!/usr/bin/env bash
@@ -123,11 +126,11 @@ bindkey -s ^f "~/.local/share/scripts/tmux-sessionizer\n"
 
 ## Keybindings Summary
 
-| Key | Action |
-|-----|--------|
-| `prefix + v` | Split pane horizontally |
-| `prefix + s` | Split pane vertically |
-| `prefix + h/j/k/l` | Navigate between panes |
-| `prefix + f` | Launch sessionizer |
-| `prefix + o` | Choose existing session |
+| Key                | Action                  |
+| ------------------ | ----------------------- |
+| `prefix + v`       | Split pane horizontally |
+| `prefix + s`       | Split pane vertically   |
+| `prefix + h/j/k/l` | Navigate between panes  |
+| `prefix + f`       | Launch sessionizer      |
+| `prefix + o`       | Choose existing session |
 
