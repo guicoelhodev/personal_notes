@@ -173,7 +173,7 @@ export async function createFile(path: string, content: string): Promise<void> {
 
   const pathFile = path.replaceAll(" ", "_");
   const res = await fetch(
-    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/docs/${pathFile}?ref=${GITHUB_BRANCH}`,
+    `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/src/lib/docs/${pathFile}?ref=${GITHUB_BRANCH}`,
     {
       method: "PUT",
       headers: headers(),
