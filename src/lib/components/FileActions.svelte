@@ -83,6 +83,8 @@
 				if (!a.isFolder && b.isFolder) return 1;
 				return a.label.localeCompare(b.label);
 			});
+			// Reassign the top-level tree so the sidebar re-renders the new folder.
+			sidebarState.tree = [...sidebarState.tree];
 			onFolderToggle();
 		}
 
