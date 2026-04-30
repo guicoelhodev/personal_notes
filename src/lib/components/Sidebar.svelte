@@ -6,7 +6,7 @@
 	import Settings from './Settings.svelte';
 	import type { TreeNode } from '$lib/types';
 
-	const homeNode: TreeNode = { label: '', children: sidebarState.tree };
+	let homeNode: TreeNode = $derived({ label: '', children: sidebarState.tree });
 
 	interface FileActionsInstance {
 		isCreating: boolean;
