@@ -28,8 +28,9 @@
 
 	async function logout() {
 		validationError = '';
+		await editorState.discardPendingImages();
 		await accessState.logout();
-		await goto(resolve('/'));
+		window.location.assign(resolve('/'));
 	}
 </script>
 
