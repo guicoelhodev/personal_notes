@@ -207,7 +207,7 @@ export class IndexedDbDocumentWorkspaceAdapter implements DocumentWorkspacePort 
 	async uploadImage(file: File): Promise<string> {
 		if (file.size > MAX_IMAGE_SIZE) throw new Error('File too large (max 5MB)');
 		if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-			throw new Error('Tipo de imagem não suportado. Use PNG, JPEG, GIF, WebP ou AVIF.');
+			throw new Error('Unsupported image type. Use PNG, JPEG, GIF, WebP, or AVIF.');
 		}
 
 		const image: LocalImage = {

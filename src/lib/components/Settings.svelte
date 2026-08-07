@@ -7,17 +7,17 @@
 
 	const modeLabel = $derived(
 		accessState.mode === 'authenticated'
-			? 'Autenticado'
+			? 'Authenticated'
 			: accessState.mode === 'unknown'
-				? 'Verificando sessão'
-				: 'Armazenamento local'
+				? 'Checking session'
+				: 'Local storage'
 	);
 	const modeStatus = $derived(
 		accessState.mode === 'authenticated'
-			? 'Acesso completo'
+			? 'Full access'
 			: accessState.mode === 'unknown'
-				? 'Aguarde um momento'
-				: 'Salvando neste navegador'
+				? 'Please wait'
+				: 'Saving in this browser'
 	);
 
 	function openModal() {

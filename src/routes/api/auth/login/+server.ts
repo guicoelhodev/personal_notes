@@ -34,7 +34,7 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress,
 	const limit = reserveLoginAttempt(clientAddress);
 	if (!limit.allowed) {
 		return json(
-			{ error: 'Muitas tentativas. Tente novamente mais tarde.' },
+			{ error: 'Too many attempts. Try again later.' },
 			{ status: 429, headers: { 'Retry-After': String(limit.retryAfter) } }
 		);
 	}
@@ -48,7 +48,7 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress,
 		// Invalid input receives the same response as an invalid password.
 	}
 	if (!body || typeof body.password !== 'string' || !verifyPassword(body.password)) {
-		return json({ error: 'Senha de acesso inválida' }, { status: 401 });
+		return json({ error: 'Invalid access password' }, { status: 401 });
 	}
 
 	let token: string;

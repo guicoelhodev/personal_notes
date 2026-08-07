@@ -22,7 +22,7 @@
 		},
 		{
 			id: "authentication",
-			label: "Autenticação",
+			label: "Authentication",
 			icon: Lock,
 			component: AuthenticationPanel,
 		},

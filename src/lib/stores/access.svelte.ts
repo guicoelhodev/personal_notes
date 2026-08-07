@@ -27,13 +27,13 @@ class AccessState {
 			});
 			if (!response.ok) {
 				const data = await response.json().catch(() => null);
-				this.error = data?.error || 'Não foi possível autenticar';
+				this.error = data?.error || 'Authentication failed';
 				return false;
 			}
 			this.mode = 'authenticated';
 			return true;
 		} catch {
-			this.error = 'Não foi possível conectar ao servidor';
+			this.error = 'Could not connect to the server';
 			return false;
 		} finally {
 			this.isAuthenticating = false;
@@ -47,7 +47,7 @@ class AccessState {
 
 	handleUnauthorized() {
 		this.mode = 'guest';
-		this.error = 'Sua sessão expirou. Autentique novamente.';
+		this.error = 'Your session expired. Authenticate again.';
 	}
 
 	private async loadSession() {

@@ -19,7 +19,7 @@ export class AssetService {
 			throw Object.assign(new Error('File too large (max 5MB)'), { status: 400 });
 		if (!ALLOWED_ASSET_TYPES.has(file.type)) {
 			throw Object.assign(
-				new Error('Tipo de imagem não suportado. Use PNG, JPEG, GIF, WebP ou AVIF.'),
+				new Error('Unsupported image type. Use PNG, JPEG, GIF, WebP, or AVIF.'),
 				{ status: 400 }
 			);
 		}

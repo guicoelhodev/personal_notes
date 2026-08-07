@@ -15,7 +15,7 @@
 		event.preventDefault();
 		validationError = '';
 		if (!password.trim()) {
-			validationError = 'Informe a senha de acesso';
+			validationError = 'Enter the access password';
 			return;
 		}
 		if (await accessState.authenticate(password)) {
@@ -35,11 +35,11 @@
 </script>
 
 <div class="flex h-full flex-col">
-	<h3 class="mb-1 text-base font-semibold text-(--color-text)">Autenticação</h3>
+	<h3 class="mb-1 text-base font-semibold text-(--color-text)">Authentication</h3>
 	<p class="mb-5 text-sm text-(--color-muted)">
 		{accessState.mode === 'authenticated'
-			? 'Sua sessão está conectada ao armazenamento R2.'
-			: 'Sem uma sessão ativa, seus documentos ficam somente neste navegador.'}
+			? 'Your session is connected to R2 storage.'
+			: 'Without an active session, your documents remain in this browser.'}
 	</p>
 
 	<div class="mb-5 flex items-center gap-3 rounded-lg border border-(--color-muted)/20 p-3">
@@ -50,10 +50,10 @@
 		></span>
 		<div>
 			<p class="text-sm font-medium text-(--color-text)">
-				{accessState.mode === 'authenticated' ? 'R2 autenticado' : 'Armazenamento local'}
+				{accessState.mode === 'authenticated' ? 'R2 connected' : 'Local storage'}
 			</p>
 			<p class="text-xs text-(--color-muted)">
-				{accessState.mode === 'authenticated' ? 'Acesso aos documentos do servidor' : 'Usando IndexedDB'}
+				{accessState.mode === 'authenticated' ? 'Access to server documents' : 'Using IndexedDB'}
 			</p>
 		</div>
 	</div>
@@ -64,19 +64,19 @@
 			class="mt-auto w-full cursor-pointer rounded-lg border border-red-500/40 px-4 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10"
 			onclick={logout}
 		>
-			Deslogar
+			Log out
 		</button>
 	{:else}
 		<form onsubmit={login}>
 			<label for="settings-password" class="mb-2 block text-sm font-medium text-(--color-text)">
-				Senha de acesso
+				Access password
 			</label>
 			<input
 				id="settings-password"
 				type="password"
 				bind:value={password}
 				autocomplete="current-password"
-				placeholder="Digite sua senha"
+				placeholder="Enter your password"
 				class="w-full rounded-lg border border-(--color-muted)/40 bg-(--color-base) px-3 py-2.5 text-(--color-text) outline-none transition-colors placeholder:text-(--color-muted) focus:border-(--color-heading)"
 				oninput={() => {
 					validationError = '';
@@ -92,7 +92,7 @@
 				class="mt-4 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-(--color-heading) px-4 py-2.5 text-sm font-semibold text-(--color-base) transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
 			>
 				{#if accessState.isAuthenticating}<Spinner class="h-4 w-4 animate-spin" />{/if}
-				Logar
+				Log in
 			</button>
 		</form>
 	{/if}
