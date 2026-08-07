@@ -34,7 +34,7 @@
 	}
 </script>
 
-<div>
+<div class="flex h-full flex-col">
 	<h3 class="mb-1 text-base font-semibold text-(--color-text)">Autenticação</h3>
 	<p class="mb-5 text-sm text-(--color-muted)">
 		{accessState.mode === 'authenticated'
@@ -61,7 +61,7 @@
 	{#if accessState.mode === 'authenticated'}
 		<button
 			type="button"
-			class="w-full cursor-pointer rounded-lg border border-red-500/40 px-4 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10"
+			class="mt-auto w-full cursor-pointer rounded-lg border border-red-500/40 px-4 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10"
 			onclick={logout}
 		>
 			Deslogar
