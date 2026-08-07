@@ -1,27 +1,33 @@
-import { listDocsTree, getFile } from '$lib/github';
+import { documents } from '$lib/server/container';
+import { storageErrorResponse } from '$lib/server/http';
+import type { RequestHandler } from './$types';
 
-export async function GET({ params }) {
+export const GET: RequestHandler = async ({ params }) => {
 	const { path } = params;
 
 	try {
 		if (!path) {
-			const tree = await listDocsTree();
+			const tree = (await documents.list()).map((entry) => ({
+				path: entry.path,
+				type: 'blob',
+				sha: entry.version
+			}));
 			return new Response(JSON.stringify(tree), {
 				status: 200,
-				headers: { 'Content-Type': 'application/json' }
+				headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
 			});
 		}
 
-		const content = await getFile(path);
-		return new Response(content, {
+		const document = await documents.read(path);
+		return new Response(document.content, {
 			status: 200,
-			headers: { 'Content-Type': 'text/plain' }
+			headers: {
+				'Content-Type': 'text/markdown; charset=utf-8',
+				'Cache-Control': 'no-cache',
+				ETag: document.version
+			}
 		});
-	} catch (error: any) {
-		const status = error?.status || 500;
-		return new Response(JSON.stringify({ error: error.message }), {
-			status,
-			headers: { 'Content-Type': 'application/json' }
-		});
+	} catch (error) {
+		return storageErrorResponse(error, 'Failed to read documents');
 	}
-}
+};

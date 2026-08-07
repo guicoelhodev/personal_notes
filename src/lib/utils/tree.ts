@@ -20,7 +20,7 @@ export function buildTree(paths: string[]): TreeNode[] {
 				node = {
 					label: part,
 					slug: isFile ? path : undefined,
-					children: [],
+					children: []
 				};
 				current.push(node);
 			}
@@ -77,15 +77,4 @@ export function flattenTree(nodes: TreeNode[]): SearchItem[] {
 	}
 
 	return items;
-}
-
-export function extractImageUrls(originalData: string, newData: string): { original: string[]; new: string[]; removed: string[] } {
-	const regex = /https:\/\/raw\.githubusercontent\.com\/[^\s\)]+/g;
-
-	const originalUrls = (originalData.match(regex) || []);
-	const newUrls = (newData.match(regex) || []);
-
-	const removed = originalUrls.filter((url) => !newUrls.includes(url));
-
-	return { original: originalUrls, new: newUrls, removed };
 }

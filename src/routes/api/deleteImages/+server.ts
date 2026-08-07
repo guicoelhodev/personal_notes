@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { deleteImage } from '$lib/github';
+import { assets } from '$lib/server/container';
 import type { RequestHandler } from './$types';
 
 export const DELETE: RequestHandler = async ({ request }) => {
@@ -9,9 +9,11 @@ export const DELETE: RequestHandler = async ({ request }) => {
 		return json({ error: 'No images provided' }, { status: 400 });
 	}
 
-	const results = await Promise.allSettled(urls.map((url: string) => deleteImage(url)));
+	const results = await Promise.allSettled(urls.map((url: string) => assets.deleteUrl(url)));
 
-	const failed = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason);
+	const failed = results
+		.filter((r) => r.status === 'rejected')
+		.map((r) => (r as PromiseRejectedResult).reason);
 
 	if (failed.length > 0) {
 		return json({ error: 'Some images failed to delete', details: failed }, { status: 500 });

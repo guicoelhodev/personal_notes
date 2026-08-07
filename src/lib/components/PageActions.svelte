@@ -4,17 +4,10 @@
 	import Save from '$lib/icons/Save.svelte';
 	import CopyContext from '$lib/icons/CopyContext.svelte';
 	import Spinner from '$lib/icons/Spinner.svelte';
-	import FeatureBlockedModal from './FeatureBlockedModal.svelte';
-	import { env } from '$env/dynamic/public';
 
 	let isCopied = $state(false);
-	let showBlockedModal = $state(false);
 
 	async function handleSave() {
-		if (env.PUBLIC_READ_ONLY === 'true') {
-			showBlockedModal = true;
-			return;
-		}
 		const saved = await editorState.save();
 		if (saved) {
 			await sidebarState.loadTree();
@@ -39,8 +32,10 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="sticky bottom-0 flex items-center justify-between px-4 py-3 w-full bg-transparent">
-	<h1 class="text-sm font-medium text-(--color-text) truncate px-3 py-1.5 rounded-md bg-(--color-muted)/10">
+<div class="sticky bottom-0 flex w-full items-center justify-between bg-transparent px-4 py-3">
+	<h1
+		class="truncate rounded-md bg-(--color-muted)/10 px-3 py-1.5 text-sm font-medium text-(--color-text)"
+	>
 		{editorState.path || 'No file selected'}
 	</h1>
 
@@ -48,10 +43,10 @@
 		<button
 			type="button"
 			aria-label="Copy context"
-			class="flex items-center gap-2 rounded-lg bg-(--color-surface) p-2 text-(--color-muted) transition-opacity cursor-pointer hover:opacity-80 sm:min-w-[120px]"
+			class="flex cursor-pointer items-center gap-2 rounded-lg bg-(--color-surface) p-2 text-(--color-muted) transition-opacity hover:opacity-80 sm:min-w-[120px]"
 			onclick={handleCopyContext}
 		>
-			<CopyContext class="w-4 h-4" />
+			<CopyContext class="h-4 w-4" />
 			{#if isCopied}
 				<span class="hidden text-sm text-(--color-heading) sm:inline">Copied to clipboard!</span>
 			{:else}
@@ -62,18 +57,18 @@
 		<button
 			type="button"
 			aria-label="Save"
-			class="flex items-center gap-2 p-2 rounded-lg bg-(--color-surface) hover:opacity-80 transition-opacity cursor-pointer text-(--color-muted) disabled:opacity-50 disabled:cursor-not-allowed"
+			class="flex cursor-pointer items-center gap-2 rounded-lg bg-(--color-surface) p-2 text-(--color-muted) transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
 			disabled={editorState.isSaving}
 			onclick={handleSave}
 		>
 			{#if editorState.isSaving}
-				<Spinner class="w-4 h-4 animate-spin" />
+				<Spinner class="h-4 w-4 animate-spin" />
 			{:else}
-				<Save class="w-4 h-4" />
+				<Save class="h-4 w-4" />
 			{/if}
-			<kbd class="text-xs border border-(--color-muted)/40 rounded px-1.5 py-0.5 hidden sm:inline">Ctrl+S</kbd>
+			<kbd class="hidden rounded border border-(--color-muted)/40 px-1.5 py-0.5 text-xs sm:inline"
+				>Ctrl+S</kbd
+			>
 		</button>
 	</div>
 </div>
-
-<FeatureBlockedModal bind:isOpen={showBlockedModal} onClose={() => showBlockedModal = false} />

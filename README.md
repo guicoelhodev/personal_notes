@@ -2,173 +2,146 @@
 
 ![Personal Notes Editor](.github/images/readme_welcome.png)
 
-*A personal markdown notes editor with full GitHub integration. Write notes in markdown, store them in a GitHub repository, access them anywhere.*
-
-## Table of Contents
-
-- [Features](#features)
-- [How It Works](#how-it-works)
-- [Prerequisites](#prerequisites)
-- [Setup](#setup)
-- [Environment Variables](#environment-variables)
-- [API Endpoints](#api-endpoints)
-- [State Management](#state-management)
-- [Theme System](#theme-system)
-- [Keyboard Shortcuts](#keyboard-shortcuts)
-- [Development](#development)
-- [Tech Stack](#tech-stack)
+A public Markdown notes reader with authenticated S3-compatible storage and a private browser workspace for guests.
 
 ## Features
 
-- **Real-time Markdown Editing** - Milkdown Crepe provides rich text editing with markdown shortcuts
-- **GitHub Storage** - All notes stored as markdown files in your GitHub repository's `docs/` folder
-- **Image Upload** - Drag-drop or paste images, uploads directly to GitHub (`.github/images/`)
-- **Fuzzy Search** - Press `Ctrl+K` to search all notes instantly
-- **File Tree Navigation** - Hierarchical sidebar with folders
-- **5 Themes** - Catppuccin, Tokyo Night, Gruvbox, Solarized, Rose Pine (each with light/dark variants)
-- **Keyboard Shortcuts** - `Ctrl+S` to save, `Ctrl+K` to search
-- **Read-only Mode** - Set `PUBLIC_READ_ONLY=true` for local-only development
+- Milkdown Crepe Markdown editor
+- Public document and image reading
+- Password-protected server writes
+- Guest workspace persisted in IndexedDB
+- S3-compatible storage through Ports and Adapters
+- Cloudflare R2, AWS S3, MinIO, and compatible provider support
+- Fuzzy search, hierarchical navigation, and configurable themes
 
-## How It Works
+## Architecture
+
+The SvelteKit routes call application services, which depend only on storage ports. Provider SDK types are restricted to `src/lib/server/adapters/s3`.
 
 ```mermaid
 graph LR
-    UI[UI] --> Routes[API Routes] --> GH[GitHub API]
-
-    Routes --- |PUT /api/save| GH
-    Routes --- |PUT /api/rename| GH
-    Routes --- |DELETE /api/delete| GH
-    Routes --- |POST /api/upload| GH
-    Routes --- |DELETE /api/deleteImages| GH
-    Routes --- |GET /api/docs/*| GH
-
-    GH --- C1["/repos/{owner}/{repo}/contents/*"]
-    GH --- C2["/repos/{owner}/{repo}/git/trees/*"]
+    UI[UI and stores] --> CW[Client workspace port]
+    CW --> HTTP[HTTP adapter]
+    CW --> IDB[IndexedDB adapter]
+    HTTP --> API[SvelteKit routes]
+    API --> APP[Application services]
+    APP --> PORTS[Storage ports]
+    PORTS --> S3[S3-compatible adapter]
+    S3 --> R2[Cloudflare R2]
 ```
 
-## Pre requisites
+Changing between S3-compatible providers only requires environment changes. A non-S3 provider can be added by implementing `DocumentStoragePort` and `AssetStoragePort`, without changing routes or application services.
 
-1. **Node.js 18+** and npm
-2. **GitHub Personal Access Token (PAT)** with `repo` scope
-3. **A GitHub repository** with:
-   - A `docs/` folder (for your notes)
-   - A `.github/images/` folder (for uploaded images)
+## Requirements
 
-### Creating a GitHub PAT
-
-1. Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
-2. Generate a new token with `repo` scope (full control)
-3. Copy the token - you won't see it again
+- Node.js 20.19+ or 22.12+
+- An S3-compatible bucket
+- Private access credentials with object read and write permissions
+- A strong shared access password
 
 ## Setup
 
 ```bash
-# Clone the repository
-git clone <your-repo-url>
-cd personal_notes/client
-
-# Install dependencies
 npm install
-
-# Create environment file
 cp .env.example .env
-
-# Edit .env with your credentials (see below)
-vim .env
-
-# Start development server
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open [http://localhost:5173](http://localhost:5173).
 
-## Environment Variables
+## Environment
 
-Create a `.env` file based on `.env.example`:
-
-```bash
-# Required - GitHub credentials
-GITHUB_TOKEN=ghp_your_personal_access_token_here
-GITHUB_OWNER=your-github-username
-GITHUB_REPO=your-repo-name
-GITHUB_BRANCH=master
-
-# Optional - Read-only mode for local development
-PUBLIC_READ_ONLY=false
+```env
+S3_ENDPOINT=https://ACCOUNT_ID.r2.cloudflarestorage.com
+S3_REGION=auto
+S3_BUCKET=personal-notes
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=
+S3_FORCE_PATH_STYLE=false
+PASSWORD_ACCESS=
+SESSION_SECRET=
 ```
 
-| Variable           | Required | Description                                                 |
-| ------------------ | -------- | ----------------------------------------------------------- |
-| `GITHUB_TOKEN`     | Yes      | GitHub Personal Access Token with repo scope                |
-| `GITHUB_OWNER`     | Yes      | Your GitHub username or organization                        |
-| `GITHUB_REPO`      | Yes      | Repository name where notes are stored                      |
-| `GITHUB_BRANCH`    | Yes      | Branch name (e.g., `master` or `main`)                      |
-| `PUBLIC_READ_ONLY` | No       | Set to `true` to use local `docs/` folder instead of GitHub |
+| Variable               | Required | Description                                 |
+| ---------------------- | -------- | ------------------------------------------- |
+| `S3_ENDPOINT`          | Yes      | Provider S3 API endpoint                    |
+| `S3_REGION`            | Yes      | Use `auto` for Cloudflare R2                |
+| `S3_BUCKET`            | Yes      | Bucket containing `docs/` and `images/`     |
+| `S3_ACCESS_KEY_ID`     | Yes      | Private API access key                      |
+| `S3_SECRET_ACCESS_KEY` | Yes      | Private API secret                          |
+| `S3_FORCE_PATH_STYLE`  | No       | Enable for providers such as local MinIO    |
+| `PASSWORD_ACCESS`      | Yes      | Password accepted by the write-access modal |
+| `SESSION_SECRET`       | Yes      | Random 32-byte secret used to sign sessions |
 
-## API Endpoints
+Configure the same variables as encrypted environment variables in Vercel. The bucket can remain private because public reads are proxied by the application.
 
-| Method   | Endpoint                    | Description                                      |
-| -------- | --------------------------- | ------------------------------------------------ |
-| `GET`    | `/api/docs`                 | List all documents (returns file tree with SHAs) |
-| `GET`    | `/api/docs/[...path]`       | Get specific file content                        |
-| `GET`    | `/api/local-docs/[...path]` | Local docs fallback (read-only mode)             |
-| `PUT`    | `/api/save?mode=create`     | Create new file                                  |
-| `PUT`    | `/api/save`                 | Update existing file                             |
-| `DELETE` | `/api/delete`               | Delete file (use `isFolder=true` for folders)    |
-| `PUT`    | `/api/rename`               | Rename file or folder                            |
-| `POST`   | `/api/upload`               | Upload image (max 5MB)                           |
-| `DELETE` | `/api/deleteImages`         | Delete multiple images                           |
+## Access Modes
 
-## State Management
+All visitors can read documents. The first attempt to edit, create, rename, delete, or upload opens the access modal.
 
-Uses Svelte 5's runes-based stores (`*.svelte.ts` files):
+- `Acessar como convidado`: changes stay in that browser's IndexedDB.
+- `Autenticar`: the password is checked on the server and creates a signed, `HttpOnly`, seven-day cookie.
 
-| Store            | Purpose                                            |
-| ---------------- | -------------------------------------------------- |
-| **SidebarState** | File tree, active file, loading states             |
-| **EditorState**  | Current file, content, save status, dirty tracking |
-| **SearchState**  | Fuzzy search using Fuse.js                         |
-| **ThemeState**   | Theme selection and light/dark variant             |
+Guest changes and authenticated R2 data are intentionally separate. Authentication does not publish or delete the guest workspace.
 
-## Theme System
+All mutation endpoints are independently protected in `src/hooks.server.ts`; the modal is not treated as a security boundary. Configure rate limiting for `/api/auth/login` in Vercel Firewall.
 
-Five themes available, each with light and dark variants:
+## Migration
 
-| Theme           | Accent Color   |
-| --------------- | -------------- |
-| **catppuccin**  | Purple         |
-| **tokyo-night** | Blue (default) |
-| **gruvbox**     | Red/Orange     |
-| **solarized**   | Blue           |
-| **rose-pine**   | Pink/Mauve     |
+The migration reads `src/lib/docs` and `.github/images`, uploads them under `docs/` and `images/`, rewrites legacy GitHub image URLs in uploaded Markdown, and verifies the resulting object keys.
 
-Themes are stored in `src/routes/layout.css` and applied via `data-theme` attribute on `<html>`.
+```bash
+npm run migrate:s3 -- --dry-run
+npm run migrate:s3
+```
 
-## Keyboard Shortcuts
+The default mode refuses to overwrite existing objects. Use `--overwrite` only after reviewing the bucket contents:
 
-| Shortcut | Action                |
-| -------- | --------------------- |
-| `Ctrl+K` | Open fuzzy search     |
-| `Ctrl+S` | Save current file     |
-| `Escape` | Close modals / Cancel |
+```bash
+npm run migrate:s3 -- --overwrite
+```
+
+Remove `src/lib/docs` only after migration and production reads have been verified. This repository intentionally keeps the source files until that operation has been completed with real credentials.
+
+## API
+
+Public routes:
+
+| Method | Endpoint                | Description                         |
+| ------ | ----------------------- | ----------------------------------- |
+| `GET`  | `/api/docs`             | List Markdown objects               |
+| `GET`  | `/api/docs/[...path]`   | Read a Markdown object              |
+| `GET`  | `/api/images/[...path]` | Read an image object                |
+| `GET`  | `/api/auth/session`     | Read the current session state      |
+| `POST` | `/api/auth/login`       | Authenticate with `PASSWORD_ACCESS` |
+| `POST` | `/api/auth/logout`      | Clear the session                   |
+
+Authenticated mutation routes:
+
+| Method   | Endpoint            | Description                   |
+| -------- | ------------------- | ----------------------------- |
+| `PUT`    | `/api/save`         | Create or update a document   |
+| `PUT`    | `/api/rename`       | Rename a document or folder   |
+| `DELETE` | `/api/delete`       | Delete a document or folder   |
+| `POST`   | `/api/upload`       | Upload an image, maximum 5 MB |
+| `DELETE` | `/api/deleteImages` | Delete unused images          |
 
 ## Development
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run check        # TypeScript type checking
-npm run lint         # Run ESLint and Prettier
-npm run format       # Format code with Prettier
+npm run dev
+npm run test
+npm run check
+npm run lint
+npm run build
 ```
 
 ## Tech Stack
 
-- **Frontend**: SvelteKit with Svelte 5 (runes mode)
-- **Language**: TypeScript
-- **Styling**: TailwindCSS v4
-- **Editor**: Milkdown Crepe (markdown)
-- **Search**: Fuse.js (fuzzy search)
-- **Icons**: Custom SVG components
-- **Storage**: GitHub Repository (via GitHub Contents API)
+- SvelteKit 2 and Svelte 5
+- TypeScript
+- Tailwind CSS 4
+- Milkdown Crepe
+- AWS SDK S3 client
+- IndexedDB
+- Vitest

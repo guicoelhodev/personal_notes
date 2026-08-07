@@ -1,14 +1,13 @@
-import { extractImageUrls } from '$lib/utils/tree';
+import { runWorkspaceWrite } from '$lib/client/workspace';
 
 class EditorState {
 	path = $state('');
 	originalContent = $state('');
 	currentContent = $state('');
 	mode = $state<'edit' | 'create' | ''>('');
+	version = $state('');
 	isSaving = $state(false);
-	isDirty = $derived(
-		this.currentContent !== this.originalContent && this.currentContent.trim() !== ''
-	);
+	isDirty = $derived(this.currentContent !== this.originalContent);
 	toast = $state<{ message: string; type: 'success' | 'error' } | null>(null);
 
 	openFile(path: string, mode: 'edit' | 'create' | '') {
@@ -16,6 +15,7 @@ class EditorState {
 		this.mode = mode;
 		this.currentContent = '';
 		this.originalContent = '';
+		this.version = '';
 	}
 
 	setContent(content: string) {
@@ -33,6 +33,10 @@ class EditorState {
 		}
 	}
 
+	setVersion(version: string) {
+		this.version = version;
+	}
+
 	async save(): Promise<boolean> {
 		if (!this.path || this.isSaving) return false;
 		if (!this.isDirty) {
@@ -41,32 +45,22 @@ class EditorState {
 		}
 		this.isSaving = true;
 
-		const result = extractImageUrls(this.originalContent, this.currentContent);
-
-		if (result.removed.length > 0) {
-			await fetch('/api/deleteImages', {
-				method: 'DELETE',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ urls: result.removed })
-			});
-		}
-
 		try {
-			const url = this.mode === 'create' ? `/api/save?mode=create` : `/api/save`;
-			const res = await fetch(url, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ path: this.path, content: this.currentContent })
+			const saved = await runWorkspaceWrite(async (workspace) => {
+				return workspace.save({
+					path: this.path,
+					content: this.currentContent,
+					version: this.version,
+					create: this.mode === 'create'
+				});
 			});
-			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.error || 'Failed to save');
-			}
+			if (!saved) return false;
+			this.version = saved.version;
 			this.markSaved();
 			this.triggerToast('Saved successfully', 'success');
 			return true;
-		} catch (error: any) {
-			this.triggerToast(error.message || 'Failed to save', 'error');
+		} catch (error: unknown) {
+			this.triggerToast(error instanceof Error ? error.message : 'Failed to save', 'error');
 			return false;
 		} finally {
 			this.isSaving = false;
@@ -85,6 +79,7 @@ class EditorState {
 		this.originalContent = '';
 		this.currentContent = '';
 		this.mode = '';
+		this.version = '';
 	}
 }
 

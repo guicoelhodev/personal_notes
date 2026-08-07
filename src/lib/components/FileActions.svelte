@@ -8,11 +8,12 @@
 	import Edit from '$lib/icons/Edit.svelte';
 	import DeleteFolderModal from './DeleteFolderModal.svelte';
 	import RenameModal from './RenameModal.svelte';
-	import FeatureBlockedModal from './FeatureBlockedModal.svelte';
 	import { editorState } from '$lib/stores/editor.svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import { goto } from '$app/navigation';
-	import { env } from '$env/dynamic/public';
+	import { resolve } from '$app/paths';
+	import { accessState } from '$lib/stores/access.svelte';
+	import { runWorkspaceWrite } from '$lib/client/workspace';
 
 	type UserAction = 'deleteModal' | 'renameModal' | null;
 
@@ -44,11 +45,10 @@
 
 	let popoverActions = $derived(actions.filter((a) => a !== 'add'));
 
-	let showBlockedModal = $state(false);
-
 	export { isCreating, inputValue };
 
-	function startCreate(type: 'file' | 'folder') {
+	async function startCreate(type: 'file' | 'folder') {
+		if (!(await accessState.ensureWriteAccess())) return;
 		isCreating = true;
 		creatingType = type;
 		inputValue = type === 'file' ? 'New File' : 'New Folder';
@@ -69,7 +69,7 @@
 			editorState.mode = 'create';
 			editorState.setContent('# ' + formattedName + '\n\n<br />\n\n');
 			editorState.setOriginalContent('');
-			goto(`/file?path=${encodeURIComponent(filePath)}&mode=create`);
+			goto(resolve(`/file?path=${encodeURIComponent(filePath)}&mode=create`));
 		} else if (creatingType === 'folder') {
 			const slug = value.replaceAll(' ', '_');
 			const newFolder: TreeNode = {
@@ -123,22 +123,23 @@
 		}
 	});
 
-	function handleDelete() {
-		if (env.PUBLIC_READ_ONLY === 'true') {
-			showBlockedModal = true;
-			return;
-		}
+	async function handleDelete() {
+		if (!(await accessState.ensureWriteAccess())) return;
 		const isFolder = node.children.length > 0 || !!node.isFolder;
 		actionTarget = { name: node.label, path: folderPath, isFolder };
 		activeAction = 'deleteModal';
 	}
 
-	function handleRename() {
-		if (env.PUBLIC_READ_ONLY === 'true') {
-			showBlockedModal = true;
+	async function handleRename() {
+		if (!(await accessState.ensureWriteAccess())) return;
+		const isFolder = node.children.length > 0 || !!node.isFolder;
+		const affectsOpenDocument = isFolder
+			? editorState.path.startsWith(folderPath + '/')
+			: editorState.path === folderPath + '.md';
+		if (affectsOpenDocument && editorState.isDirty) {
+			editorState.triggerToast('Save changes before renaming this item', 'error');
 			return;
 		}
-		const isFolder = node.children.length > 0 || !!node.isFolder;
 		actionTarget = { name: node.label, path: folderPath, isFolder };
 		activeAction = 'renameModal';
 	}
@@ -149,52 +150,43 @@
 	}
 
 	async function confirmDelete(): Promise<void> {
-		const res = await fetch('/api/delete', {
-			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ path: actionTarget.path, isFolder: actionTarget.isFolder })
+		const result = await runWorkspaceWrite(async (workspace) => {
+			await workspace.delete({ path: actionTarget.path, isFolder: actionTarget.isFolder });
+			return true;
 		});
-
-		if (!res.ok) {
-			const data = await res.json();
-			throw new Error(data.error || 'Failed to delete');
-		}
+		if (!result) return;
 
 		editorState.reset();
-		goto('/');
+		goto(resolve('/'));
 		await sidebarState.loadTree();
 		activeAction = null;
 		actionTarget = { name: '', path: '', isFolder: false };
 	}
 
 	async function confirmRename(newName: string): Promise<void> {
-		const res = await fetch('/api/rename', {
-			method: 'PUT',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+		const result = await runWorkspaceWrite((workspace) =>
+			workspace.rename({
 				path: actionTarget.path,
 				newName,
 				isFolder: actionTarget.isFolder
 			})
-		});
-
-		if (!res.ok) {
-			const data = await res.json();
-			const error = new Error(data.error || 'Failed to rename') as Error & { status: number };
-			error.status = res.status;
-			throw error;
-		}
-
-		const { newPath } = await res.json();
+		);
+		if (!result) return;
+		const { newPath } = result;
 
 		const isFile = !actionTarget.isFolder;
 		if (isFile && sidebarState.activeSlug === actionTarget.path) {
 			sidebarState.activeSlug = newPath.replace(/\.md$/, '');
 			editorState.path = newPath + '.md';
-			goto(`/file?path=${encodeURIComponent(newPath)}.md`);
+			goto(resolve(`/file?path=${encodeURIComponent(newPath)}.md`));
 		} else if (isFile && editorState.path === actionTarget.path + '.md') {
 			editorState.path = newPath + '.md';
-			goto(`/file?path=${encodeURIComponent(newPath)}.md`);
+			goto(resolve(`/file?path=${encodeURIComponent(newPath)}.md`));
+		} else if (actionTarget.isFolder && editorState.path.startsWith(actionTarget.path + '/')) {
+			const renamedDocumentPath = newPath + editorState.path.slice(actionTarget.path.length);
+			editorState.path = renamedDocumentPath;
+			sidebarState.activeSlug = renamedDocumentPath.replace(/\.md$/, '');
+			goto(resolve(`/file?path=${encodeURIComponent(renamedDocumentPath)}`));
 		}
 
 		await sidebarState.loadTree();
@@ -209,7 +201,8 @@
 			<button
 				type="button"
 				aria-label="Add"
-				class="folder-add-btn aspect-square cursor-pointer rounded text-(--color-muted) transition-colors hover:bg-(--color-muted)/10 {!alwaysVisible && 'opacity-0 group-hover:opacity-100'}"
+				class="folder-add-btn aspect-square cursor-pointer rounded text-(--color-muted) transition-colors hover:bg-(--color-muted)/10 {!alwaysVisible &&
+					'opacity-0 group-hover:opacity-100'}"
 				onclick={() => startCreate('file')}
 			>
 				<Plus class="h-3.5 w-3.5" />
@@ -276,5 +269,3 @@
 	onRename={confirmRename}
 	onCancel={cancelAction}
 />
-
-<FeatureBlockedModal bind:isOpen={showBlockedModal} onClose={() => showBlockedModal = false} />

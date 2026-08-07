@@ -1,5 +1,6 @@
 import type { SearchItem } from '../types';
 import Fuse, { type FuseResult } from 'fuse.js';
+import { currentWorkspace } from '$lib/client/workspace';
 
 class SearchState {
 	isOpen = $state(false);
@@ -11,9 +12,7 @@ class SearchState {
 
 	async loadItems() {
 		try {
-			const res = await fetch('/api/docs');
-			if (!res.ok) return;
-			const entries: { path: string; type: string }[] = await res.json();
+			const entries = await (await currentWorkspace()).list();
 			const blobs = entries.filter((e) => e.type === 'blob');
 			this.allItems = blobs.map((e) => ({
 				id: e.path.replace(/\.md$/, ''),
@@ -22,14 +21,14 @@ class SearchState {
 					.pop()!
 					.replace(/[-_]/g, ' ')
 					.replace(/\b\w/g, (c) => c.toUpperCase())
-					.replace(/\.(md|mdx)$/, ''),
+					.replace(/\.(md|mdx)$/, '')
 			}));
 			this.fuse = new Fuse(this.allItems, {
 				keys: ['title'],
 				threshold: 0.2,
 				includeMatches: true,
 				ignoreLocation: true,
-				isCaseSensitive: false,
+				isCaseSensitive: false
 			});
 		} catch {
 			// silently fail

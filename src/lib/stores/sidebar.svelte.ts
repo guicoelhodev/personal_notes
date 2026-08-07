@@ -1,6 +1,6 @@
 import type { TreeNode } from '$lib/types';
 import { buildTree } from '$lib/utils/tree';
-import { env } from '$env/dynamic/public';
+import { currentWorkspace } from '$lib/client/workspace';
 
 const HOME_ID = 'home';
 
@@ -19,10 +19,7 @@ class SidebarState {
 	async loadTree() {
 		this.isLoading = true;
 		try {
-			const apiBase = env.PUBLIC_READ_ONLY === 'true' ? '/api/local-docs' : '/api/docs';
-			const res = await fetch(apiBase);
-			if (!res.ok) throw new Error('Failed to load docs tree');
-			const entries: TreeEntry[] = await res.json();
+			const entries: TreeEntry[] = await (await currentWorkspace()).list();
 
 			const ids = entries
 				.filter((e) => e.type === 'blob')
@@ -31,7 +28,7 @@ class SidebarState {
 				.sort();
 
 			this.tree = buildTree(ids);
-		} catch (err: any) {
+		} catch {
 			this.tree = [];
 		} finally {
 			this.isLoading = false;

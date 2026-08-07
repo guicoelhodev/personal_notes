@@ -1,7 +1,9 @@
 import { json } from '@sveltejs/kit';
-import { deleteFile, deleteFolder } from '$lib/github';
+import { documents } from '$lib/server/container';
+import { storageErrorResponse } from '$lib/server/http';
+import type { RequestHandler } from './$types';
 
-export async function DELETE({ request }) {
+export const DELETE: RequestHandler = async ({ request }) => {
 	try {
 		const { path, isFolder } = await request.json();
 
@@ -10,14 +12,13 @@ export async function DELETE({ request }) {
 		}
 
 		if (isFolder) {
-			await deleteFolder(path);
+			await documents.deleteFolder(path);
 		} else {
-			await deleteFile(path + '.md');
+			await documents.delete(path + '.md');
 		}
 
 		return json({ success: true });
-	} catch (error: any) {
-		const status = error?.status || 500;
-		return json({ error: error.message || 'Failed to delete' }, { status });
+	} catch (error) {
+		return storageErrorResponse(error, 'Failed to delete');
 	}
-}
+};

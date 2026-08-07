@@ -1,9 +1,11 @@
 import { json } from '@sveltejs/kit';
-import { updateFile, createFile } from '$lib/github';
+import { documents } from '$lib/server/container';
+import { storageErrorResponse } from '$lib/server/http';
+import type { RequestHandler } from './$types';
 
-export async function PUT({ request, url }) {
+export const PUT: RequestHandler = async ({ request, url }) => {
 	try {
-		const { path, content } = await request.json();
+		const { path, content, version } = await request.json();
 
 		if (!path || content === undefined) {
 			return json({ error: 'path and content are required' }, { status: 400 });
@@ -11,15 +13,13 @@ export async function PUT({ request, url }) {
 
 		const mode = url.searchParams.get('mode');
 
-		if (mode === 'create') {
-			await createFile(path, content);
-		} else {
-			await updateFile(path, content);
-		}
+		const saved =
+			mode === 'create'
+				? await documents.create(path, content)
+				: await documents.update(path, content, typeof version === 'string' ? version : undefined);
 
-		return json({ success: true });
-	} catch (error: any) {
-		const status = error?.status || 500;
-		return json({ error: error.message || 'Failed to save file' }, { status });
+		return json({ success: true, version: saved.version });
+	} catch (error) {
+		return storageErrorResponse(error, 'Failed to save file');
 	}
-}
+};
