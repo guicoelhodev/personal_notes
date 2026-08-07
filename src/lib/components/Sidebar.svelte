@@ -5,6 +5,7 @@
 	import FileActions from './FileActions.svelte';
 	import Settings from './Settings.svelte';
 	import type { TreeNode } from '$lib/types';
+	import { shareState } from '$lib/stores/share.svelte';
 
 	let homeNode: TreeNode = $derived({ label: '', children: sidebarState.tree });
 
@@ -26,7 +27,7 @@
 
 <nav class="flex h-full flex-col p-4">
 	<div class="flex-1 overflow-y-auto">
-		<a href="/" class="mb-4 block text-lg font-bold text-(--color-heading)">Personal Notes</a>
+		<a href={shareState.isActive ? shareState.fileUrl('home.md') : '/'} class="mb-4 block text-lg font-bold text-(--color-heading)">Personal Notes</a>
 
 		{#if sidebarState.isLoading}
 			<p class="text-sm text-(--color-muted)">Loading...</p>
@@ -38,7 +39,7 @@
 							class="group flex justify-between items-center rounded py-1 transition-colors hover:bg-(--color-surface)"
 						>
 							<a
-								href="/"
+								href={shareState.isActive ? shareState.fileUrl('home.md') : '/'}
 								class:list={[
 									'block min-w-0 flex-1 text-sm py-1 px-2 rounded transition-colors font-medium text-(--color-text)',
 									sidebarState.activeSlug === 'home' && 'bg-(--color-heading)/20',
@@ -47,6 +48,7 @@
 							>
 								Home
 							</a>
+							{#if !shareState.isActive}
 							<FileActions
 								bind:this={homeActions}
 								node={homeNode}
@@ -55,6 +57,7 @@
 								onFolderToggle={() => {}}
 								alwaysVisible={true}
 							/>
+							{/if}
 						</div>
 						<ul class="space-y-1">
 							{#if homeActions?.isCreating}

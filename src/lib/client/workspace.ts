@@ -2,6 +2,7 @@ import { HttpDocumentWorkspaceAdapter } from '$lib/client/adapters/http-document
 import { IndexedDbDocumentWorkspaceAdapter } from '$lib/client/adapters/indexeddb-document-workspace';
 import type { DocumentWorkspacePort } from '$lib/client/ports/document-workspace';
 import { accessState } from '$lib/stores/access.svelte';
+import { shareState } from '$lib/stores/share.svelte';
 import { localImageId } from '$lib/utils/images';
 
 const remoteWorkspace = new HttpDocumentWorkspaceAdapter();
@@ -9,7 +10,7 @@ const guestWorkspace = new IndexedDbDocumentWorkspaceAdapter();
 
 export async function currentWorkspace(): Promise<DocumentWorkspacePort> {
 	await accessState.initialize();
-	return accessState.mode === 'authenticated' ? remoteWorkspace : guestWorkspace;
+	return accessState.mode === 'authenticated' || shareState.isActive ? remoteWorkspace : guestWorkspace;
 }
 
 export async function runWorkspaceWrite<T>(
@@ -20,6 +21,7 @@ export async function runWorkspaceWrite<T>(
 		return await operation(workspace);
 	} catch (error) {
 		if (!isUnauthorized(error)) throw error;
+		if (shareState.isActive) throw error;
 		accessState.handleUnauthorized();
 		return operation(guestWorkspace);
 	}

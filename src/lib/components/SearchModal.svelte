@@ -4,12 +4,13 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
+	import { shareState } from '$lib/stores/share.svelte';
 
 	let inputEl: HTMLInputElement | undefined = $state();
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 	onMount(() => {
-		searchState.loadItems();
+		if (!shareState.isActive || shareState.shareAll) searchState.loadItems();
 	});
 
 	function handleInput(e: Event) {
@@ -33,7 +34,7 @@
 			if (item) {
 				searchState.close();
 				sidebarState.openFile(item.id);
-				goto(`/file?path=${encodeURIComponent(item.id)}.md`);
+				goto(shareState.fileUrl(`${item.id}.md`));
 			}
 		} else if (e.key === 'Escape') {
 			searchState.close();
@@ -67,7 +68,7 @@
 	function handleResultClick(item: { id: string; title: string }) {
 		searchState.close();
 		sidebarState.openFile(item.id);
-		goto(`/file?path=${encodeURIComponent(item.id)}.md`);
+		goto(shareState.fileUrl(`${item.id}.md`));
 	}
 
 	$effect(() => {
@@ -81,6 +82,7 @@
 <svelte:window
 	onkeydown={(e) => {
 		if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+			if (shareState.isActive && !shareState.shareAll) return;
 			e.preventDefault();
 			searchState.toggle();
 		}
@@ -126,7 +128,7 @@
 						<li data-index={i}>
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<a
-								href="/file?path={encodeURIComponent(item.item.id)}.md"
+							href={shareState.fileUrl(`${item.item.id}.md`)}
 								class="block px-4 py-2.5 text-sm text-(--color-text) hover:bg-(--color-heading)/10 cursor-pointer transition-colors
 								{searchState.activeIndex === i ? 'bg-(--color-heading)/10' : ''}"
 								onclick={(e) => {

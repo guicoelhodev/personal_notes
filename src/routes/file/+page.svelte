@@ -12,6 +12,8 @@
 	import { optimizeImage } from '$lib/client/images';
 	import { currentWorkspace, readWorkspaceImage, runWorkspaceWrite } from '$lib/client/workspace';
 	import { localImageId } from '$lib/utils/images';
+	import { accessState } from '$lib/stores/access.svelte';
+	import { shareState } from '$lib/stores/share.svelte';
 
 	let editorEl: HTMLDivElement | undefined = $state();
 	let loading = $state(true);
@@ -23,6 +25,11 @@
 
 	const currentPath = $derived(page.url.searchParams.get('path') || '');
 	const currentMode = $derived(page.url.searchParams.get('mode') || '');
+	const isReadOnly = $derived(
+		shareState.isActive &&
+		accessState.mode !== 'authenticated' &&
+		(!shareState.canEdit(currentPath) || currentMode === 'create')
+	);
 
 	async function loadContent(path: string, mode: string, generation: number) {
 		loading = true;
@@ -100,6 +107,7 @@
 		});
 		editorInstance = instance;
 		await instance.create();
+		instance.setReadonly(isReadOnly);
 		if (generation !== loadGeneration) {
 			await instance.destroy();
 			revokeImageUrls();
@@ -202,6 +210,10 @@
 		}
 	});
 
+	$effect(() => {
+		editorInstance?.setReadonly(isReadOnly);
+	});
+
 	onDestroy(() => {
 		loadGeneration += 1;
 		stopEditorListeners();
@@ -226,5 +238,7 @@
 			></div>
 		{/if}
 	</div>
-	<PageActions />
+	{#if !isReadOnly}
+		<PageActions />
+	{/if}
 </div>

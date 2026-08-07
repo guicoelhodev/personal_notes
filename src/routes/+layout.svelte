@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import './layout.css';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
@@ -11,6 +12,8 @@
 	import { searchState } from '$lib/stores/search.svelte';
 	import { themeState } from '$lib/stores/theme.svelte';
 	import { accessState } from '$lib/stores/access.svelte';
+	import { shareState } from '$lib/stores/share.svelte';
+	import ShareLink from '$lib/components/ShareLink.svelte';
 
 	let { children } = $props();
 
@@ -18,9 +21,14 @@
 		themeState.sync();
 		accessState.initialize();
 	});
+
+	$effect(() => {
+		shareState.sync(page.url.searchParams.get('token'));
+	});
 </script>
 
 <div class="flex h-screen w-full">
+	{#if !shareState.isActive || shareState.shareAll}
 	<aside
 		class="fixed inset-y-0 left-0 z-40 w-full border-r border-(--color-muted)/20 bg-(--color-surface) md:static md:w-64 md:shrink-0 {sidebarState.isOpen
 			? 'open'
@@ -28,8 +36,9 @@
 	>
 		<Sidebar />
 	</aside>
+	{/if}
 
-	{#if sidebarState.isOpen}
+	{#if sidebarState.isOpen && (!shareState.isActive || shareState.shareAll)}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
 			class="fixed inset-0 z-30 bg-black/50 md:hidden"
@@ -40,6 +49,7 @@
 
 	<main class="min-h-0 min-w-0 flex-1 overflow-hidden">
 		<div class="fixed top-4 right-4 z-50 flex items-center gap-2">
+			{#if !shareState.isActive || shareState.shareAll}
 			<button
 				type="button"
 				aria-label="Search"
@@ -51,7 +61,10 @@
 					>Ctrl+K</kbd
 				>
 			</button>
+			{/if}
+			<ShareLink />
 			<ThemeToggle />
+			{#if !shareState.isActive || shareState.shareAll}
 			<button
 				class="cursor-pointer rounded-lg bg-(--color-surface) p-2 text-(--color-text) transition-opacity hover:opacity-80 md:hidden"
 				aria-label="Toggle menu"
@@ -59,6 +72,7 @@
 			>
 				<Menu class="h-5 w-5" />
 			</button>
+			{/if}
 		</div>
 		{@render children()}
 	</main>

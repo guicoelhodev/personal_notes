@@ -5,6 +5,7 @@
 	import SidebarNode from './SidebarNode.svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import { goto } from '$app/navigation';
+	import { shareState } from '$lib/stores/share.svelte';
 
 	let {
 		node,
@@ -56,7 +57,7 @@
 	function selectFile(slug: string) {
 		sidebarState.openFile(slug);
 		sidebarState.isOpen = false;
-		goto(`/file?path=${encodeURIComponent(slug)}.md`);
+		goto(shareState.fileUrl(`${slug}.md`));
 	}
 
 	let folderPath = $derived(parentPath ? parentPath + '/' + node.label : node.label);
@@ -87,6 +88,7 @@
 					</span>
 					<span class="truncate">{formatLabel(node.label)}</span>
 				</button>
+				{#if !shareState.isActive}
 				<FileActions
 					bind:this={folderActions}
 					{node}
@@ -97,6 +99,7 @@
 						manuallyToggled = true;
 					}}
 				/>
+				{/if}
 			</div>
 			{#if isOpen}
 				<ul class="mt-1 ml-3 space-y-1" data-folder-path={folderPath}>
@@ -125,7 +128,7 @@
 			class="group flex items-center justify-between rounded py-1 transition-colors hover:bg-(--color-surface)"
 		>
 			<a
-				href="/file?path={node.slug}.md"
+				href={shareState.fileUrl(`${node.slug}.md`)}
 				class:list={[
 					'block min-w-0 flex-1 text-sm py-1 px-2 rounded transition-colors text-(--color-text)',
 					sidebarState.activeSlug === node.slug && 'bg-(--color-heading)/20 font-medium',
@@ -138,12 +141,14 @@
 			>
 				{formatLabel(node.label)}
 			</a>
+			{#if !shareState.isActive}
 			<FileActions
 				{node}
 				folderPath={node.slug || ''}
 				actions={['rename', 'delete']}
 				onFolderToggle={() => {}}
 			/>
+			{/if}
 		</div>
 	{/if}
 </li>

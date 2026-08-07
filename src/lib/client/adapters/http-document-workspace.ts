@@ -6,6 +6,7 @@ import type {
 	WorkspaceDocument
 } from '$lib/client/ports/document-workspace';
 import type { TreeEntry } from '$lib/types';
+import { shareState } from '$lib/stores/share.svelte';
 
 async function responseError(response: Response, fallback: string): Promise<Error> {
 	const data = await response.json().catch(() => null);
@@ -16,13 +17,15 @@ async function responseError(response: Response, fallback: string): Promise<Erro
 
 export class HttpDocumentWorkspaceAdapter implements DocumentWorkspacePort {
 	async list(): Promise<TreeEntry[]> {
-		const response = await fetch('/api/docs');
+		const response = await fetch('/api/docs', { headers: shareState.requestHeaders() });
 		if (!response.ok) throw await responseError(response, 'Failed to load documents');
 		return response.json();
 	}
 
 	async read(path: string): Promise<WorkspaceDocument> {
-		const response = await fetch(`/api/docs/${encodeURIComponent(path)}`);
+		const response = await fetch(`/api/docs/${encodeURIComponent(path)}`, {
+			headers: shareState.requestHeaders()
+		});
 		if (!response.ok) throw await responseError(response, 'Document not found');
 		return {
 			path,
@@ -34,7 +37,7 @@ export class HttpDocumentWorkspaceAdapter implements DocumentWorkspacePort {
 	async save(input: SaveDocumentInput): Promise<{ version: string }> {
 		const response = await fetch(input.create ? '/api/save?mode=create' : '/api/save', {
 			method: 'PUT',
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', ...shareState.requestHeaders() },
 			body: JSON.stringify({
 				path: input.path,
 				content: input.content,
@@ -48,7 +51,7 @@ export class HttpDocumentWorkspaceAdapter implements DocumentWorkspacePort {
 	async rename(input: RenameDocumentInput): Promise<{ newPath: string }> {
 		const response = await fetch('/api/rename', {
 			method: 'PUT',
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', ...shareState.requestHeaders() },
 			body: JSON.stringify(input)
 		});
 		if (!response.ok) throw await responseError(response, 'Failed to rename document');
@@ -58,7 +61,7 @@ export class HttpDocumentWorkspaceAdapter implements DocumentWorkspacePort {
 	async delete(input: DeleteDocumentInput): Promise<void> {
 		const response = await fetch('/api/delete', {
 			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', ...shareState.requestHeaders() },
 			body: JSON.stringify(input)
 		});
 		if (!response.ok) throw await responseError(response, 'Failed to delete document');
@@ -67,7 +70,11 @@ export class HttpDocumentWorkspaceAdapter implements DocumentWorkspacePort {
 	async uploadImage(file: File): Promise<string> {
 		const formData = new FormData();
 		formData.append('file', file);
-		const response = await fetch('/api/upload', { method: 'POST', body: formData });
+		const response = await fetch('/api/upload', {
+			method: 'POST',
+			headers: shareState.requestHeaders(),
+			body: formData
+		});
 		if (!response.ok) throw await responseError(response, 'Upload failed');
 		const data = await response.json();
 		return data.url;
@@ -81,7 +88,7 @@ export class HttpDocumentWorkspaceAdapter implements DocumentWorkspacePort {
 		if (urls.length === 0) return;
 		const response = await fetch('/api/deleteImages', {
 			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', ...shareState.requestHeaders() },
 			body: JSON.stringify({ urls }),
 			keepalive: true
 		});
