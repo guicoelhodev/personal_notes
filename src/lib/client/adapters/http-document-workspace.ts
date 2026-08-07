@@ -36,7 +36,7 @@ export class HttpDocumentWorkspaceAdapter implements DocumentWorkspacePort {
 		return {
 			path,
 			content: await response.text(),
-			version: response.headers.get('etag') || ''
+			version: response.headers.get('x-document-version') || response.headers.get('etag') || ''
 		};
 	}
 

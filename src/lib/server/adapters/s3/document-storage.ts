@@ -102,6 +102,7 @@ export class S3DocumentStorageAdapter implements DocumentStoragePort {
 
 	async update(path: string, content: string, expectedVersion?: string): Promise<StoredDocument> {
 		if (!expectedVersion) throw new StorageConflictError('Document version is required');
+		const version = expectedVersion.replace(/^W\//, '');
 		try {
 			const response = await this.client.send(
 				new PutObjectCommand({
@@ -109,7 +110,7 @@ export class S3DocumentStorageAdapter implements DocumentStoragePort {
 					Key: this.key(path),
 					Body: content,
 					ContentType: 'text/markdown; charset=utf-8',
-					IfMatch: expectedVersion
+					IfMatch: version
 				})
 			);
 			return { path, content, version: response.ETag ?? '' };

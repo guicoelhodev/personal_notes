@@ -24,7 +24,8 @@ export const GET: RequestHandler = async ({ params }) => {
 			headers: {
 				'Content-Type': 'text/markdown; charset=utf-8',
 				'Cache-Control': 'no-cache',
-				ETag: document.version
+				ETag: document.version,
+				'X-Document-Version': document.version
 			}
 		});
 	} catch (error) {
