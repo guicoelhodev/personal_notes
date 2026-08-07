@@ -30,5 +30,7 @@ export interface DocumentWorkspacePort {
 	save(input: SaveDocumentInput): Promise<{ version: string }>;
 	rename(input: RenameDocumentInput): Promise<{ newPath: string }>;
 	delete(input: DeleteDocumentInput): Promise<void>;
-	upload(file: File): Promise<string>;
+	uploadImage(file: File): Promise<string>;
+	readImage(url: string): Promise<Blob | null>;
+	deleteImages(urls: string[]): Promise<void>;
 }

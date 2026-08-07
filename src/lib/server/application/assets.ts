@@ -1,4 +1,5 @@
 import type { AssetStoragePort } from '$lib/server/ports/storage';
+import { extractManagedImageUrls } from '$lib/utils/images';
 import { normalizeAssetPath } from './paths';
 
 const MAX_ASSET_SIZE = 5 * 1024 * 1024;
@@ -35,5 +36,18 @@ export class AssetService {
 		const value = new URL(url, 'http://localhost');
 		if (!value.pathname.startsWith('/api/images/')) throw new Error('Invalid asset URL');
 		return this.storage.delete(normalizeAssetPath(value.pathname.slice('/api/images/'.length)));
+	}
+
+	async deleteUnreferenced(urls: string[], documentContents: string[]): Promise<number> {
+		const referenced = new Set(
+			documentContents.flatMap((content) => extractManagedImageUrls(content))
+		);
+		const deletable = [...new Set(urls)].filter(
+			(url) => url.startsWith('/api/images/') && !referenced.has(url)
+		);
+		const results = await Promise.allSettled(deletable.map((url) => this.deleteUrl(url)));
+		const failure = results.find((result) => result.status === 'rejected');
+		if (failure?.status === 'rejected') throw failure.reason;
+		return deletable.length;
 	}
 }

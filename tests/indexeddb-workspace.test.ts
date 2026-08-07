@@ -37,4 +37,21 @@ describe('IndexedDbDocumentWorkspaceAdapter', () => {
 			workspace.save({ path: 'foo/nested.md', content: 'nested', create: true })
 		).rejects.toThrow('Document or folder already exists');
 	});
+
+	it('stores image blobs separately and deletes them after their last reference', async () => {
+		const workspace = new IndexedDbDocumentWorkspaceAdapter();
+		const image = new Blob(['image-data'], { type: 'image/png' }) as File;
+		const url = await workspace.uploadImage(image);
+
+		expect(url).toMatch(/^indexeddb:\/\/images\/[a-f0-9-]+$/);
+		expect(await (await workspace.readImage(url))?.text()).toBe('image-data');
+
+		await workspace.save({ path: 'local.md', content: `![image](${url})`, create: true });
+		await workspace.deleteImages([url]);
+		expect(await workspace.readImage(url)).not.toBeNull();
+
+		await workspace.save({ path: 'local.md', content: 'image removed', create: false });
+		await workspace.deleteImages([url]);
+		expect(await workspace.readImage(url)).toBeNull();
+	});
 });

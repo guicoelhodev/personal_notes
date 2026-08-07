@@ -64,12 +64,27 @@ export class HttpDocumentWorkspaceAdapter implements DocumentWorkspacePort {
 		if (!response.ok) throw await responseError(response, 'Failed to delete document');
 	}
 
-	async upload(file: File): Promise<string> {
+	async uploadImage(file: File): Promise<string> {
 		const formData = new FormData();
 		formData.append('file', file);
 		const response = await fetch('/api/upload', { method: 'POST', body: formData });
 		if (!response.ok) throw await responseError(response, 'Upload failed');
 		const data = await response.json();
 		return data.url;
+	}
+
+	async readImage(): Promise<Blob | null> {
+		return null;
+	}
+
+	async deleteImages(urls: string[]): Promise<void> {
+		if (urls.length === 0) return;
+		const response = await fetch('/api/deleteImages', {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ urls }),
+			keepalive: true
+		});
+		if (!response.ok) throw await responseError(response, 'Failed to delete images');
 	}
 }

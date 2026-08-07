@@ -9,7 +9,8 @@ A Markdown notes editor with authenticated S3-compatible storage and a private b
 - Milkdown Crepe Markdown editor
 - Authenticated document and image reading
 - Password-protected server writes
-- Guest workspace persisted in IndexedDB
+- Guest documents and image blobs persisted in IndexedDB
+- Authenticated image uploads stored under `images/` in the configured bucket
 - S3-compatible storage through Ports and Adapters
 - Cloudflare R2, AWS S3, MinIO, and compatible provider support
 - Fuzzy search, hierarchical navigation, and configurable themes
@@ -75,7 +76,7 @@ Configure the same variables as encrypted environment variables in Vercel. The b
 
 ## Access Modes
 
-Without an authenticated session, documents are read and written only in that browser's IndexedDB. Log in from the authentication tab in settings to read and write the configured S3-compatible bucket. A successful login creates a signed, `HttpOnly`, seven-day cookie.
+Without an authenticated session, documents and image blobs are read and written only in that browser's IndexedDB. Log in from the authentication tab in settings to read and write the configured S3-compatible bucket. Authenticated image URLs point to objects under `images/`, while local Markdown uses IndexedDB image references resolved by the editor. A successful login creates a signed, `HttpOnly`, seven-day cookie.
 
 Guest changes and authenticated R2 data are intentionally separate. Authentication does not publish or delete the guest workspace.
 

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { onDestroy, untrack } from 'svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 	import { editorState } from '$lib/stores/editor.svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import { editorViewCtx } from '@milkdown/kit/core';
@@ -8,13 +9,15 @@
 	import { Crepe } from '@milkdown/crepe';
 	import type { Ctx } from '@milkdown/kit/ctx';
 	import PageActions from '$lib/components/PageActions.svelte';
-	import { currentWorkspace, runWorkspaceWrite } from '$lib/client/workspace';
+	import { currentWorkspace, readWorkspaceImage, runWorkspaceWrite } from '$lib/client/workspace';
+	import { localImageId } from '$lib/utils/images';
 
 	let editorEl: HTMLDivElement | undefined = $state();
 	let loading = $state(true);
 	let editorInstance: Crepe | null = null;
 	let editorObserver: MutationObserver | null = null;
 	let editorInputHandler: (() => void) | null = null;
+	let imageUrlCache = new SvelteMap<string, { promise: Promise<string>; objectUrl?: string }>();
 	let loadGeneration = 0;
 
 	const currentPath = $derived(page.url.searchParams.get('path') || '');
@@ -59,6 +62,7 @@
 			} catch {
 				/* ignore */
 			}
+			revokeImageUrls();
 			if (generation !== loadGeneration) return;
 		}
 
@@ -71,10 +75,17 @@
 			defaultValue: editorState.currentContent,
 			featureConfigs: {
 				[Crepe.Feature.ImageBlock]: {
+					proxyDomURL: resolveImageUrl,
 					onUpload: async (file: File) => {
 						try {
-							const url = await runWorkspaceWrite((workspace) => workspace.upload(file));
+							const url = await editorState.trackImageUpload(
+								runWorkspaceWrite((workspace) => workspace.uploadImage(file))
+							);
 							if (!url) throw new Error('Upload cancelled');
+							if (generation !== loadGeneration) {
+								await editorState.discardUploadedImage(url);
+								throw new Error('Upload cancelled');
+							}
 							return url;
 						} catch (error) {
 							const message = error instanceof Error ? error.message : 'Upload failed';
@@ -89,6 +100,7 @@
 		await instance.create();
 		if (generation !== loadGeneration) {
 			await instance.destroy();
+			revokeImageUrls();
 			return;
 		}
 		if (currentMode === 'create') {
@@ -135,6 +147,39 @@
 		editorEl.addEventListener('input', editorInputHandler);
 	}
 
+	function resolveImageUrl(source: string): Promise<string> | string {
+		if (!localImageId(source)) return source;
+		const cached = imageUrlCache.get(source);
+		if (cached) return cached.promise;
+
+		let entry: { promise: Promise<string>; objectUrl?: string };
+		const promise = readWorkspaceImage(source)
+			.then((image) => {
+				if (!image) throw new Error('Local image not found');
+				const objectUrl = URL.createObjectURL(image);
+				if (imageUrlCache.get(source) !== entry) {
+					URL.revokeObjectURL(objectUrl);
+					return source;
+				}
+				entry.objectUrl = objectUrl;
+				return objectUrl;
+			})
+			.catch((error) => {
+				if (imageUrlCache.get(source) === entry) imageUrlCache.delete(source);
+				throw error;
+			});
+		entry = { promise };
+		imageUrlCache.set(source, entry);
+		return promise;
+	}
+
+	function revokeImageUrls() {
+		for (const entry of imageUrlCache.values()) {
+			if (entry.objectUrl) URL.revokeObjectURL(entry.objectUrl);
+		}
+		imageUrlCache.clear();
+	}
+
 	function stopEditorListeners() {
 		editorObserver?.disconnect();
 		editorObserver = null;
@@ -158,7 +203,10 @@
 	onDestroy(() => {
 		loadGeneration += 1;
 		stopEditorListeners();
-		editorInstance?.destroy();
+		void editorState.discardPendingImages();
+		const instance = editorInstance;
+		editorInstance = null;
+		void instance?.destroy().finally(revokeImageUrls);
 	});
 </script>
 

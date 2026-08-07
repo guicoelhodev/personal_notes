@@ -12,6 +12,16 @@ export class DocumentService {
 		return this.storage.read(normalizeDocumentFilePath(path));
 	}
 
+	async readAll() {
+		const entries = await this.storage.list();
+		return Promise.all(entries.map((entry) => this.storage.read(entry.path)));
+	}
+
+	async readFolder(path: string) {
+		const prefix = normalizeDocumentPath(path) + '/';
+		return (await this.readAll()).filter((document) => document.path.startsWith(prefix));
+	}
+
 	create(path: string, content: string) {
 		return this.storage.create(normalizeDocumentFilePath(path), content);
 	}
