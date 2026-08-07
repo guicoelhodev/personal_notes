@@ -5,6 +5,7 @@ import type {
 	SaveDocumentInput,
 	WorkspaceDocument
 } from '$lib/client/ports/document-workspace';
+import { GETTING_STARTED_CONTENT, GETTING_STARTED_PATH } from '$lib/client/getting-started';
 import type { TreeEntry } from '$lib/types';
 import {
 	extractManagedImageUrls,
@@ -22,8 +23,14 @@ interface LocalImage {
 	createdAt: number;
 }
 
+interface LocalMetadata {
+	key: string;
+	value: string;
+}
+
 const DATABASE_NAME = 'personal-notes-guest';
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
+const INITIAL_DOCUMENT_KEY = 'initial-document';
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([
 	'image/png',
@@ -51,13 +58,34 @@ function transactionDone(transaction: IDBTransaction): Promise<void> {
 function openDatabase(): Promise<IDBDatabase> {
 	return new Promise((resolve, reject) => {
 		const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
-		request.onupgradeneeded = () => {
+		request.onupgradeneeded = (event) => {
 			const database = request.result;
+			let documents: IDBObjectStore;
 			if (!database.objectStoreNames.contains('documents')) {
-				database.createObjectStore('documents', { keyPath: 'path' });
+				documents = database.createObjectStore('documents', { keyPath: 'path' });
+			} else {
+				documents = request.transaction!.objectStore('documents');
 			}
 			if (!database.objectStoreNames.contains('images')) {
 				database.createObjectStore('images', { keyPath: 'id' });
+			}
+			let metadata: IDBObjectStore;
+			if (!database.objectStoreNames.contains('metadata')) {
+				metadata = database.createObjectStore('metadata', { keyPath: 'key' });
+			} else {
+				metadata = request.transaction!.objectStore('metadata');
+			}
+			if (event.oldVersion === 0) {
+				documents.put({
+					path: GETTING_STARTED_PATH,
+					content: GETTING_STARTED_CONTENT,
+					version: `local-${Date.now()}`,
+					updatedAt: Date.now()
+				} satisfies LocalDocument);
+				metadata.put({
+					key: INITIAL_DOCUMENT_KEY,
+					value: GETTING_STARTED_PATH
+				} satisfies LocalMetadata);
 			}
 		};
 		request.onsuccess = () => resolve(request.result);
@@ -230,6 +258,23 @@ export class IndexedDbDocumentWorkspaceAdapter implements DocumentWorkspacePort 
 		for (const id of deletable) transaction.objectStore('images').delete(id);
 		await transactionDone(transaction);
 		database.close();
+	}
+
+	async consumeInitialDocument(): Promise<string | null> {
+		const database = await openDatabase();
+		const transaction = database.transaction('metadata', 'readwrite');
+		const store = transaction.objectStore('metadata');
+		const request = store.get(INITIAL_DOCUMENT_KEY) as IDBRequest<LocalMetadata | undefined>;
+		const metadata = await new Promise<LocalMetadata | undefined>((resolve, reject) => {
+			request.onsuccess = () => {
+				if (request.result) store.delete(INITIAL_DOCUMENT_KEY);
+				resolve(request.result);
+			};
+			request.onerror = () => reject(request.error);
+		});
+		await transactionDone(transaction);
+		database.close();
+		return metadata?.value ?? null;
 	}
 
 	private async getDocument(path: string): Promise<LocalDocument | undefined> {

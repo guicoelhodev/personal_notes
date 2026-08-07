@@ -87,4 +87,8 @@ export class HttpDocumentWorkspaceAdapter implements DocumentWorkspacePort {
 		});
 		if (!response.ok) throw await responseError(response, 'Failed to delete images');
 	}
+
+	async consumeInitialDocument(): Promise<string | null> {
+		return null;
+	}
 }

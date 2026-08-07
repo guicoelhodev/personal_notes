@@ -33,4 +33,5 @@ export interface DocumentWorkspacePort {
 	uploadImage(file: File): Promise<string>;
 	readImage(url: string): Promise<Blob | null>;
 	deleteImages(urls: string[]): Promise<void>;
+	consumeInitialDocument(): Promise<string | null>;
 }

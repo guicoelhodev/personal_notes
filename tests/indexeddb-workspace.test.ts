@@ -19,15 +19,30 @@ describe('IndexedDbDocumentWorkspaceAdapter', () => {
 		const workspace = new IndexedDbDocumentWorkspaceAdapter();
 		await workspace.save({ path: 'local.md', content: 'local edit', create: true });
 		expect((await workspace.read('local.md')).content).toBe('local edit');
-		expect((await workspace.list()).map((entry) => entry.path)).toEqual(['local.md']);
+		expect((await workspace.list()).map((entry) => entry.path).sort()).toEqual([
+			'Getting Started.md',
+			'local.md'
+		]);
 	});
 
 	it('deletes local documents', async () => {
 		const workspace = new IndexedDbDocumentWorkspaceAdapter();
 		await workspace.save({ path: 'local.md', content: 'local', create: true });
 		await workspace.delete({ path: 'local', isFolder: false });
-		expect(await workspace.list()).toEqual([]);
+		expect((await workspace.list()).map((entry) => entry.path)).toEqual(['Getting Started.md']);
 		await expect(workspace.read('local.md')).rejects.toThrow('Document not found');
+	});
+
+	it('creates and opens the getting started document only once', async () => {
+		const workspace = new IndexedDbDocumentWorkspaceAdapter();
+		const document = await workspace.read('Getting Started.md');
+
+		expect(document.content).toContain('# Welcome to Personal Notes');
+		expect(await workspace.consumeInitialDocument()).toBe('Getting Started.md');
+		expect(await workspace.consumeInitialDocument()).toBeNull();
+
+		await workspace.delete({ path: 'Getting Started', isFolder: false });
+		expect(await workspace.list()).toEqual([]);
 	});
 
 	it('prevents a document from also becoming a folder', async () => {
