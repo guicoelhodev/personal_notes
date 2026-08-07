@@ -7,7 +7,6 @@
 	import { editorViewCtx } from '@milkdown/kit/core';
 	import { Selection } from 'prosemirror-state';
 	import { Crepe } from '@milkdown/crepe';
-	import type { Ctx } from '@milkdown/kit/ctx';
 	import PageActions from '$lib/components/PageActions.svelte';
 	import { optimizeImage } from '$lib/client/images';
 	import { currentWorkspace, readWorkspaceImage, runWorkspaceWrite } from '$lib/client/workspace';
@@ -84,6 +83,16 @@
 			featureConfigs: {
 				[Crepe.Feature.ImageBlock]: {
 					proxyDomURL: resolveImageUrl,
+					onImageLoadError: (event: Event) => {
+						const image = event.target;
+						if (!(image instanceof HTMLImageElement)) return;
+						console.error('Editor image failed to load', {
+							documentPath: currentPath,
+							source: image.getAttribute('src'),
+							currentSource: image.currentSrc,
+							online: navigator.onLine
+						});
+					},
 					onUpload: async (file: File) => {
 						try {
 							const optimized = await optimizeImage(file);
@@ -115,7 +124,7 @@
 		}
 		if (currentMode === 'create') {
 			requestAnimationFrame(() => {
-				instance.editor.action((ctx: Ctx) => {
+				instance.editor.action((ctx) => {
 					const view = ctx.get(editorViewCtx);
 					view.focus();
 					const endPos = view.state.doc.content.size;
@@ -158,28 +167,40 @@
 	}
 
 	function resolveImageUrl(source: string): Promise<string> | string {
-		if (!localImageId(source)) return source;
-		const cached = imageUrlCache.get(source);
+		const normalizedSource = source.trim();
+		if (/^file:/i.test(normalizedSource)) {
+			console.error('Local file image cannot be loaded by a web application', {
+				documentPath: currentPath,
+				source: normalizedSource
+			});
+			return '';
+		}
+		if (normalizedSource.startsWith('/api/images/')) {
+			return new URL(normalizedSource, window.location.origin).href;
+		}
+		if (!localImageId(normalizedSource)) return normalizedSource;
+		const cached = imageUrlCache.get(normalizedSource);
 		if (cached) return cached.promise;
 
 		let entry: { promise: Promise<string>; objectUrl?: string };
-		const promise = readWorkspaceImage(source)
+		const promise = readWorkspaceImage(normalizedSource)
 			.then((image) => {
 				if (!image) throw new Error('Local image not found');
 				const objectUrl = URL.createObjectURL(image);
-				if (imageUrlCache.get(source) !== entry) {
+				if (imageUrlCache.get(normalizedSource) !== entry) {
 					URL.revokeObjectURL(objectUrl);
-					return source;
+					return normalizedSource;
 				}
 				entry.objectUrl = objectUrl;
 				return objectUrl;
 			})
 			.catch((error) => {
-				if (imageUrlCache.get(source) === entry) imageUrlCache.delete(source);
+				if (imageUrlCache.get(normalizedSource) === entry)
+					imageUrlCache.delete(normalizedSource);
 				throw error;
 			});
 		entry = { promise };
-		imageUrlCache.set(source, entry);
+		imageUrlCache.set(normalizedSource, entry);
 		return promise;
 	}
 

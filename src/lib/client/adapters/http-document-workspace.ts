@@ -10,6 +10,12 @@ import { shareState } from '$lib/stores/share.svelte';
 
 async function responseError(response: Response, fallback: string): Promise<Error> {
 	const data = await response.json().catch(() => null);
+	console.error('Workspace request failed', {
+		url: response.url,
+		status: response.status,
+		statusText: response.statusText,
+		error: data?.error || fallback
+	});
 	const error = new Error(data?.error || fallback) as Error & { status?: number };
 	error.status = response.status;
 	return error;

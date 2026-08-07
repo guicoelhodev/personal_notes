@@ -35,7 +35,10 @@ export class S3AssetStorageAdapter implements AssetStoragePort {
 			);
 			return path;
 		} catch (error) {
-			mapS3Error(error, 'Failed to upload asset');
+			mapS3Error(
+				error,
+				`Failed to upload asset: ${path} (${asset.contentType}, ${asset.data.byteLength} bytes)`
+			);
 		}
 	}
 
