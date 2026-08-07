@@ -4,6 +4,7 @@
 	import Spinner from '$lib/icons/Spinner.svelte';
 	import { accessState } from '$lib/stores/access.svelte';
 	import { editorState } from '$lib/stores/editor.svelte';
+	import { shareState } from '$lib/stores/share.svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 
 	let { onAuthenticated }: { onAuthenticated: () => void } = $props();
@@ -32,33 +33,59 @@
 		await accessState.logout();
 		window.location.assign(resolve('/'));
 	}
+
+	async function accessLocalNotes() {
+		validationError = '';
+		await editorState.discardPendingImages();
+		shareState.sync(null);
+		editorState.reset();
+		window.location.assign(resolve('/'));
+	}
 </script>
 
 <div class="flex h-full flex-col">
 	<h3 class="mb-1 text-base font-semibold text-(--color-text)">Authentication</h3>
 	<p class="mb-5 text-sm text-(--color-muted)">
-		{accessState.mode === 'authenticated'
+		{shareState.isActive
+			? 'You are viewing server documents through a shared link.'
+			: accessState.mode === 'authenticated'
 			? 'Your session is connected to R2 storage.'
 			: 'Without an active session, your documents remain in this browser.'}
 	</p>
 
 	<div class="mb-5 flex items-center gap-3 rounded-lg border border-(--color-muted)/20 p-3">
 		<span
-			class="h-2.5 w-2.5 rounded-full {accessState.mode === 'authenticated'
+			class="h-2.5 w-2.5 rounded-full {shareState.isActive || accessState.mode === 'authenticated'
 				? 'bg-green-500'
 				: 'bg-(--color-muted)'}"
 		></span>
 		<div>
 			<p class="text-sm font-medium text-(--color-text)">
-				{accessState.mode === 'authenticated' ? 'R2 connected' : 'Local storage'}
+				{shareState.isActive
+					? 'Guest Access'
+					: accessState.mode === 'authenticated'
+						? 'R2 connected'
+						: 'Local storage'}
 			</p>
 			<p class="text-xs text-(--color-muted)">
-				{accessState.mode === 'authenticated' ? 'Access to server documents' : 'Using IndexedDB'}
+				{shareState.isActive
+					? 'Access through a shared link'
+					: accessState.mode === 'authenticated'
+						? 'Access to server documents'
+						: 'Using IndexedDB'}
 			</p>
 		</div>
 	</div>
 
-	{#if accessState.mode === 'authenticated'}
+	{#if shareState.isActive}
+		<button
+			type="button"
+			class="mt-auto w-full cursor-pointer rounded-lg border border-(--color-muted)/40 px-4 py-2.5 text-sm font-medium text-(--color-text) transition-colors hover:bg-(--color-muted)/10"
+			onclick={accessLocalNotes}
+		>
+			Access local notes
+		</button>
+	{:else if accessState.mode === 'authenticated'}
 		<button
 			type="button"
 			class="mt-auto w-full cursor-pointer rounded-lg border border-red-500/40 px-4 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10"

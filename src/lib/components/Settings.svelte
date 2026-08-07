@@ -2,18 +2,21 @@
 	import Gear from '$lib/icons/Gear.svelte';
 	import SettingsModal from './SettingsModal/index.svelte';
 	import { accessState } from '$lib/stores/access.svelte';
+	import { shareState } from '$lib/stores/share.svelte';
 
 	let isOpen = $state(false);
 
 	const modeLabel = $derived(
-		accessState.mode === 'authenticated'
+		shareState.isActive || accessState.mode === 'authenticated'
 			? 'Authenticated'
 			: accessState.mode === 'unknown'
 				? 'Checking session'
 				: 'Local storage'
 	);
 	const modeStatus = $derived(
-		accessState.mode === 'authenticated'
+		shareState.isActive
+			? 'Guest Access'
+			: accessState.mode === 'authenticated'
 			? 'Full access'
 			: accessState.mode === 'unknown'
 				? 'Please wait'
