@@ -18,7 +18,10 @@ export class AssetService {
 		if (file.size > MAX_ASSET_SIZE)
 			throw Object.assign(new Error('File too large (max 5MB)'), { status: 400 });
 		if (!ALLOWED_ASSET_TYPES.has(file.type)) {
-			throw Object.assign(new Error('Unsupported image type'), { status: 400 });
+			throw Object.assign(
+				new Error('Tipo de imagem não suportado. Use PNG, JPEG, GIF, WebP ou AVIF.'),
+				{ status: 400 }
+			);
 		}
 		const path = await this.storage.upload({
 			name: file.name,
