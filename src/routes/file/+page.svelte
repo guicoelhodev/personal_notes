@@ -9,6 +9,7 @@
 	import { Crepe } from '@milkdown/crepe';
 	import type { Ctx } from '@milkdown/kit/ctx';
 	import PageActions from '$lib/components/PageActions.svelte';
+	import { optimizeImage } from '$lib/client/images';
 	import { currentWorkspace, readWorkspaceImage, runWorkspaceWrite } from '$lib/client/workspace';
 	import { localImageId } from '$lib/utils/images';
 
@@ -78,8 +79,9 @@
 					proxyDomURL: resolveImageUrl,
 					onUpload: async (file: File) => {
 						try {
+							const optimized = await optimizeImage(file);
 							const url = await editorState.trackImageUpload(
-								runWorkspaceWrite((workspace) => workspace.uploadImage(file))
+								runWorkspaceWrite((workspace) => workspace.uploadImage(optimized))
 							);
 							if (!url) throw new Error('Upload cancelled');
 							if (generation !== loadGeneration) {
