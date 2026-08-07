@@ -1,8 +1,12 @@
 import { json } from '@sveltejs/kit';
 import { assets, documents } from '$lib/server/container';
+import { canEditSharedContent } from '$lib/server/share';
 import type { RequestHandler } from './$types';
 
-export const DELETE: RequestHandler = async ({ request }) => {
+export const DELETE: RequestHandler = async ({ request, cookies }) => {
+	if (!canEditSharedContent(cookies, request)) {
+		return json({ error: 'Image deletion is not allowed' }, { status: 401 });
+	}
 	const { urls } = await request.json();
 
 	if (!Array.isArray(urls) || urls.length === 0) {

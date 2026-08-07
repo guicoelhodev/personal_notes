@@ -2,11 +2,9 @@ import { json, type Handle } from '@sveltejs/kit';
 import { isAuthenticated } from '$lib/server/auth';
 
 const protectedRoutes = new Set([
-	'/api/save',
 	'/api/rename',
 	'/api/delete',
-	'/api/upload',
-	'/api/deleteImages'
+	'/api/share'
 ]);
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -17,7 +15,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 		}
 	}
 
-	if (protectedRoutes.has(event.url.pathname) && event.request.method !== 'GET') {
+	const requiresAuthentication =
+		protectedRoutes.has(event.url.pathname) &&
+		(event.url.pathname !== '/api/share' || event.request.method === 'POST');
+	if (requiresAuthentication) {
 		const authenticated = isAuthenticated(event.cookies);
 		if (!authenticated) {
 			console.warn('Unauthorized protected request', {

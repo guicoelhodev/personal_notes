@@ -1,8 +1,12 @@
 import { json } from '@sveltejs/kit';
 import { assets } from '$lib/server/container';
+import { canEditSharedContent } from '$lib/server/share';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, cookies }) => {
+	if (!canEditSharedContent(cookies, request)) {
+		return json({ error: 'Image uploads are not allowed' }, { status: 401 });
+	}
 	const formData = await request.formData();
 	const file = formData.get('file');
 
