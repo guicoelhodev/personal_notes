@@ -164,8 +164,8 @@
 		const mode = currentMode;
 		if (p) {
 			const generation = ++loadGeneration;
-			stopEditorListeners();
 			untrack(() => {
+				stopEditorListeners();
 				loadContent(p, mode, generation).then(() => initEditor(generation));
 			});
 			sidebarState.activeSlug = p.replace(/\.md$/, '');

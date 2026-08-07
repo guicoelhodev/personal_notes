@@ -1,4 +1,3 @@
-import { dev } from '$app/environment';
 import { json, type RequestHandler } from '@sveltejs/kit';
 import {
 	createSessionToken,
@@ -30,7 +29,7 @@ async function readLimitedBody(request: Request, limit: number): Promise<string 
 	return result + decoder.decode();
 }
 
-export const POST: RequestHandler = async ({ request, cookies, getClientAddress }) => {
+export const POST: RequestHandler = async ({ request, cookies, getClientAddress, url }) => {
 	const clientAddress = getClientAddress();
 	const limit = reserveLoginAttempt(clientAddress);
 	if (!limit.allowed) {
@@ -62,7 +61,7 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 	cookies.set(SESSION_COOKIE, token, {
 		path: '/',
 		httpOnly: true,
-		secure: !dev,
+		secure: url.protocol === 'https:',
 		sameSite: 'strict',
 		maxAge: SESSION_MAX_AGE
 	});

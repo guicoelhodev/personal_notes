@@ -15,12 +15,12 @@ export function verifyPassword(password: string): boolean {
 }
 
 export function createSessionToken(now = Date.now()): string {
-	if (!env.SESSION_SECRET) throw new Error('SESSION_SECRET is not configured');
-	return createSignedSession(env.SESSION_SECRET, now);
+	if (!env.PASSWORD_ACCESS) throw new Error('PASSWORD_ACCESS is not configured');
+	return createSignedSession(env.PASSWORD_ACCESS, now);
 }
 
 export function verifySessionToken(token: string | undefined, now = Date.now()): boolean {
-	return verifySignedSession(token, env.SESSION_SECRET || '', now);
+	return verifySignedSession(token, env.PASSWORD_ACCESS || '', now);
 }
 
 export function isAuthenticated(cookies: Cookies): boolean {

@@ -18,7 +18,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	if (protectedRoutes.has(event.url.pathname) && event.request.method !== 'GET') {
-		if (!isAuthenticated(event.cookies)) {
+		const authenticated = isAuthenticated(event.cookies);
+		if (!authenticated) {
+			console.warn('Unauthorized protected request', {
+				path: event.url.pathname,
+				method: event.request.method,
+				hasSessionCookie: Boolean(event.cookies.get('personal_notes_session'))
+			});
 			return json({ error: 'Authentication required' }, { status: 401 });
 		}
 	}

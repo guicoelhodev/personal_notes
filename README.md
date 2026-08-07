@@ -59,7 +59,6 @@ S3_ACCESS_KEY_ID=
 S3_SECRET_ACCESS_KEY=
 S3_FORCE_PATH_STYLE=false
 PASSWORD_ACCESS=
-SESSION_SECRET=
 ```
 
 | Variable               | Required | Description                                 |
@@ -71,7 +70,6 @@ SESSION_SECRET=
 | `S3_SECRET_ACCESS_KEY` | Yes      | Private API secret                          |
 | `S3_FORCE_PATH_STYLE`  | No       | Enable for providers such as local MinIO    |
 | `PASSWORD_ACCESS`      | Yes      | Password accepted by the write-access modal |
-| `SESSION_SECRET`       | Yes      | Random 32-byte secret used to sign sessions |
 
 Configure the same variables as encrypted environment variables in Vercel. The bucket can remain private because public reads are proxied by the application.
 

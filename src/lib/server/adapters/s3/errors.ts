@@ -12,6 +12,12 @@ export function mapS3Error(error: unknown, message: string): never {
 		message?: string;
 	};
 	const status = value.$metadata?.httpStatusCode;
+	console.error('S3 request failed', {
+		operation: message,
+		name: value.name,
+		status,
+		message: value.message
+	});
 
 	if (status === 404 || value.name === 'NoSuchKey' || value.name === 'NotFound') {
 		throw new StorageNotFoundError(message);
