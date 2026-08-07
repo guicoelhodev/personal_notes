@@ -12,7 +12,6 @@
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { accessState } from '$lib/stores/access.svelte';
 	import { runWorkspaceWrite } from '$lib/client/workspace';
 
 	type UserAction = 'deleteModal' | 'renameModal' | null;
@@ -47,8 +46,7 @@
 
 	export { isCreating, inputValue };
 
-	async function startCreate(type: 'file' | 'folder') {
-		if (!(await accessState.ensureWriteAccess())) return;
+	function startCreate(type: 'file' | 'folder') {
 		isCreating = true;
 		creatingType = type;
 		inputValue = type === 'file' ? 'New File' : 'New Folder';
@@ -123,15 +121,13 @@
 		}
 	});
 
-	async function handleDelete() {
-		if (!(await accessState.ensureWriteAccess())) return;
+	function handleDelete() {
 		const isFolder = node.children.length > 0 || !!node.isFolder;
 		actionTarget = { name: node.label, path: folderPath, isFolder };
 		activeAction = 'deleteModal';
 	}
 
-	async function handleRename() {
-		if (!(await accessState.ensureWriteAccess())) return;
+	function handleRename() {
 		const isFolder = node.children.length > 0 || !!node.isFolder;
 		const affectsOpenDocument = isFolder
 			? editorState.path.startsWith(folderPath + '/')

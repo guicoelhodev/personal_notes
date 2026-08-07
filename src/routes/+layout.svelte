@@ -11,7 +11,6 @@
 	import { searchState } from '$lib/stores/search.svelte';
 	import { themeState } from '$lib/stores/theme.svelte';
 	import { accessState } from '$lib/stores/access.svelte';
-	import AccessModal from '$lib/components/AccessModal.svelte';
 
 	let { children } = $props();
 
@@ -67,7 +66,6 @@
 
 <SearchModal />
 <Toast />
-<AccessModal />
 
 <style>
 	@media (max-width: 767px) {

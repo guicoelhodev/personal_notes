@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Palette from "$lib/icons/Palette.svelte";
 	import ProjectDetails from "$lib/icons/ProjectDetails.svelte";
+	import Lock from "$lib/icons/Lock.svelte";
+	import AuthenticationPanel from "./AuthenticationPanel.svelte";
 	import LookAndFeelPanel from "./LookAndFeelPanel.svelte";
 	import ProjectDetailsPanel from "./ProjectDetailsPanel.svelte";
 
@@ -17,6 +19,12 @@
 			label: "Look and Feel",
 			icon: Palette,
 			component: LookAndFeelPanel,
+		},
+		{
+			id: "authentication",
+			label: "Autenticação",
+			icon: Lock,
+			component: AuthenticationPanel,
 		},
 		{
 			id: "project-details",
@@ -48,15 +56,15 @@
 	>
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
-			class="flex h-full max-h-80 w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-(--color-muted)/30 bg-(--color-surface) shadow-2xl sm:flex-row"
+			class="flex h-full max-h-[24rem] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-(--color-muted)/30 bg-(--color-surface) shadow-2xl sm:flex-row"
 			onclick={(e) => e.stopPropagation()}
 			onkeydown={() => {}}
 		>
 			<nav
-				class="w-full border-b border-(--color-muted)/20 p-3 sm:w-48 sm:border-r sm:border-b-0 sm:p-4"
+				class="w-full border-b border-(--color-muted)/20 p-3 sm:w-56 sm:border-r sm:border-b-0 sm:p-4"
 			>
 				<ul class="flex gap-2 overflow-x-auto sm:block sm:space-y-1">
-					{#each tabs as tab}
+					{#each tabs as tab (tab.id)}
 						<li>
 							<button
 								type="button"
@@ -77,6 +85,8 @@
 			<div class="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
 				{#if activeTab === "look-and-feel"}
 					<LookAndFeelPanel />
+				{:else if activeTab === "authentication"}
+					<AuthenticationPanel onAuthenticated={onClose} />
 				{:else if activeTab === "project-details"}
 					<ProjectDetailsPanel />
 				{/if}

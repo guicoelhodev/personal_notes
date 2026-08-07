@@ -11,10 +11,6 @@ interface LocalDocument extends WorkspaceDocument {
 	updatedAt: number;
 }
 
-interface Tombstone {
-	path: string;
-}
-
 const DATABASE_NAME = 'personal-notes-guest';
 const DATABASE_VERSION = 1;
 
@@ -41,9 +37,6 @@ function openDatabase(): Promise<IDBDatabase> {
 			if (!database.objectStoreNames.contains('documents')) {
 				database.createObjectStore('documents', { keyPath: 'path' });
 			}
-			if (!database.objectStoreNames.contains('tombstones')) {
-				database.createObjectStore('tombstones', { keyPath: 'path' });
-			}
 		};
 		request.onsuccess = () => resolve(request.result);
 		request.onerror = () => reject(request.error);
@@ -51,31 +44,18 @@ function openDatabase(): Promise<IDBDatabase> {
 }
 
 export class IndexedDbDocumentWorkspaceAdapter implements DocumentWorkspacePort {
-	constructor(private readonly publicDocuments: DocumentWorkspacePort) {}
-
 	async list(): Promise<TreeEntry[]> {
-		const [remoteResult, localDocuments, tombstones] = await Promise.all([
-			this.publicDocuments.list().catch(() => []),
-			this.getAllDocuments(),
-			this.getAllTombstones()
-		]);
-		const remoteEntries = remoteResult;
-		const entries = new Map(
-			remoteEntries
-				.filter((entry) => !this.isDeleted(entry.path, tombstones))
-				.map((entry) => [entry.path, entry])
-		);
-		for (const document of localDocuments) {
-			entries.set(document.path, { path: document.path, type: 'blob', sha: document.version });
-		}
-		return [...entries.values()];
+		return (await this.getAllDocuments()).map((document) => ({
+			path: document.path,
+			type: 'blob',
+			sha: document.version
+		}));
 	}
 
 	async read(path: string): Promise<WorkspaceDocument> {
 		const local = await this.getDocument(path);
 		if (local) return local;
-		if (this.isDeleted(path, await this.getAllTombstones())) throw new Error('Document not found');
-		return this.publicDocuments.read(path);
+		throw new Error('Document not found');
 	}
 
 	async save(input: SaveDocumentInput): Promise<{ version: string }> {
@@ -102,14 +82,13 @@ export class IndexedDbDocumentWorkspaceAdapter implements DocumentWorkspacePort 
 		}
 		const version = `local-${Date.now()}`;
 		const database = await openDatabase();
-		const transaction = database.transaction(['documents', 'tombstones'], 'readwrite');
+		const transaction = database.transaction('documents', 'readwrite');
 		transaction.objectStore('documents').put({
 			path: input.path,
 			content: input.content,
 			version,
 			updatedAt: Date.now()
 		} satisfies LocalDocument);
-		transaction.objectStore('tombstones').delete(input.path);
 		await transactionDone(transaction);
 		database.close();
 		return { version };
@@ -148,14 +127,12 @@ export class IndexedDbDocumentWorkspaceAdapter implements DocumentWorkspacePort 
 				});
 			}
 			await this.removeLocalPrefix(input.path + '/');
-			await this.addTombstone(input.path + '/');
 		} else {
 			const sourcePath = input.path + '.md';
 			const destinationPath = newPath + '.md';
 			const document = await this.read(sourcePath);
 			await this.save({ path: destinationPath, content: document.content, create: true });
 			await this.removeLocalDocument(sourcePath);
-			await this.addTombstone(sourcePath);
 		}
 
 		return { newPath };
@@ -164,11 +141,9 @@ export class IndexedDbDocumentWorkspaceAdapter implements DocumentWorkspacePort 
 	async delete(input: DeleteDocumentInput): Promise<void> {
 		if (input.isFolder) {
 			await this.removeLocalPrefix(input.path + '/');
-			await this.addTombstone(input.path + '/');
 		} else {
 			const path = input.path + '.md';
 			await this.removeLocalDocument(path);
-			await this.addTombstone(path);
 		}
 	}
 
@@ -203,28 +178,6 @@ export class IndexedDbDocumentWorkspaceAdapter implements DocumentWorkspacePort 
 		);
 		database.close();
 		return result;
-	}
-
-	private async getAllTombstones(): Promise<Tombstone[]> {
-		const database = await openDatabase();
-		const transaction = database.transaction('tombstones', 'readonly');
-		const result = await requestResult<Tombstone[]>(transaction.objectStore('tombstones').getAll());
-		database.close();
-		return result;
-	}
-
-	private isDeleted(path: string, tombstones: Tombstone[]): boolean {
-		return tombstones.some((item) =>
-			item.path.endsWith('/') ? path.startsWith(item.path) : path === item.path
-		);
-	}
-
-	private async addTombstone(path: string): Promise<void> {
-		const database = await openDatabase();
-		const transaction = database.transaction('tombstones', 'readwrite');
-		transaction.objectStore('tombstones').put({ path } satisfies Tombstone);
-		await transactionDone(transaction);
-		database.close();
 	}
 
 	private async removeLocalDocument(path: string): Promise<void> {

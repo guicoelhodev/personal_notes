@@ -2,12 +2,12 @@
 
 ![Personal Notes Editor](.github/images/readme_welcome.png)
 
-A public Markdown notes reader with authenticated S3-compatible storage and a private browser workspace for guests.
+A Markdown notes editor with authenticated S3-compatible storage and a private browser workspace.
 
 ## Features
 
 - Milkdown Crepe Markdown editor
-- Public document and image reading
+- Authenticated document and image reading
 - Password-protected server writes
 - Guest workspace persisted in IndexedDB
 - S3-compatible storage through Ports and Adapters
@@ -61,28 +61,25 @@ S3_FORCE_PATH_STYLE=false
 PASSWORD_ACCESS=
 ```
 
-| Variable               | Required | Description                                 |
-| ---------------------- | -------- | ------------------------------------------- |
-| `S3_ENDPOINT`          | Yes      | Provider S3 API endpoint                    |
-| `S3_REGION`            | Yes      | Use `auto` for Cloudflare R2                |
-| `S3_BUCKET`            | Yes      | Bucket containing `docs/` and `images/`     |
-| `S3_ACCESS_KEY_ID`     | Yes      | Private API access key                      |
-| `S3_SECRET_ACCESS_KEY` | Yes      | Private API secret                          |
-| `S3_FORCE_PATH_STYLE`  | No       | Enable for providers such as local MinIO    |
-| `PASSWORD_ACCESS`      | Yes      | Password accepted by the write-access modal |
+| Variable               | Required | Description                                  |
+| ---------------------- | -------- | -------------------------------------------- |
+| `S3_ENDPOINT`          | Yes      | Provider S3 API endpoint                     |
+| `S3_REGION`            | Yes      | Use `auto` for Cloudflare R2                 |
+| `S3_BUCKET`            | Yes      | Bucket containing `docs/` and `images/`      |
+| `S3_ACCESS_KEY_ID`     | Yes      | Private API access key                       |
+| `S3_SECRET_ACCESS_KEY` | Yes      | Private API secret                           |
+| `S3_FORCE_PATH_STYLE`  | No       | Enable for providers such as local MinIO     |
+| `PASSWORD_ACCESS`      | Yes      | Password accepted in authentication settings |
 
-Configure the same variables as encrypted environment variables in Vercel. The bucket can remain private because public reads are proxied by the application.
+Configure the same variables as encrypted environment variables in Vercel. The bucket can remain private because reads are proxied by the application.
 
 ## Access Modes
 
-All visitors can read documents. The first attempt to edit, create, rename, delete, or upload opens the access modal.
-
-- `Acessar como convidado`: changes stay in that browser's IndexedDB.
-- `Autenticar`: the password is checked on the server and creates a signed, `HttpOnly`, seven-day cookie.
+Without an authenticated session, documents are read and written only in that browser's IndexedDB. Log in from the authentication tab in settings to read and write the configured S3-compatible bucket. A successful login creates a signed, `HttpOnly`, seven-day cookie.
 
 Guest changes and authenticated R2 data are intentionally separate. Authentication does not publish or delete the guest workspace.
 
-All mutation endpoints are independently protected in `src/hooks.server.ts`; the modal is not treated as a security boundary. Configure rate limiting for `/api/auth/login` in Vercel Firewall.
+All mutation endpoints are independently protected in `src/hooks.server.ts`; the settings interface is not treated as a security boundary. Configure rate limiting for `/api/auth/login` in Vercel Firewall.
 
 ## Migration
 

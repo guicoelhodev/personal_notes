@@ -9,7 +9,6 @@
 	import type { Ctx } from '@milkdown/kit/ctx';
 	import PageActions from '$lib/components/PageActions.svelte';
 	import { currentWorkspace, runWorkspaceWrite } from '$lib/client/workspace';
-	import { accessState } from '$lib/stores/access.svelte';
 
 	let editorEl: HTMLDivElement | undefined = $state();
 	let loading = $state(true);
@@ -92,8 +91,6 @@
 			await instance.destroy();
 			return;
 		}
-		instance.setReadonly(accessState.mode === 'unknown');
-
 		if (currentMode === 'create') {
 			requestAnimationFrame(() => {
 				instance.editor.action((ctx: Ctx) => {
@@ -145,20 +142,6 @@
 		editorInputHandler = null;
 	}
 
-	async function handleEditorPointerDown(event: PointerEvent) {
-		if (accessState.mode !== 'unknown') return;
-		event.preventDefault();
-		if (await accessState.ensureWriteAccess()) {
-			editorInstance?.setReadonly(false);
-			editorInstance?.editor.action((ctx: Ctx) => ctx.get(editorViewCtx).focus());
-		}
-	}
-
-	$effect(() => {
-		const readonly = accessState.mode === 'unknown';
-		untrack(() => editorInstance?.setReadonly(readonly));
-	});
-
 	$effect(() => {
 		const p = currentPath;
 		const mode = currentMode;
@@ -186,12 +169,10 @@
 				<p class="text-(--color-muted)">Loading...</p>
 			</div>
 		{:else}
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<div
 				id="editor"
 				class="h-full w-full min-w-0"
 				bind:this={editorEl}
-				onpointerdown={handleEditorPointerDown}
 			></div>
 		{/if}
 	</div>
