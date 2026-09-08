@@ -2,6 +2,7 @@
 	import Palette from "$lib/icons/Palette.svelte";
 	import ProjectDetails from "$lib/icons/ProjectDetails.svelte";
 	import Lock from "$lib/icons/Lock.svelte";
+	import { fade, scale } from "svelte/transition";
 	import AuthenticationPanel from "./AuthenticationPanel.svelte";
 	import LookAndFeelPanel from "./LookAndFeelPanel.svelte";
 	import ProjectDetailsPanel from "./ProjectDetailsPanel.svelte";
@@ -53,12 +54,14 @@
 		class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 sm:items-center sm:p-4"
 		onclick={handleOverlayClick}
 		onkeydown={() => {}}
+		transition:fade={{ duration: 150 }}
 	>
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
 			class="flex h-full max-h-[24rem] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-(--color-muted)/30 bg-(--color-surface) shadow-2xl sm:flex-row"
 			onclick={(e) => e.stopPropagation()}
 			onkeydown={() => {}}
+			transition:scale={{ duration: 180, start: 0.94 }}
 		>
 			<nav
 				class="w-full border-b border-(--color-muted)/20 p-3 sm:w-56 sm:border-r sm:border-b-0 sm:p-4"
@@ -83,13 +86,17 @@
 			</nav>
 
 			<div class="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
-				{#if activeTab === "look-and-feel"}
-					<LookAndFeelPanel />
-				{:else if activeTab === "authentication"}
-					<AuthenticationPanel onAuthenticated={onClose} />
-				{:else if activeTab === "project-details"}
-					<ProjectDetailsPanel />
-				{/if}
+				{#key activeTab}
+					<div in:fade={{ duration: 150 }}>
+						{#if activeTab === "look-and-feel"}
+							<LookAndFeelPanel />
+						{:else if activeTab === "authentication"}
+							<AuthenticationPanel onAuthenticated={onClose} />
+						{:else if activeTab === "project-details"}
+							<ProjectDetailsPanel />
+						{/if}
+					</div>
+				{/key}
 			</div>
 		</div>
 	</div>

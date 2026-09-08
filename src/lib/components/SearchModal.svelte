@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
 	import { shareState } from '$lib/stores/share.svelte';
+	import { scale } from 'svelte/transition';
 
 	let inputEl: HTMLInputElement | undefined = $state();
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -21,16 +22,16 @@
 		}, 150);
 	}
 
-	function handleKeydown(e: KeyboardEvent) {
+	function handleKeypress(e: KeyboardEvent) {
 		if (e.key === 'ArrowDown') {
 			e.preventDefault();
 			searchState.navigate('down', searchState.results.length);
 		} else if (e.key === 'ArrowUp') {
 			e.preventDefault();
 			searchState.navigate('up', searchState.results.length);
-		} else if (e.key === 'Enter' && searchState.activeIndex >= 0) {
+		} else if (e.key === 'Enter') {
 			e.preventDefault();
-			const item = searchState.results[searchState.activeIndex]?.item;
+			const item = searchState.results[searchState.activeIndex]?.item ?? searchState.results[0]?.item;
 			if (item) {
 				searchState.close();
 				sidebarState.openFile(item.id);
@@ -101,6 +102,7 @@
 			class="w-full max-w-lg mx-4 rounded-lg border border-(--color-muted)/30 bg-(--color-surface) shadow-2xl overflow-hidden"
 			onclick={(e) => e.stopPropagation()}
 			onkeydown={() => {}}
+			transition:scale={{ duration: 180, start: 0.94 }}
 		>
 			<!-- Search input -->
 			<div class="flex items-center gap-2 px-4 py-3 border-b border-(--color-muted)/20">
@@ -114,7 +116,7 @@
 					bind:this={inputEl}
 					value={searchState.query}
 					oninput={handleInput}
-					onkeydown={handleKeydown}
+					onkeypress={handleKeypress}
 				/>
 				<kbd class="text-xs text-(--color-muted) border border-(--color-muted)/30 rounded px-1.5 py-0.5">ESC</kbd>
 			</div>

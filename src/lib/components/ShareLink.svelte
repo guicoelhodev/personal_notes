@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { accessState } from '$lib/stores/access.svelte';
+	import { scale } from 'svelte/transition';
 
 	let isOpen = $state(false);
 	let shareAll = $state(false);
@@ -78,7 +79,10 @@
 		</button>
 
 		{#if isOpen}
-			<div class="absolute top-full right-0 mt-2 w-80 rounded-lg border border-(--color-muted)/20 bg-(--color-surface) p-4 shadow-xl">
+			<div
+				class="absolute top-full right-0 mt-2 w-80 rounded-lg border border-(--color-muted)/20 bg-(--color-surface) p-4 shadow-xl"
+				transition:scale={{ duration: 180, start: 0.94 }}
+			>
 				<div class="space-y-3">
 					<label class="flex cursor-pointer items-center justify-between gap-4 text-sm text-(--color-text)">
 						<span>Share all files?</span>

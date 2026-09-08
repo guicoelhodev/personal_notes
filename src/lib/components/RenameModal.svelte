@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Spinner from '$lib/icons/Spinner.svelte';
+	import { scale } from 'svelte/transition';
 
 	let {
 		isOpen,
@@ -112,6 +113,7 @@
 			class="mx-4 w-full max-w-sm rounded-lg border border-(--color-muted)/30 bg-(--color-surface) p-6 shadow-2xl"
 			onclick={(e) => e.stopPropagation()}
 			onkeydown={() => {}}
+			transition:scale={{ duration: 180, start: 0.94 }}
 		>
 			<h3 class="mb-2 text-lg font-semibold text-(--color-heading)">
 				Rename {isFolder ? 'Folder' : 'File'}
