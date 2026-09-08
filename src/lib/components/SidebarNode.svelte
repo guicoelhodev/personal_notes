@@ -146,17 +146,17 @@
 <style>
 	.folder-label {
 		color: var(--color-heading);
-		font-size: 14px;
+		font-size: 16px;
 		font-weight: 400;
-		line-height: 20px;
+		line-height: 24px;
 		letter-spacing: -0.01em;
 	}
 
 	.file-label {
 		color: var(--color-file);
-		font-size: 14px;
+		font-size: 16px;
 		font-weight: 400;
-		line-height: 20px;
+		line-height: 24px;
 		letter-spacing: -0.01em;
 	}
 

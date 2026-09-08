@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap");
 @import "tailwindcss";
 @plugin '@tailwindcss/typography';
 @import "@milkdown/crepe/theme/common/style.css";
@@ -112,6 +113,7 @@
 body {
   background-color: var(--color-base);
   color: var(--color-text);
+  font-family: "Lato", system-ui, sans-serif;
 }
 
 @media (max-width: 767px) {
@@ -207,8 +209,8 @@ button {
 }
 
 .milkdown {
-  --crepe-font-title: system-ui, -apple-system, sans-serif;
-  --crepe-font-default: system-ui, -apple-system, sans-serif;
+  --crepe-font-title: "Lato", system-ui, sans-serif;
+  --crepe-font-default: "Lato", system-ui, sans-serif;
   --crepe-font-code:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
