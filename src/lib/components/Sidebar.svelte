@@ -25,7 +25,7 @@
 	});
 </script>
 
-<nav class="flex h-full flex-col p-4">
+<nav class="flex h-full flex-col px-2 py-4">
 	<div class="flex-1 overflow-y-auto">
 		<a href={shareState.isActive ? shareState.fileUrl('home.md') : '/'} class="mb-4 block text-lg font-bold text-(--color-heading)">Personal Notes</a>
 

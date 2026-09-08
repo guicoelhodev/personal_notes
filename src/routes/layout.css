@@ -9,6 +9,7 @@
   --color-heading: #c6a0f6;
   --color-link: #8aadf4;
   --color-muted: #6e738d;
+  --color-file: #a8a8ad;
 }
 
 [data-theme="catpuccin-light"] {
@@ -18,6 +19,7 @@
   --color-heading: #8839ef;
   --color-link: #7287fd;
   --color-muted: #6c7086;
+  --color-file: #6e6e73;
 }
 
 [data-theme="tokyo-night-dark"] {
@@ -27,6 +29,7 @@
   --color-heading: #7aa2f7;
   --color-link: #7aa2f7;
   --color-muted: #565f89;
+  --color-file: #a8a8ad;
 }
 
 [data-theme="tokyo-night-light"] {
@@ -36,6 +39,7 @@
   --color-heading: #4c7aef;
   --color-link: #4c7aef;
   --color-muted: #6b7280;
+  --color-file: #6e6e73;
 }
 
 [data-theme="gruvbox-dark"] {
@@ -45,6 +49,7 @@
   --color-heading: #fb4934;
   --color-link: #f2e9de;
   --color-muted: #928374;
+  --color-file: #a8a8ad;
 }
 
 [data-theme="gruvbox-light"] {
@@ -54,6 +59,7 @@
   --color-heading: #cc241d;
   --color-link: #282828;
   --color-muted: #928374;
+  --color-file: #6e6e73;
 }
 
 [data-theme="solarized-dark"] {
@@ -63,6 +69,7 @@
   --color-heading: #268bd2;
   --color-link: #268bd2;
   --color-muted: #586e75;
+  --color-file: #a8a8ad;
 }
 
 [data-theme="solarized-light"] {
@@ -72,6 +79,7 @@
   --color-heading: #268bd2;
   --color-link: #268bd2;
   --color-muted: #93a1a1;
+  --color-file: #6e6e73;
 }
 
 [data-theme="rose-pine-dark"] {
@@ -81,6 +89,7 @@
   --color-heading: #c4a7e7;
   --color-link: #9ccfd8;
   --color-muted: #6e6a86;
+  --color-file: #a8a8ad;
 }
 
 [data-theme="rose-pine-light"] {
@@ -90,6 +99,7 @@
   --color-heading: #b4637a;
   --color-link: #56949f;
   --color-muted: #908ca0;
+  --color-file: #6e6e73;
 }
 
 * {

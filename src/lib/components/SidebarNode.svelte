@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { TreeNode } from '$lib/types';
-	import ChevronDown from '$lib/icons/ChevronDown.svelte';
+	import Folder from '$lib/icons/Folder.svelte';
 	import FileActions from './FileActions.svelte';
 	import SidebarNode from './SidebarNode.svelte';
 	import { sidebarState } from '$lib/stores/sidebar.svelte';
@@ -72,20 +72,13 @@
 <li>
 	{#if node.children.length > 0 || node.isFolder}
 		<div>
-			<div
-				class="group flex items-center rounded py-1 transition-colors hover:bg-(--color-surface)"
-			>
+			<div class="group flex min-h-7 items-center rounded-md px-1 hover:bg-(--color-base)/45">
 				<button
-					class="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm font-semibold text-(--color-heading)"
+					class="folder-label flex min-w-0 flex-1 cursor-pointer items-center py-1"
 					aria-expanded={isOpen}
 					onclick={toggleFolder}
 				>
-					<span
-						class="arrow inline-block h-3 w-3 shrink-0 transition-transform"
-						style={isOpen ? '' : 'transform: rotate(-90deg)'}
-					>
-						<ChevronDown />
-					</span>
+					<Folder class="mr-2 h-[18px] w-[18px] shrink-0" />
 					<span class="truncate">{formatLabel(node.label)}</span>
 				</button>
 				{#if !shareState.isActive}
@@ -102,7 +95,7 @@
 				{/if}
 			</div>
 			{#if isOpen}
-				<ul class="mt-1 ml-3 space-y-1" data-folder-path={folderPath}>
+				<ul class="ml-3" data-folder-path={folderPath}>
 					{#if folderActions?.isCreating}
 						{@const fa = folderActions}
 						<li>
@@ -124,16 +117,13 @@
 			{/if}
 		</div>
 	{:else}
-		<div
-			class="group flex items-center justify-between rounded py-1 transition-colors hover:bg-(--color-surface)"
-		>
+		<div class="group flex min-h-7 items-center justify-between rounded-md px-1 hover:bg-(--color-base)/45">
 			<a
 				href={shareState.fileUrl(`${node.slug}.md`)}
-				class:list={[
-					'block min-w-0 flex-1 text-sm py-1 px-2 rounded transition-colors text-(--color-text)',
-					sidebarState.activeSlug === node.slug && 'bg-(--color-heading)/20 font-medium',
-					sidebarState.activeSlug !== node.slug && 'hover:bg-(--color-surface)'
-				]}
+				class="file-label block min-w-0 flex-1 truncate rounded-md px-1 py-1 {sidebarState.activeSlug ===
+					node.slug
+					? 'active'
+					: ''}"
 				onclick={(e) => {
 					e.preventDefault();
 					selectFile(node.slug || '');
@@ -152,3 +142,25 @@
 		</div>
 	{/if}
 </li>
+
+<style>
+	.folder-label {
+		color: var(--color-heading);
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 20px;
+		letter-spacing: -0.01em;
+	}
+
+	.file-label {
+		color: var(--color-file);
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 20px;
+		letter-spacing: -0.01em;
+	}
+
+	.file-label.active {
+		font-weight: 700;
+	}
+</style>
